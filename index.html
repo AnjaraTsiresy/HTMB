@@ -1,0 +1,2632 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+<title>OPS CONSOLE // UNIFIÉ — Live + MargeMin + Croisements</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ======================================================================
+   1) BASE GLOBALE PARTAGÉE (variables, reset, ambiance, scrollbars, keyframes)
+      — fusion des deux dashboards d'origine (Suivi Live + Audit MargeMin)
+   ====================================================================== */
+
+:root{
+  --bg-void:#08090c;
+  --bg-canvas:#0c0e12;
+  --bg-panel:#12151a;
+  --bg-panel-alt:#161a20;
+  --bg-raised:#1a1f27;
+  --border:#232830;
+  --border-soft:#1c2028;
+  --border-glow:#2a3542;
+  --text-hi:#e7ecf3;
+  --text-mid:#9aa5b1;
+  --text-dim:#5c6773;
+  --blue:#3fa9f5;
+  --blue-glow:rgba(63,169,245,.35);
+  --green:#3ecf6e;
+  --green-glow:rgba(62,207,110,.35);
+  --red:#ff4757;
+  --red-glow:rgba(255,71,87,.35);
+  --amber:#f5a623;
+  --amber-glow:rgba(245,166,35,.35);
+  --purple:#b06cff;
+  --purple-glow:rgba(176,108,255,.3);
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',Consolas,monospace;
+  --sans:'Inter',system-ui,sans-serif;
+
+  --bg-0:#0a0d12;
+  --bg-1:#0f141b;
+  --bg-2:#141a23;
+  --bg-3:#1b232f;
+  --line:#232d3a;
+  --line-soft:#1a2129;
+  --txt-0:#e8edf4;
+  --txt-1:#9fb0c3;
+  --txt-2:#5c6b7f;
+  --accent-over:#ff6b4a;
+  --accent-under:#39d3c3;
+  --accent-neutral:#f2c14e;
+  --accent-blue:#5b8cff;
+  --good:#39d98a;
+  --bad:#ff5470;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:var(--sans);background:var(--bg-void);color:var(--text-hi);font-size:14px;
+  display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;position:relative;
+}
+/* ── Ambient ops-room atmosphere: scanlines + faint grid, never static ──── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.5;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0px,rgba(255,255,255,.018) 1px,transparent 1px,transparent 3px);
+  mix-blend-mode:overlay;
+}
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(63,169,245,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(63,169,245,.05) 1px,transparent 1px);
+  background-size:34px 34px;
+  -webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 10%,transparent 75%);
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 10%,transparent 75%);
+}
+::selection{background:var(--blue-glow);color:#fff}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg-canvas)}
+::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background:var(--blue)}
+
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 var(--green-glow),0 0 6px var(--green)}50%{box-shadow:0 0 0 5px transparent,0 0 10px var(--green)}}
+@keyframes blink{0%,45%,100%{opacity:1}50%,95%{opacity:.35}}
+@keyframes rowIn{from{opacity:0;transform:translateY(-2px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
+
+
+/* ======================================================================
+   2) SHELL GLOBAL (barre d'onglets) + ONGLETS 3 & 4 CROISEMENT MIN/MAX
+   ====================================================================== */
+/* =========================================================================
+   SHELL GLOBAL — barre d'onglets + conteneur des 3 panneaux
+   ========================================================================= */
+.global-topbar{
+  flex:0 0 auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  background:linear-gradient(180deg,var(--bg-panel),var(--bg-canvas));
+  border-bottom:1px solid var(--border);padding:9px 16px;position:relative;z-index:5;
+}
+.global-topbar::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--blue-glow),transparent)}
+.brand-mini{
+  font-family:var(--mono);font-size:13px;font-weight:800;letter-spacing:1.5px;color:var(--text-hi);
+  text-transform:uppercase;white-space:nowrap;display:flex;align-items:center;gap:8px;
+}
+.brand-mini .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse-dot 1.8s infinite}
+.tab-nav{display:flex;gap:6px;flex-wrap:wrap}
+.tab-btn{
+  font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--text-mid);background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;
+  padding:7px 13px;cursor:pointer;transition:.15s;white-space:nowrap;
+}
+.tab-btn:hover{color:var(--text-hi);border-color:var(--border-glow)}
+.tab-btn.active{
+  color:var(--blue);border-color:rgba(63,169,245,.5);background:rgba(63,169,245,.08);
+  box-shadow:0 0 10px var(--blue-glow);
+}
+
+.app-body{flex:1 1 auto;min-height:0;position:relative;overflow:hidden}
+.tab-panel{display:none;height:100%;width:100%;position:absolute;inset:0}
+.tab-panel.active{display:flex;flex-direction:column}
+#panelLive.active,#panelMargeMin.active,#panelCross.active,#panelCrossMax.active{display:block;overflow:auto}
+
+/* =========================================================================
+   ONGLETS 3 & 4 — CROISEMENT MIN / MAX (règles partagées, même langage
+   visuel que l'onglet MargeMin, appliquées aux deux panneaux à la fois)
+   ========================================================================= */
+#panelCross, #panelCrossMax{
+  .wrap{max-width:1680px;margin:0 auto;padding:20px 26px 60px;}
+
+  header.top{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 20px;margin-bottom:18px;
+    background:linear-gradient(180deg,var(--bg-2),var(--bg-1));
+    border:1px solid var(--line);border-radius:10px;position:relative;overflow:hidden;
+  }
+  header.top::before{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(90deg,var(--accent-blue),var(--accent-under),transparent 60%);
+    opacity:0.06;pointer-events:none;
+  }
+  .brand{display:flex;align-items:center;gap:14px;}
+  .brand .dot{
+    width:10px;height:10px;border-radius:50%;background:var(--good);
+    box-shadow:0 0 0 3px rgba(57,217,138,0.15),0 0 12px rgba(57,217,138,0.6);
+    animation:pulse 2.2s infinite;
+  }
+  .brand h1{
+    font-family:var(--mono);font-size:16px;letter-spacing:2.5px;margin:0;
+    font-weight:700;color:var(--txt-0);text-transform:uppercase;
+  }
+  .brand small{display:block;font-family:var(--mono);font-size:10.5px;color:var(--txt-2);letter-spacing:1.5px;margin-top:3px;}
+  .top-stats{display:flex;gap:26px;}
+  .top-stat{text-align:right;}
+  .top-stat .v{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--txt-0);}
+  .top-stat .l{font-family:var(--mono);font-size:9.5px;color:var(--txt-2);letter-spacing:1.5px;text-transform:uppercase;}
+  #cross-statApparies{color:var(--good);}
+  #cross-statNonApparies{color:var(--bad);}
+
+  .recalc-bar{
+    display:flex;align-items:center;gap:12px;margin-bottom:18px;
+    padding:10px 16px;border:1px dashed var(--line);border-radius:8px;
+    background:var(--bg-1);font-family:var(--mono);font-size:11.5px;color:var(--txt-2);
+  }
+  .recalc-btn{
+    cursor:pointer;padding:7px 14px;border:1px solid var(--line);border-radius:6px;
+    background:linear-gradient(180deg,#1c85e8,#1565c0);color:#fff;font-weight:700;
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.5px;text-transform:uppercase;
+  }
+  .recalc-btn:hover{box-shadow:0 0 12px var(--blue-glow);}
+
+  .panel{
+    background:var(--bg-1);border:1px solid var(--line);border-radius:10px;
+    margin-bottom:18px;overflow:hidden;
+  }
+  .panel-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 16px;border-bottom:1px solid var(--line-soft);background:var(--bg-2);
+  }
+  .panel-head h2{
+    margin:0;font-family:var(--mono);font-size:11px;letter-spacing:2px;
+    color:var(--txt-1);text-transform:uppercase;font-weight:600;
+  }
+  .panel-head h2::before{content:"◆ ";color:var(--accent-blue);}
+  .panel-body{padding:16px;}
+
+  .filters-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;}
+  .f-field label{
+    display:block;font-family:var(--mono);font-size:9.5px;color:var(--txt-2);
+    letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;
+  }
+  .f-field select,.f-field input{
+    width:100%;padding:7px 9px;background:var(--bg-3);border:1px solid var(--line);
+    border-radius:6px;color:var(--txt-0);font-family:var(--sans);font-size:12.5px;outline:none;
+  }
+  .f-field select:focus,.f-field input:focus{border-color:var(--accent-blue);}
+  .f-range{display:flex;gap:6px;align-items:center;}
+  .f-range input{width:100%;}
+  .f-range span{color:var(--txt-2);font-size:11px;}
+  .filters-actions{display:flex;justify-content:space-between;align-items:center;margin-top:14px;}
+  .reset-btn{
+    font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--txt-1);
+    background:var(--bg-3);border:1px solid var(--line);border-radius:6px;padding:7px 14px;
+    cursor:pointer;transition:.15s;
+  }
+  .reset-btn:hover{border-color:var(--bad);color:var(--bad);}
+  .count-badge{font-family:var(--mono);font-size:11.5px;color:var(--txt-1);}
+  .count-badge b{color:var(--accent-under);font-size:14px;}
+
+  .table-scroll{overflow:auto;max-height:640px;border-top:1px solid var(--line-soft);}
+  table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono);}
+  thead th{
+    position:sticky;top:0;background:var(--bg-2);color:var(--txt-1);
+    text-align:left;padding:9px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;
+    border-bottom:1px solid var(--line);cursor:pointer;white-space:nowrap;user-select:none;z-index:2;
+  }
+  thead th:hover{color:var(--txt-0);}
+  thead th .arrow{color:var(--accent-blue);margin-left:4px;}
+  tbody td{padding:8px 10px;border-bottom:1px solid var(--line-soft);color:var(--txt-1);white-space:nowrap;}
+  tbody tr:hover{background:rgba(91,140,255,0.05);}
+  tbody tr:hover td{color:var(--txt-0);}
+  .match-name{color:var(--txt-0);font-weight:600;font-family:var(--sans);font-size:12.5px;}
+  .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.5px;}
+  .badge.over{background:rgba(255,107,74,0.15);color:var(--accent-over);border:1px solid rgba(255,107,74,0.35);}
+  .badge.under{background:rgba(57,211,195,0.15);color:var(--accent-under);border:1px solid rgba(57,211,195,0.35);}
+  .valeur{font-weight:700;}
+  footer{margin-top:24px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--txt-2);letter-spacing:1px;}
+  .empty-msg{padding:30px;text-align:center;color:var(--txt-2);font-family:var(--mono);font-size:12px;}
+}
+
+
+/* ======================================================================
+   3) ONGLET 1 — SUIVI LIVE (styles scopés sous #panelLive via CSS nesting)
+   ====================================================================== */
+#panelLive {
+.header{
+  background:linear-gradient(180deg,var(--bg-panel),var(--bg-canvas));
+  border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:14px;
+  flex-wrap:wrap;flex:0 0 auto;position:relative;z-index:2;
+}
+.header::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--blue-glow),transparent)}
+.header h1{
+  font-family:var(--mono);font-size:14px;font-weight:700;white-space:nowrap;letter-spacing:.5px;
+  display:flex;align-items:center;gap:9px;color:var(--text-hi);text-transform:uppercase;
+}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex:0 0 auto;animation:pulse-dot 1.8s infinite}
+.live-tag{font-size:9px;font-weight:700;color:var(--green);letter-spacing:1.5px;border:1px solid rgba(62,207,110,.4);padding:2px 6px;border-radius:3px;background:rgba(62,207,110,.08);animation:blink 3s infinite}
+.stats{font-family:var(--mono);font-size:11px;color:var(--text-mid);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.stat-badge{
+  background:var(--bg-raised);border:1px solid var(--border);padding:5px 10px 5px 12px;border-radius:5px;
+  font-size:11px;font-weight:600;white-space:nowrap;color:var(--text-hi);position:relative;letter-spacing:.2px;
+  border-left:3px solid var(--border-glow);
+}
+#stat-file{border-left-color:var(--blue);color:var(--blue)}
+#stat-total{border-left-color:var(--text-mid)}
+#stat-lamup{border-left-color:var(--green);color:var(--green)}
+#stat-lamdown{border-left-color:var(--red);color:var(--red)}
+#stat-lamfixe{border-left-color:var(--purple);color:var(--purple)}
+#stat-ignored{border-left-color:var(--amber);color:var(--amber)}
+
+.upload-zone{
+  display:flex;align-items:center;gap:10px;padding:9px 16px;background:var(--bg-panel);
+  border-bottom:1px solid var(--border);flex-wrap:wrap;flex:0 0 auto;position:relative;z-index:2;
+}
+.upload-zone label{font-size:11px;color:var(--blue);font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px}
+.upload-zone input[type=file]{display:none}
+.upload-btn{
+  background:linear-gradient(180deg,#1c85e8,#1565c0);color:#fff;border:1px solid #2a94fa;border-radius:6px;
+  padding:7px 14px;font-size:12px;cursor:pointer;font-weight:700;-webkit-appearance:none;font-family:var(--mono);
+  letter-spacing:.4px;text-transform:uppercase;box-shadow:0 0 0 rgba(63,169,245,0);transition:box-shadow .2s,transform .1s;
+}
+.upload-btn:hover{box-shadow:0 0 16px var(--blue-glow)}
+.upload-btn:active{transform:scale(.97)}
+.file-name{font-family:var(--mono);font-size:11px;color:var(--text-mid);font-style:normal}
+.upload-hint{font-family:var(--mono);font-size:10px;color:var(--text-dim)}
+.controls{
+  background:var(--bg-panel);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;gap:9px;
+  flex-wrap:wrap;align-items:center;flex:0 0 auto;position:relative;z-index:2;
+}
+.controls select,.controls input[type=text]{
+  padding:7px 9px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:var(--bg-raised);
+  color:var(--text-hi);-webkit-appearance:none;max-width:100%;font-family:var(--mono);
+}
+.controls select:focus,.controls input[type=text]:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-glow)}
+.controls label{font-family:var(--mono);font-size:10px;color:var(--text-mid);white-space:nowrap;display:flex;align-items:center;gap:5px;text-transform:uppercase;letter-spacing:.4px}
+
+.table-wrap{flex:1 1 auto;min-height:0;max-height:640px;overflow:auto;-webkit-overflow-scrolling:touch;position:relative;z-index:1;border-top:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12px;background:var(--bg-canvas)}
+th{
+  background:var(--bg-panel);border-bottom:1px solid var(--border);border-top:1px solid var(--border);
+  padding:9px 10px;text-align:left;position:sticky;top:0;z-index:3;white-space:nowrap;font-weight:700;
+  color:var(--text-mid);cursor:pointer;user-select:none;font-family:var(--mono);font-size:10px;
+  text-transform:uppercase;letter-spacing:.6px;
+}
+th:hover{color:var(--blue);background:var(--bg-raised)}
+th.sorted-asc,th.sorted-desc{color:var(--blue)}
+th.sorted-asc::after{content:' ▲';color:var(--blue)}
+th.sorted-desc::after{content:' ▼';color:var(--blue)}
+td{padding:8px 10px;border-bottom:1px solid var(--border-soft);vertical-align:middle;white-space:nowrap;font-family:var(--mono);color:var(--text-hi);font-size:11.5px}
+.data-row{animation:rowIn .25s ease}
+.data-row:nth-child(4n+1),.data-row:nth-child(4n+2){background:rgba(255,255,255,.012)}
+tr.data-row:hover td{background:var(--bg-raised)}
+tr.data-row{position:relative}
+tr.data-row:hover{box-shadow:inset 3px 0 0 var(--blue)}
+.nom-cell{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;font-family:var(--sans);color:var(--text-hi);letter-spacing:.1px}
+.delta-pos{color:var(--green);font-weight:700;text-shadow:0 0 8px var(--green-glow)}
+.delta-neg{color:var(--red);font-weight:700;text-shadow:0 0 8px var(--red-glow)}
+.delta-zero{color:var(--text-dim)}
+.bar-cell{display:flex;align-items:center;gap:6px}
+.minibar{height:7px;border-radius:2px;min-width:2px;max-width:80px}
+.bar-pos{background:linear-gradient(90deg,#1c8f47,var(--green));box-shadow:0 0 6px var(--green-glow)}
+.bar-neg{background:linear-gradient(90deg,#b0202e,var(--red));box-shadow:0 0 6px var(--red-glow)}
+/* Décision badges — neon status chips */
+.dec-forte-over{background:rgba(62,207,110,.15);color:var(--green);border:1px solid rgba(62,207,110,.55);padding:3px 9px;border-radius:4px;font-size:10.5px;font-weight:800;display:inline-block;text-transform:uppercase;letter-spacing:.4px;box-shadow:0 0 10px var(--green-glow)}
+.dec-forte-under{background:rgba(245,166,35,.15);color:var(--amber);border:1px solid rgba(245,166,35,.55);padding:3px 9px;border-radius:4px;font-size:10.5px;font-weight:800;display:inline-block;text-transform:uppercase;letter-spacing:.4px;box-shadow:0 0 10px var(--amber-glow)}
+.dec-over{background:rgba(62,207,110,.08);color:var(--green);border:1px solid rgba(62,207,110,.3);padding:3px 9px;border-radius:4px;font-size:10.5px;font-weight:700;display:inline-block;text-transform:uppercase;letter-spacing:.3px}
+.dec-under{background:rgba(245,166,35,.08);color:var(--amber);border:1px solid rgba(245,166,35,.3);padding:3px 9px;border-radius:4px;font-size:10.5px;font-weight:700;display:inline-block;text-transform:uppercase;letter-spacing:.3px}
+.dec-attente{background:rgba(255,255,255,.04);color:var(--text-mid);border:1px solid var(--border);padding:3px 9px;border-radius:4px;font-size:10.5px;font-weight:600;display:inline-block;text-transform:uppercase;letter-spacing:.3px}
+.interp-tooltip{font-size:10px;color:var(--text-dim);display:block;margin-top:2px;white-space:normal;max-width:220px}
+.interp-normal{background:rgba(63,169,245,.1);color:var(--blue);border:1px solid rgba(63,169,245,.35);padding:3px 9px;border-radius:4px;font-size:10.5px;font-weight:700;display:inline-block;text-transform:uppercase;letter-spacing:.3px}
+.interp-anormal{background:rgba(255,71,87,.12);color:var(--red);border:1px solid rgba(255,71,87,.5);padding:3px 9px;border-radius:4px;font-size:10.5px;font-weight:800;display:inline-block;text-transform:uppercase;letter-spacing:.3px;box-shadow:0 0 10px var(--red-glow)}
+.interp-immobile{background:rgba(255,255,255,.04);color:var(--text-mid);border:1px solid var(--border);padding:3px 9px;border-radius:4px;font-size:10.5px;font-weight:600;display:inline-block;text-transform:uppercase;letter-spacing:.3px}
+.lam-globale{display:inline-block;min-width:24px;text-align:center;background:var(--bg-raised);color:var(--blue);border:1px solid rgba(63,169,245,.4);padding:2px 9px;border-radius:12px;font-weight:800;font-size:11.5px;font-family:var(--mono)}
+.row-detail{display:none;background:var(--bg-panel)}
+.row-detail td{padding:0;border-bottom:1px solid var(--border)}
+.detail-inner{padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:16px;white-space:normal;background:radial-gradient(ellipse 100% 100% at 0% 0%,rgba(63,169,245,.04),transparent 60%)}
+.detail-table{font-size:10.5px;width:100%;border-collapse:collapse;font-family:var(--mono)}
+.detail-table th{background:var(--bg-raised);padding:5px 8px;text-align:center;font-weight:700;border:1px solid var(--border);position:static;color:var(--text-mid);text-transform:uppercase;font-size:9.5px}
+.detail-table td{padding:5px 8px;border:1px solid var(--border-soft);text-align:right;font-family:var(--mono);color:var(--text-hi)}
+.detail-table td:first-child{text-align:left;font-family:var(--mono);color:var(--text-mid)}
+.detail-table-wrap{overflow:auto;max-height:230px;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:6px}
+.chart-wrap{width:100%;height:170px;position:relative;background:var(--bg-canvas);border:1px solid var(--border);border-radius:6px;padding:6px}
+canvas{max-height:158px}
+.expand-btn{
+  cursor:pointer;background:var(--bg-raised);border:1px solid var(--border);color:var(--blue);font-size:10.5px;
+  padding:4px 8px;text-decoration:none;-webkit-appearance:none;border-radius:4px;font-family:var(--mono);
+  font-weight:700;text-transform:uppercase;letter-spacing:.4px;
+}
+.expand-btn:hover{border-color:var(--blue);box-shadow:0 0 8px var(--blue-glow)}
+.detail-teams{font-size:10px;color:var(--text-dim);display:block;margin-top:3px;font-family:var(--mono)}
+.section-label{font-size:10px;color:var(--text-mid);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;font-family:var(--mono);display:flex;align-items:center;gap:6px}
+.section-label::before{content:'';width:6px;height:6px;background:var(--blue);border-radius:1px;box-shadow:0 0 6px var(--blue-glow)}
+.lam-team-box{margin-top:8px;padding:9px 10px;background:var(--bg-canvas);border-radius:6px;border:1px solid var(--border);font-size:11px;font-family:var(--mono);color:var(--text-mid)}
+.lam-team-box b{color:var(--text-hi)}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-dim);font-size:13px;font-family:var(--mono);text-transform:uppercase;letter-spacing:1px}
+
+/* ── Responsive : tablette ─────────────────────────────────────────────── */
+@media (max-width: 900px){
+  .detail-inner{grid-template-columns:1fr}
+}
+
+/* ── Responsive : mobile (iPhone) ──────────────────────────────────────── */
+@media (max-width: 600px){
+  body{font-size:13px}
+  .header{padding:9px 10px;gap:8px}
+  .header h1{font-size:13px;flex:1 1 100%}
+  .stats{gap:6px}
+  .stat-badge{font-size:10px;padding:4px 8px 4px 9px}
+  .upload-zone{padding:8px 10px;gap:8px}
+  .upload-hint{display:none} /* trop long pour un petit écran */
+  .upload-btn{padding:8px 14px;font-size:12px}
+  .file-name{width:100%;order:3}
+  .controls{padding:8px 10px;gap:6px}
+  .controls label{flex:1 1 auto;min-width:132px;font-size:10px}
+  .controls select,.controls input[type=text]{width:100%;font-size:13px;padding:8px}
+  #search{min-width:100%}
+  th,td{padding:8px 8px;font-size:11px}
+  .nom-cell{max-width:150px}
+  .detail-inner{padding:10px}
+  .chart-wrap{height:150px}
+  canvas{max-height:150px}
+  .lam-globale{font-size:11px}
+}
+
+}
+
+/* ======================================================================
+   4) ONGLET 2 — AUDIT MARGEMIN (styles scopés sous #panelMargeMin)
+   ====================================================================== */
+#panelMargeMin {
+.wrap{max-width:1680px;margin:0 auto;padding:20px 26px 60px;}
+
+/* ---- HEADER ---- */
+header.top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;margin-bottom:18px;
+  background:linear-gradient(180deg,var(--bg-2),var(--bg-1));
+  border:1px solid var(--line);border-radius:10px;
+  position:relative;overflow:hidden;
+}
+header.top::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,var(--accent-blue),var(--accent-under),transparent 60%);
+  opacity:0.06;pointer-events:none;
+}
+.brand{display:flex;align-items:center;gap:14px;}
+.brand .dot{
+  width:10px;height:10px;border-radius:50%;background:var(--good);
+  box-shadow:0 0 0 3px rgba(57,217,138,0.15),0 0 12px rgba(57,217,138,0.6);
+  animation:pulse 2.2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
+.brand h1{
+  font-family:var(--mono);font-size:16px;letter-spacing:2.5px;margin:0;
+  font-weight:700;color:var(--txt-0);text-transform:uppercase;
+}
+.brand small{display:block;font-family:var(--mono);font-size:10.5px;color:var(--txt-2);letter-spacing:1.5px;margin-top:3px;}
+.top-stats{display:flex;gap:26px;}
+.top-stat{text-align:right;}
+.top-stat .v{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--txt-0);}
+.top-stat .l{font-family:var(--mono);font-size:9.5px;color:var(--txt-2);letter-spacing:1.5px;text-transform:uppercase;}
+
+/* ---- FILE / UPLOAD BAR ---- */
+.filebar{
+  display:flex;align-items:center;gap:12px;margin-bottom:18px;
+  padding:10px 16px;border:1px dashed var(--line);border-radius:8px;
+  background:var(--bg-1);font-family:var(--mono);font-size:11.5px;color:var(--txt-2);
+  transition:border-color .15s, background .15s;
+}
+.filebar.drag{border-color:var(--accent-blue);background:rgba(91,140,255,0.06);color:var(--txt-1);}
+.filebar input[type=file]{display:none;}
+.filebar label{
+  cursor:pointer;padding:6px 12px;border:1px solid var(--line);border-radius:6px;
+  background:var(--bg-2);color:var(--txt-1);letter-spacing:0.5px;
+}
+.filebar label:hover{border-color:var(--accent-blue);color:var(--txt-0);}
+.filebar .fname{color:var(--txt-0);}
+
+/* ---- PANEL ---- */
+.panel{
+  background:var(--bg-1);border:1px solid var(--line);border-radius:10px;
+  margin-bottom:18px;overflow:hidden;
+}
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;border-bottom:1px solid var(--line-soft);
+  background:var(--bg-2);
+}
+.panel-head h2{
+  margin:0;font-family:var(--mono);font-size:11px;letter-spacing:2px;
+  color:var(--txt-1);text-transform:uppercase;font-weight:600;
+}
+.panel-head h2::before{content:"◆ ";color:var(--accent-blue);}
+.panel-body{padding:16px;}
+
+/* ---- FILTERS ---- */
+.filters-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;
+}
+.f-field label{
+  display:block;font-family:var(--mono);font-size:9.5px;color:var(--txt-2);
+  letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;
+}
+.f-field select, .f-field input{
+  width:100%;padding:7px 9px;background:var(--bg-3);border:1px solid var(--line);
+  border-radius:6px;color:var(--txt-0);font-family:var(--sans);font-size:12.5px;
+  outline:none;
+}
+.f-field select:focus, .f-field input:focus{border-color:var(--accent-blue);}
+.f-range{display:flex;gap:6px;align-items:center;}
+.f-range input{width:100%;}
+.f-range span{color:var(--txt-2);font-size:11px;}
+.filters-actions{display:flex;justify-content:space-between;align-items:center;margin-top:14px;}
+.reset-btn{
+  font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--txt-1);
+  background:var(--bg-3);border:1px solid var(--line);border-radius:6px;padding:7px 14px;
+  cursor:pointer;transition:.15s;
+}
+.reset-btn:hover{border-color:var(--bad);color:var(--bad);}
+.count-badge{font-family:var(--mono);font-size:11.5px;color:var(--txt-1);}
+.count-badge b{color:var(--accent-under);font-size:14px;}
+
+/* ---- TABLE ---- */
+.table-scroll{overflow:auto;max-height:640px;border-top:1px solid var(--line-soft);}
+table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono);}
+thead th{
+  position:sticky;top:0;background:var(--bg-2);color:var(--txt-1);
+  text-align:left;padding:9px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;
+  border-bottom:1px solid var(--line);cursor:pointer;white-space:nowrap;user-select:none;z-index:2;
+}
+thead th:hover{color:var(--txt-0);}
+thead th .arrow{color:var(--accent-blue);margin-left:4px;}
+tbody td{padding:8px 10px;border-bottom:1px solid var(--line-soft);color:var(--txt-1);white-space:nowrap;}
+tbody tr:hover{background:rgba(91,140,255,0.05);}
+tbody tr:hover td{color:var(--txt-0);}
+.match-name{color:var(--txt-0);font-weight:600;font-family:var(--sans);font-size:12.5px;}
+.badge{
+  display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;
+  letter-spacing:0.5px;
+}
+.badge.over{background:rgba(255,107,74,0.15);color:var(--accent-over);border:1px solid rgba(255,107,74,0.35);}
+.badge.under{background:rgba(57,211,195,0.15);color:var(--accent-under);border:1px solid rgba(57,211,195,0.35);}
+.valeur{font-weight:700;}
+.valeur.low{color:var(--bad);}
+.valeur.high{color:var(--good);}
+
+/* ---- SUMMARY (min/max) ---- */
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media (max-width:1100px){.summary-grid{grid-template-columns:1fr;}}
+.summary-grid .panel{margin-bottom:0;}
+.panel-head.min h2::before{content:"▼ ";color:var(--bad);}
+.panel-head.max h2::before{content:"▲ ";color:var(--good);}
+
+footer{
+  margin-top:24px;text-align:center;font-family:var(--mono);font-size:10px;
+  color:var(--txt-2);letter-spacing:1px;
+}
+.empty-msg{padding:30px;text-align:center;color:var(--txt-2);font-family:var(--mono);font-size:12px;}
+
+}
+</style>
+</head>
+<body>
+
+<div class="global-topbar">
+  <div class="brand-mini"><span class="live-dot"></span>OPS CONSOLE // UNIFIÉ</div>
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="panelLive">📈 Suivi Live (λ / Marge)</button>
+    <button class="tab-btn" data-tab="panelMargeMin">🎯 Audit MargeMin</button>
+    <button class="tab-btn" data-tab="panelCross">🔻 Croisement (Min)</button>
+    <button class="tab-btn" data-tab="panelCrossMax">🔺 CHOIX</button>
+  </nav>
+</div>
+
+<div class="app-body">
+  <section id="panelLive" class="tab-panel active">
+
+
+<div class="header">
+  <div><h1><span class="live-dot"></span>PRELIVE // ANALYSIS<span class="live-tag">LIVE</span></h1></div>
+  <div class="stats">
+    <span class="stat-badge" id="stat-file">Données par défaut</span>
+    <span class="stat-badge" id="stat-total">—</span>
+    <span class="stat-badge" id="stat-lamup">—</span>
+    <span class="stat-badge" id="stat-lamdown">—</span>
+    <span class="stat-badge" id="stat-lamfixe">—</span>
+    <span class="stat-badge" id="stat-ignored" title="Points de capture pris à moins de 60 min du coup d'envoi (H-45, H-30, H-15, H-1min…), exclus de l'analyse">—</span>
+  </div>
+</div>
+
+<div class="upload-zone">
+  <label for="csv-input">
+    <button class="upload-btn" onclick="document.getElementById('csv-input').click()">⤓ Charger CSV</button>
+  </label>
+  <input type="file" id="csv-input" accept=".csv">
+  <span class="file-name" id="file-name">// Aucun fichier chargé</span>
+  <span class="upload-hint">FORMAT: nom, heure, pays, competition, iteration, timestamp, lambda_total, marge, cote_over_25, cote_under_25, p_over, p_under, c1, cx, c2, lambda1, lambda2, …</span>
+</div>
+
+<div class="controls">
+  <label>Recherche: <input type="text" id="search" placeholder="nom du match…" style="width:180px"></label>
+  <label>Interprétation Lambda: <select id="filter-lam-dir"><option value="">Toutes</option><option value="croissant">Croissant</option><option value="décroissant">Décroissant</option><option value="fixe">Fixe</option></select></label>
+  <label>Interprétation Marge: <select id="filter-marge-dir"><option value="">Toutes</option><option value="croissant">Croissant</option><option value="décroissant">Décroissant</option><option value="fixe">Fixe</option></select></label>
+  <label>Décision: <select id="filter-dec">
+    <option value="">Toutes</option>
+    <option value="Lambda Croissant et Marge Croissant">Lambda Croissant / Marge Croissant</option>
+    <option value="Lambda Décroissant et Marge Décroissant">Lambda Décroissant / Marge Décroissant</option>
+    <option value="Lambda Croissant et Marge Décroissant">Lambda Croissant / Marge Décroissant</option>
+    <option value="Lambda Décroissant et Marge Croissant">Lambda Décroissant / Marge Croissant</option>
+  </select></label>
+  <label>Marge: <select id="filter-marge">
+    <option value="">Toutes</option>
+    <option value="lt6">&lt; 6</option>
+    <option value="gt9">&lt; 9</option>
+    <option value="lt10">&lt; 10</option>
+    <option value="lt12">&lt; 12</option>
+    <option value="lt16">&lt; 16</option>
+    <option value="lt18">&lt; 18</option>
+    <option value="lt20">&lt; 20</option>
+  </select></label>
+  <label>int_marge: <select id="filter-int-marge">
+    <option value="">Toutes</option>
+    <option value="0-6">Entre 0 et 6</option>
+    <option value="6-9">Entre 6 et 9</option>
+    <option value="9-12">Entre 9 et 12</option>
+    <option value="12-16">Entre 12 et 16</option>
+    <option value="16-18">Entre 16 et 18</option>
+    <option value="18-20">Entre 18 et 20</option>
+  </select></label>
+  <label>Heure: <select id="filter-heure"><option value="">Toutes</option></select></label>
+  <label>Pays: <select id="filter-pays"><option value="">Tous</option></select></label>
+  <label>Compétition: <select id="filter-competition"><option value="">Toutes</option></select></label>
+  <label>Interprétation: <select id="filter-interp">
+    <option value="">Toutes</option>
+    <option value="Normal">Normal</option>
+    <option value="Anormal">Anormal</option>
+    <option value="Immobile">Immobile</option>
+  </select></label>
+  <span id="count-shown" style="font-size:11px;color:#888;margin-left:auto"></span>
+</div>
+
+<div class="table-wrap">
+<table id="main-table">
+<thead>
+<tr>
+  <th data-col="nom">Match</th>
+  <th data-col="heure">Heure</th>
+  <th data-col="pays">Pays</th>
+  <th data-col="competition">Compétition</th>
+  <th data-col="n_iter">N pts</th>
+  <th data-col="lam_debut">Lambda déb</th>
+  <th data-col="lam_fin">Lambda fin</th>
+  <th data-col="delta_lambda">Delta</th>
+  <th data-col="marge_debut">Marge début</th>
+  <th data-col="marge_fin">marge fin</th>
+  <th data-col="delta_marge">Delta marge</th>
+  <th data-col="avg_over">Moyenne Over</th>
+  <th data-col="avg_under">Moyenne Under</th>
+  <th data-col="interp_text">Interprétation</th>
+  <th data-col="dec_text">Décision</th>
+  <th data-col="lambda_globale">Lambda globale</th>
+  <th>Détail</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+
+  </section>
+
+  <section id="panelMargeMin" class="tab-panel">
+
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="dot"></div>
+      <div>
+        <h1>Audit // MargeMin</h1>
+        <small>bet261 — snapshot margin minimale — dashboard</small>
+      </div>
+    </div>
+    <div class="top-stats">
+      <div class="top-stat"><div class="v" id="statTotal">0</div><div class="l">Lignes</div></div>
+      <div class="top-stat"><div class="v" id="statMatches">0</div><div class="l">Matchs</div></div>
+      <div class="top-stat"><div class="v" id="statFiltered">0</div><div class="l">Filtrées</div></div>
+    </div>
+  </header>
+
+  <div class="filebar" id="filebar">
+    <label for="fileInput">Charger un fichier .txt</label>
+    <input type="file" id="fileInput" accept=".txt">
+    <span class="fname" id="fname">— fichier chargé : 2026-07-14_COTES_MARGEMIN.txt (intégré) —</span>
+    <span style="margin-left:auto;color:var(--txt-2);">glisser-déposer accepté</span>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Filtres</h2>
+      <span class="count-badge"><b id="countLive">0</b> / <span id="countTotal">0</span> lignes affichées</span>
+    </div>
+    <div class="panel-body">
+      <div class="filters-grid" id="filtersGrid"></div>
+      <div class="filters-actions">
+        <button class="reset-btn" id="resetBtn">✕ réinitialiser les filtres</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Tableau — Nom Match → MargeMin_Valeur</h2>
+    </div>
+    <div class="table-scroll">
+      <table id="mainTable">
+        <thead><tr id="tableHead"></tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="summary-grid">
+    <div class="panel">
+      <div class="panel-head min"><h2>MargeMin_Valeur minimale par match</h2></div>
+      <div class="table-scroll" style="max-height:420px;">
+        <table><thead><tr id="minHead"></tr></thead><tbody id="minBody"></tbody></table>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head max"><h2>MargeMin_Valeur maximale par match</h2></div>
+      <div class="table-scroll" style="max-height:420px;">
+        <table><thead><tr id="maxHead"></tr></thead><tbody id="maxBody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <footer>AUDIT_MARGEMIN.HTML — rendu généré côté client, aucune donnée envoyée à un serveur</footer>
+</div>
+
+  </section>
+
+  <section id="panelCross" class="tab-panel">
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="dot"></div>
+      <div>
+        <h1>Croisement // Live × MargeMin</h1>
+        <small>une ligne par match — MargeMin_Valeur le plus petit sur toutes les collectes</small>
+      </div>
+    </div>
+    <div class="top-stats">
+      <div class="top-stat"><div class="v" id="cross-statTotal">0</div><div class="l">Matchs</div></div>
+      <div class="top-stat"><div class="v" id="cross-statApparies">0</div><div class="l">CSV apparié</div></div>
+      <div class="top-stat"><div class="v" id="cross-statNonApparies">0</div><div class="l">CSV non apparié</div></div>
+    </div>
+  </header>
+
+  <div class="recalc-bar">
+    <button class="recalc-btn" id="cross-recalcBtn">🔄 Recalculer le croisement</button>
+    <span>Pour chaque match de l'onglet <b>Audit MargeMin</b> (TXT), retient la collecte dont <b>MargeMin_Valeur</b> est la plus petite parmi toutes ses collectes, puis y associe la ligne CSV de l'onglet <b>Suivi Live</b> la plus proche dans le temps. Clique ici après avoir chargé un nouveau fichier dans l'un des deux onglets.</span>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Filtres</h2>
+      <span class="count-badge"><b id="cross-countLive">0</b> / <span id="cross-countTotal">0</span> lignes affichées</span>
+    </div>
+    <div class="panel-body">
+      <div class="filters-grid" id="cross-filtersGrid"></div>
+      <div class="filters-actions">
+        <button class="reset-btn" id="cross-resetBtn">✕ réinitialiser les filtres</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Tableau croisé — un match par ligne, MargeMin_Valeur minimal</h2>
+    </div>
+    <div class="table-scroll">
+      <table id="cross-mainTable">
+        <thead><tr id="cross-tableHead"></tr></thead>
+        <tbody id="cross-tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>CROISEMENT — jointure calculée côté client à partir des deux onglets, aucune donnée envoyée à un serveur</footer>
+</div>
+  </section>
+
+  <section id="panelCrossMax" class="tab-panel">
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="dot"></div>
+      <div>
+        <h1>Croisement // Live × MargeMin — Marge Maximale</h1>
+        <small>une ligne par match — MargeMin_Valeur le plus grand sur toutes les collectes</small>
+      </div>
+    </div>
+    <div class="top-stats">
+      <div class="top-stat"><div class="v" id="crossmax-statTotal">0</div><div class="l">Matchs</div></div>
+      <div class="top-stat"><div class="v" id="crossmax-statApparies">0</div><div class="l">CSV apparié</div></div>
+      <div class="top-stat"><div class="v" id="crossmax-statNonApparies">0</div><div class="l">CSV non apparié</div></div>
+    </div>
+  </header>
+
+  <div class="recalc-bar">
+    <button class="recalc-btn" id="crossmax-recalcBtn">🔄 Recalculer le croisement</button>
+    <button class="recalc-btn" id="crossmax-exportBtn">📤 Exporter (Rapport.txt)</button>
+    <span>Pour chaque match de l'onglet <b>Audit MargeMin</b> (TXT), retient la collecte dont <b>MargeMin_Valeur</b> est la plus grande parmi toutes ses collectes, puis y associe la ligne CSV de l'onglet <b>Suivi Live</b> la plus proche dans le temps. Clique ici après avoir chargé un nouveau fichier dans l'un des deux onglets.</span>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Filtres</h2>
+      <span class="count-badge"><b id="crossmax-countLive">0</b> / <span id="crossmax-countTotal">0</span> lignes affichées</span>
+    </div>
+    <div class="panel-body">
+      <div class="filters-grid" id="crossmax-filtersGrid"></div>
+      <div class="filters-actions">
+        <button class="reset-btn" id="crossmax-resetBtn">✕ réinitialiser les filtres</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Tableau croisé — un match par ligne, MargeMin_Valeur maximal</h2>
+    </div>
+    <div class="table-scroll">
+      <table id="crossmax-mainTable">
+        <thead><tr id="crossmax-tableHead"></tr></thead>
+        <tbody id="crossmax-tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>CROISEMENT (MARGE MAXIMALE) — jointure calculée côté client à partir des deux onglets, aucune donnée envoyée à un serveur</footer>
+</div>
+  </section>
+</div>
+
+<script>
+(function(){
+'use strict';
+/* ── Interprétation & Décision (nouvelle logique) ────────────────────────────
+   On classe séparément le mouvement du Lambda et celui de la Marge, entre le
+   premier et le dernier snapshot du match, en tenant compte de la trajectoire
+   complète (pas seulement du delta global) pour distinguer un mouvement
+   "normal" (progressif, dans un seul sens) d'un mouvement "anormal"
+   (à-coups / retournements / saut brutal isolé).
+
+   Lambda :
+     |Δλ| < 0.05                      -> Lambda fixe
+     Δλ > 0, trajectoire cohérente    -> Lambda croissant normal
+     Δλ > 0, trajectoire erratique    -> Lambda croissant anormal
+     Δλ < 0, trajectoire cohérente    -> Lambda décroissant normal
+     Δλ < 0, trajectoire erratique    -> Lambda décroissant anormal
+
+   Marge : même principe avec un seuil de 0.15 et un seuil de saut de 1.0.
+
+   Si Lambda ET Marge sont fixes -> "Lambda et Marge immobile".
+
+   Décision : combinaison des deux sens (hors cas fixes) :
+     Lambda Croissant  + Marge Croissant
+     Lambda Décroissant+ Marge Décroissant
+     Lambda Croissant  + Marge Décroissant
+     Lambda Décroissant+ Marge Croissant
+──────────────────────────────────────────────────────────────────────────── */
+
+function movementInfo(values, deltaTotal, fixeThreshold, bigStepThreshold, label) {
+  if (Math.abs(deltaTotal) < fixeThreshold) {
+    return {dir: 'fixe', anormal: false, text: label + ' fixe'};
+  }
+  const dir = deltaTotal > 0 ? 'croissant' : 'décroissant';
+  let reversals = 0, steps = 0, maxStep = 0;
+  for (let i = 1; i < values.length; i++) {
+    const d = values[i] - values[i - 1];
+    maxStep = Math.max(maxStep, Math.abs(d));
+    if (Math.abs(d) < 1e-9) continue;
+    steps++;
+    if (i > 1) {
+      const prevD = values[i - 1] - values[i - 2];
+      if (Math.abs(prevD) > 1e-9 && Math.sign(d) !== Math.sign(prevD)) reversals++;
+    }
+  }
+  const anormal = (steps > 0 && (reversals / steps) > 0.35) || maxStep > bigStepThreshold;
+  return {dir, anormal, text: label + ' ' + dir + ' ' + (anormal ? 'anormal' : 'normal')};
+}
+
+function computeInterpretation(d) {
+  const lamVals = d.timeline.map(r => r.lam);
+  const margeVals = d.timeline.map(r => r.marge);
+  const lamInfo = movementInfo(lamVals, d.delta_lambda, 0.05, 0.25, 'Lambda');
+  const margeInfo = movementInfo(margeVals, d.delta_marge, 0.15, 1.0, 'Marge');
+
+  // Détail complet (utilisé en tooltip / titre de cellule)
+  let detail;
+  if (lamInfo.dir === 'fixe' && margeInfo.dir === 'fixe') {
+    detail = 'Lambda et Marge immobile';
+  } else {
+    detail = lamInfo.text + ' / ' + margeInfo.text;
+  }
+
+  // Valeur affichée dans la colonne Interprétation : Normal / Anormal / Immobile
+  let text;
+  if (lamInfo.dir === 'fixe' && margeInfo.dir === 'fixe') {
+    text = 'Immobile';
+  } else if (lamInfo.anormal || margeInfo.anormal) {
+    text = 'Anormal';
+  } else {
+    text = 'Normal';
+  }
+
+  return {lamInfo, margeInfo, text, detail};
+}
+
+function computeDecisionLabel(lamInfo, margeInfo) {
+  if (lamInfo.dir === 'fixe' && margeInfo.dir === 'fixe') {
+    return {label: 'Lambda et Marge stables', cls: 'dec-attente'};
+  }
+  if (lamInfo.dir === 'fixe') {
+    return {label: 'Lambda fixe / Marge ' + margeInfo.dir, cls: 'dec-attente'};
+  }
+  if (margeInfo.dir === 'fixe') {
+    return {label: 'Lambda ' + lamInfo.dir + ' / Marge fixe', cls: 'dec-attente'};
+  }
+  if (lamInfo.dir === 'croissant' && margeInfo.dir === 'croissant') {
+    return {label: 'Lambda Croissant et Marge Croissant', cls: 'dec-over'};
+  }
+  if (lamInfo.dir === 'décroissant' && margeInfo.dir === 'décroissant') {
+    return {label: 'Lambda Décroissant et Marge Décroissant', cls: 'dec-under'};
+  }
+  if (lamInfo.dir === 'croissant' && margeInfo.dir === 'décroissant') {
+    return {label: 'Lambda Croissant et Marge Décroissant', cls: 'dec-forte-over'};
+  }
+  return {label: 'Lambda Décroissant et Marge Croissant', cls: 'dec-forte-under'};
+}
+
+/* ── Parsing CSV → format interne ─────────────────────────────────────────── */
+function r2(v) { return Math.round(v * 100) / 100; }
+function r3(v) { return Math.round(v * 1000) / 1000; }
+// Normalise une probabilité en pourcentage, que le CSV la fournisse en
+// fraction (0.553) ou déjà en pourcentage (55.3)
+function toPct(v) { if (isNaN(v)) return v; return v <= 1.5 ? v * 100 : v; }
+
+// Extrait un HH:MM (heure d'horloge) d'une chaîne — utilisé pour l'heure de
+// coup d'envoi (heure) comme pour l'horodatage de capture (timestamp).
+function parseMinutes(str) {
+  if (!str) return null;
+  const m = String(str).match(/(\d{1,2}):(\d{2})/);
+  if (!m) return null;
+  const h = parseInt(m[1], 10), mn = parseInt(m[2], 10);
+  if (isNaN(h) || isNaN(mn)) return null;
+  return h * 60 + mn;
+}
+
+// On ignore toute prise de données faite après H-1, c'est-à-dire à moins de
+// 60 minutes du coup d'envoi (typiquement les points pris à H-45, H-30,
+// H-15, H-1(minute) …). Seuls les points pris à H-1(heure) ou plus tôt
+// (H-2, H-3 … H-9) sont conservés.
+function isBeforeH1(row) {
+  const ko = parseMinutes(row.heure);
+  const cap = parseMinutes(row.timestamp);
+  if (ko === null || cap === null) return true; // non calculable -> on garde par défaut
+  let diff = ko - cap;
+  if (diff < 0) diff += 1440; // passage de minuit
+  return diff >= 60;
+}
+
+let ignoredCount = 0;
+
+function processCSV(rows) {
+  ignoredCount = 0;
+  const filteredRows = rows.filter(r => {
+    const keep = isBeforeH1(r);
+    if (!keep) ignoredCount++;
+    return keep;
+  });
+
+  // Lignes brutes (une par itération, non agrégées) — réutilisées par l'onglet Croisement
+  lastRawRows = filteredRows.map(r => ({
+    nom: (r.nom || '').trim(),
+    heure: (r.heure || '').trim(),
+    pays: (r.pays || '').trim(),
+    competition: (r.competition || '').trim(),
+    iteration: parseInt(r.iteration) || 0,
+    timestamp: (r.timestamp || '').trim(),
+    lambda_total: r2(parseFloat(r.lambda_total)),
+    marge: r2(parseFloat(r.marge)),
+  })).filter(r => r.nom);
+
+  // group by nom
+  const groups = {};
+  filteredRows.forEach(r => {
+    const n = r.nom ? r.nom.trim() : null;
+    if (!n) return;
+    if (!groups[n]) groups[n] = [];
+    groups[n].push(r);
+  });
+  const result = [];
+  Object.keys(groups).sort().forEach(nom => {
+    // Tri STRICTEMENT chronologique par heure de capture (timestamp).
+    // Le champ "iteration" n'est PAS fiable comme critère de tri : si le
+    // scraping est réinitialisé (crash, relance), le compteur d'itération
+    // repart à 1 alors que le temps continue d'avancer. Trier par itération
+    // en premier mélangeait alors les points dans le temps, ce qui faussait
+    // le calcul des deltas λ/marge.
+    const grp = groups[nom].sort((a, b) => {
+      const ta = (a.timestamp || '').trim(), tb = (b.timestamp || '').trim();
+      if (ta !== tb) return ta.localeCompare(tb);
+      return (parseInt(a.iteration) || 0) - (parseInt(b.iteration) || 0);
+    });
+    const first = grp[0], last = grp[grp.length - 1];
+    const heure = (first.heure || '').trim();
+    const lam0 = parseFloat(first.lambda_total), lamN = parseFloat(last.lambda_total);
+    const marge0 = parseFloat(first.marge), margeN = parseFloat(last.marge);
+    const dl = r3(lamN - lam0);
+    const dm = r2(margeN - marge0);
+
+    const timeline = grp.map(r => ({
+      ts: r.timestamp || '',
+      lam: r2(parseFloat(r.lambda_total)),
+      marge: r2(parseFloat(r.marge)),
+      c_over: r2(parseFloat(r.cote_over_25)),
+      c_under: r2(parseFloat(r.cote_under_25)),
+      p_over: r2(toPct(parseFloat(r.p_over))),
+      p_under: r2(toPct(parseFloat(r.p_under))),
+      c1: r.c1 !== undefined && r.c1 !== '' ? r2(parseFloat(r.c1)) : null,
+      cx: r.cx !== undefined && r.cx !== '' ? r2(parseFloat(r.cx)) : null,
+      c2: r.c2 !== undefined && r.c2 !== '' ? r2(parseFloat(r.c2)) : null,
+      lam1: r.lambda1 !== undefined && r.lambda1 !== '' ? r2(parseFloat(r.lambda1)) : null,
+      lam2: r.lambda2 !== undefined && r.lambda2 !== '' ? r2(parseFloat(r.lambda2)) : null,
+    }));
+
+    // Moyenne Over / Under exprimées en pourcentage (probabilité implicite p_over / p_under)
+    const validOver = timeline.map(r => r.p_over).filter(v => !isNaN(v));
+    const validUnder = timeline.map(r => r.p_under).filter(v => !isNaN(v));
+    const avgOver = validOver.length ? r2(validOver.reduce((s, v) => s + v, 0) / validOver.length) : null;
+    const avgUnder = validUnder.length ? r2(validUnder.reduce((s, v) => s + v, 0) / validUnder.length) : null;
+
+    const lam1_debut = first.lambda1 !== undefined && first.lambda1 !== '' ? r2(parseFloat(first.lambda1)) : null;
+    const lam2_debut = first.lambda2 !== undefined && first.lambda2 !== '' ? r2(parseFloat(first.lambda2)) : null;
+    const lam1_fin = last.lambda1 !== undefined && last.lambda1 !== '' ? r2(parseFloat(last.lambda1)) : null;
+    const lam2_fin = last.lambda2 !== undefined && last.lambda2 !== '' ? r2(parseFloat(last.lambda2)) : null;
+
+    result.push({
+      nom, n_iter: grp.length, heure,
+      pays: (first.pays || '').trim(),
+      competition: (first.competition || '').trim(),
+      lam_debut: r2(lam0), lam_fin: r2(lamN),
+      delta_lambda: dl,
+      marge_debut: r2(marge0), marge_fin: r2(margeN),
+      delta_marge: dm,
+      avg_over: avgOver, avg_under: avgUnder,
+      lambda_globale: Math.round(lamN),
+      lam1_debut, lam2_debut, lam1_fin, lam2_fin,
+      timeline
+    });
+  });
+  return result;
+}
+
+/* ── Données par défaut ──────────────────────────────────────────────────── */
+const DEFAULT_DATA = [];
+/* CSV de test intégré (2026-07-21_PRELIVEALL_U.csv) — rempli plus bas */
+const DEFAULT_CSV_TEXT = ``;
+
+let RAW_DATA = DEFAULT_DATA;
+let filteredData = [];
+let lastRawRows = []; // lignes CSV brutes (par itération, non agrégées) — utilisées par l'onglet Croisement
+let sortCol = 'delta_lambda', sortDir = -1;
+let charts = {};
+
+/* ── Chargement CSV (fichier utilisateur ou texte intégré) ─────────────────── */
+function loadCsvInput(input, label) {
+  document.getElementById('file-name').textContent = '⏳ Chargement de ' + label + '…';
+  Papa.parse(input, {
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+      try {
+        RAW_DATA = processCSV(results.data);
+        document.getElementById('file-name').textContent = '✅ ' + label + ' — ' + RAW_DATA.length + ' matchs chargés';
+        document.getElementById('stat-file').textContent = label;
+        document.getElementById('stat-ignored').textContent = ignoredCount + ' points ignorés (< H-1)';
+        populateHeureFilter();
+        populatePaysFilter();
+        populateCompetitionFilter();
+        sortCol = 'delta_lambda'; sortDir = -1;
+        document.querySelectorAll('th').forEach(t => t.classList.remove('sorted-asc', 'sorted-desc'));
+        document.querySelector('th[data-col="delta_lambda"]')?.classList.add('sorted-desc');
+        render();
+      } catch (err) {
+        document.getElementById('file-name').textContent = '❌ Erreur: ' + err.message;
+      }
+    },
+    error: function(err) {
+      document.getElementById('file-name').textContent = '❌ Erreur lecture: ' + err.message;
+    }
+  });
+}
+
+document.getElementById('csv-input').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  loadCsvInput(file, file.name);
+});
+
+/* ── Render ──────────────────────────────────────────────────────────────── */
+function extractHeurePrefixe(heureStr) {
+  const m = (heureStr || '').match(/(\d{1,2}):\d{2}\s*$/);
+  return m ? m[1].padStart(2, '0') : null;
+}
+function populateHeureFilter() {
+  const sel = document.getElementById('filter-heure');
+  const current = sel.value;
+  const heures = Array.from(new Set(RAW_DATA.map(d => extractHeurePrefixe(d.heure)).filter(h => h)));
+  heures.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+  sel.innerHTML = '<option value="">Toutes</option>' + heures.map(h => `<option value="${h}">${h}h</option>`).join('');
+  if (heures.includes(current)) sel.value = current;
+}
+function populateMetaFilter(id, field, allLabel) {
+  const sel = document.getElementById(id);
+  const current = sel.value;
+  const values = Array.from(new Set(RAW_DATA.map(d => d[field]).filter(v => v))).sort((a, b) => a.localeCompare(b));
+  sel.innerHTML = `<option value="">${allLabel}</option>` + values.map(v => `<option value="${v}">${v}</option>`).join('');
+  if (values.includes(current)) sel.value = current;
+}
+function populatePaysFilter() { populateMetaFilter('filter-pays', 'pays', 'Tous'); }
+function populateCompetitionFilter() { populateMetaFilter('filter-competition', 'competition', 'Toutes'); }
+
+function fmtDelta(v) {
+  if (v === null || v === undefined || isNaN(v)) return '<span class="delta-zero">—</span>';
+  if (Math.abs(v) < 0.001) return '<span class="delta-zero">0</span>';
+  const cls = v > 0 ? 'delta-pos' : 'delta-neg';
+  return `<span class="${cls}">${v > 0 ? '+' : ''}${v.toFixed(3)}</span>`;
+}
+function fmtDelta2(v) {
+  if (v === null || v === undefined || isNaN(v)) return '<span class="delta-zero">—</span>';
+  if (Math.abs(v) < 0.01) return '<span class="delta-zero">0</span>';
+  const cls = v > 0 ? 'delta-pos' : 'delta-neg';
+  return `<span class="${cls}">${v > 0 ? '+' : ''}${v.toFixed(2)}</span>`;
+}
+function miniBar(v, max) {
+  const pct = Math.min(Math.abs(v) / (max || 1), 1) * 80;
+  const cls = v > 0 ? 'bar-pos' : v < 0 ? 'bar-neg' : '';
+  return `<div class="minibar ${cls}" style="width:${pct.toFixed(1)}px"></div>`;
+}
+function fmtNum(v, d) {
+  return (v === null || v === undefined || isNaN(v)) ? '—' : v.toFixed(d);
+}
+
+function buildDetailHTML(d, idx) {
+  const tl = d.timeline;
+  const rows = tl.map(r => `<tr>
+    <td>${r.ts}</td><td>${fmtNum(r.lam,2)}</td><td>${fmtNum(r.marge,2)}</td>
+    <td>${fmtNum(r.c_over,2)}</td><td>${fmtNum(r.c_under,2)}</td>
+    <td>${fmtNum(r.c1,2)}</td><td>${fmtNum(r.cx,2)}</td><td>${fmtNum(r.c2,2)}</td>
+    <td>${fmtNum(r.lam1,2)}</td><td>${fmtNum(r.lam2,2)}</td>
+  </tr>`).join('');
+  return `<div class="detail-inner">
+    <div>
+      <div class="section-label">Évolution λ, marge & λ par équipe</div>
+      <div class="chart-wrap"><canvas id="chart-${idx}"></canvas></div>
+      <div class="lam-team-box">
+        <b>λ équipe 1</b> (début → fin) : ${fmtNum(d.lam1_debut,2)} → ${fmtNum(d.lam1_fin,2)}<br>
+        <b>λ équipe 2</b> (début → fin) : ${fmtNum(d.lam2_debut,2)} → ${fmtNum(d.lam2_fin,2)}
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Tableau complet des itérations</div>
+      <div class="detail-table-wrap">
+      <table class="detail-table">
+        <thead><tr><th>Heure</th><th>λ</th><th>marge</th><th>c_over</th><th>c_und</th><th>c1</th><th>cX</th><th>c2</th><th>λ1</th><th>λ2</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+function drawChart(idx) {
+  const d = filteredData[idx];
+  const canvas = document.getElementById('chart-' + idx);
+  if (!canvas) return;
+  if (charts[idx]) { charts[idx].destroy(); delete charts[idx]; }
+  const labels = d.timeline.map(r => r.ts.slice(0, 5));
+  const gridColor = 'rgba(255,255,255,.07)';
+  const tickColor = '#9aa5b1';
+  charts[idx] = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {label: 'λ', data: d.timeline.map(r => r.lam), borderColor: '#3fa9f5', backgroundColor: 'rgba(63,169,245,.12)', fill: true, tension: 0.3, yAxisID: 'y', pointRadius: 3, pointBackgroundColor: '#3fa9f5', pointBorderColor: '#0c0e12', borderWidth: 2.2, shadowBlur: 8},
+        {label: 'marge', data: d.timeline.map(r => r.marge), borderColor: '#f5a623', backgroundColor: 'transparent', tension: 0.3, yAxisID: 'y2', pointRadius: 2, borderWidth: 1.6, borderDash: [4, 3]},
+        {label: 'λ1', data: d.timeline.map(r => r.lam1), borderColor: '#3ecf6e', backgroundColor: 'transparent', tension: 0.3, yAxisID: 'y', pointRadius: 2, borderWidth: 1.2, borderDash: [2, 4]},
+        {label: 'λ2', data: d.timeline.map(r => r.lam2), borderColor: '#b06cff', backgroundColor: 'transparent', tension: 0.3, yAxisID: 'y', pointRadius: 2, borderWidth: 1.2, borderDash: [2, 4]}
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {legend: {display: true, position: 'top', labels: {font: {size: 10, family: "'JetBrains Mono',monospace"}, boxWidth: 10, color: tickColor}}},
+      scales: {
+        x: {ticks: {font: {size: 9, family: "'JetBrains Mono',monospace"}, color: tickColor, maxRotation: 45, autoSkip: true}, grid: {color: gridColor}},
+        y: {position: 'left', title: {display: true, text: 'λ', font: {size: 9}, color: tickColor}, ticks: {font: {size: 9}, color: tickColor}, grid: {color: gridColor}},
+        y2: {position: 'right', title: {display: true, text: 'marge', font: {size: 9}, color: tickColor}, ticks: {font: {size: 9}, color: tickColor}, grid: {drawOnChartArea: false}}
+      }
+    }
+  });
+}
+
+function toggleDetail(idx) {
+  const detailRow = document.getElementById('detail-' + idx);
+  const inner = document.getElementById('detail-inner-' + idx);
+  const btn = document.querySelector(`tr[data-idx="${idx}"] .expand-btn`);
+  if (detailRow.style.display === 'table-row') {
+    detailRow.style.display = 'none'; btn.textContent = '▶ voir';
+    if (charts[idx]) { charts[idx].destroy(); delete charts[idx]; }
+  } else {
+    detailRow.style.display = 'table-row'; btn.textContent = '▼ fermer';
+    inner.innerHTML = buildDetailHTML(filteredData[idx], idx);
+    setTimeout(() => drawChart(idx), 50);
+  }
+}
+
+function render() {
+  // Pré-calcul Interprétation / Décision pour permettre le tri et les filtres
+  RAW_DATA.forEach(d => {
+    const interp = computeInterpretation(d);
+    d._lamInfo = interp.lamInfo;
+    d._margeInfo = interp.margeInfo;
+    d.interp_text = interp.text;
+    d.interp_detail = interp.detail;
+    d._interpCls = interp.text === 'Anormal' ? 'interp-anormal' : interp.text === 'Immobile' ? 'interp-immobile' : 'interp-normal';
+    const dec = computeDecisionLabel(interp.lamInfo, interp.margeInfo);
+    d.dec_text = dec.label;
+    d._decCls = dec.cls;
+  });
+
+  const search = document.getElementById('search').value.toLowerCase();
+  const fLamDir = document.getElementById('filter-lam-dir').value;
+  const fMargeDir = document.getElementById('filter-marge-dir').value;
+  const fDec = document.getElementById('filter-dec').value;
+  const fMarge = document.getElementById('filter-marge').value;
+  const fIntMarge = document.getElementById('filter-int-marge').value;
+  const fHeure = document.getElementById('filter-heure').value;
+  const fPays = document.getElementById('filter-pays').value;
+  const fComp = document.getElementById('filter-competition').value;
+  const fInterp = document.getElementById('filter-interp').value;
+
+  const margeRules = {
+    lt6:  m => m < 6,
+    gt9:  m => m < 9,
+    lt10: m => m < 10,
+    lt12: m => m < 12,
+    lt16: m => m < 16,
+    lt18: m => m < 18,
+    lt20: m => m < 20,
+  };
+
+  const intMargeRules = {
+    '0-6':   m => m >= 0  && m < 6,
+    '6-9':   m => m >= 6  && m < 9,
+    '9-12':  m => m >= 9  && m < 12,
+    '12-16': m => m >= 12 && m < 16,
+    '16-18': m => m >= 16 && m < 18,
+    '18-20': m => m >= 18 && m < 20,
+  };
+
+  filteredData = RAW_DATA.filter(d => {
+    if (search && !d.nom.toLowerCase().includes(search)) return false;
+    if (fLamDir && d._lamInfo.dir !== fLamDir) return false;
+    if (fMargeDir && d._margeInfo.dir !== fMargeDir) return false;
+    if (fDec && d.dec_text !== fDec) return false;
+    if (fMarge && !(margeRules[fMarge] && margeRules[fMarge](d.marge_fin))) return false;
+    if (fIntMarge && !(intMargeRules[fIntMarge] && intMargeRules[fIntMarge](d.marge_fin))) return false;
+    if (fHeure && extractHeurePrefixe(d.heure) !== fHeure) return false;
+    if (fPays && d.pays !== fPays) return false;
+    if (fComp && d.competition !== fComp) return false;
+    if (fInterp && d.interp_text !== fInterp) return false;
+    return true;
+  });
+
+  filteredData.sort((a, b) => {
+    const av = a[sortCol] ?? '';
+    const bv = b[sortCol] ?? '';
+    if (typeof av === 'number') return (av - bv) * sortDir;
+    return String(av).localeCompare(String(bv)) * sortDir;
+  });
+
+  const maxDL = Math.max(...filteredData.map(d => Math.abs(d.delta_lambda)), 0.01);
+  const maxDM = Math.max(...filteredData.map(d => Math.abs(d.delta_marge)), 0.01);
+
+  Object.values(charts).forEach(c => c.destroy());
+  charts = {};
+
+  document.getElementById('tbody').innerHTML = filteredData.length === 0
+    ? `<tr><td colspan="17" class="empty-state">Aucun match ne correspond aux filtres.</td></tr>`
+    : filteredData.map((d, i) => `
+      <tr class="data-row" data-idx="${i}">
+        <td class="nom-cell" title="${d.nom}">${d.nom}</td>
+        <td style="white-space:normal;font-size:11px;color:#555">${d.heure || '—'}</td>
+        <td style="font-size:11px;color:#555">${d.pays || '—'}</td>
+        <td style="white-space:normal;font-size:11px;color:#555" title="${d.competition || ''}">${d.competition || '—'}</td>
+        <td>${d.n_iter}</td>
+        <td>${fmtNum(d.lam_debut,2)}</td>
+        <td>${fmtNum(d.lam_fin,2)}</td>
+        <td><div class="bar-cell">${miniBar(d.delta_lambda, maxDL)}${fmtDelta(d.delta_lambda)}</div></td>
+        <td>${fmtNum(d.marge_debut,2)}</td>
+        <td>${fmtNum(d.marge_fin,2)}</td>
+        <td><div class="bar-cell">${miniBar(d.delta_marge, maxDM)}${fmtDelta2(d.delta_marge)}</div></td>
+        <td>${d.avg_over === null || isNaN(d.avg_over) ? '—' : d.avg_over.toFixed(1) + '%'}</td>
+        <td>${d.avg_under === null || isNaN(d.avg_under) ? '—' : d.avg_under.toFixed(1) + '%'}</td>
+        <td><span class="${d._interpCls}" title="${d.interp_detail}">${d.interp_text}</span></td>
+        <td><span class="${d._decCls}">${d.dec_text}</span></td>
+        <td><span class="lam-globale">${d.lambda_globale}</span></td>
+        <td>
+          <button class="expand-btn" onclick="Live.toggleDetail(${i})">▶ voir</button>
+          <span class="detail-teams">λ1:${fmtNum(d.lam1_fin,2)} λ2:${fmtNum(d.lam2_fin,2)}</span>
+        </td>
+      </tr>
+      <tr class="row-detail" id="detail-${i}">
+        <td colspan="17"><div id="detail-inner-${i}"></div></td>
+      </tr>`).join('');
+
+  document.getElementById('count-shown').textContent = `${filteredData.length} matchs affichés`;
+  updateStats();
+}
+
+function updateStats() {
+  const n = RAW_DATA.length;
+  const nUp = RAW_DATA.filter(d => d._lamInfo && d._lamInfo.dir === 'croissant').length;
+  const nDown = RAW_DATA.filter(d => d._lamInfo && d._lamInfo.dir === 'décroissant').length;
+  const nFixe = RAW_DATA.filter(d => d._lamInfo && d._lamInfo.dir === 'fixe').length;
+  document.getElementById('stat-total').textContent = n + ' matchs';
+  document.getElementById('stat-lamup').textContent = nUp + ' λ croissant';
+  document.getElementById('stat-lamdown').textContent = nDown + ' λ décroissant';
+  document.getElementById('stat-lamfixe').textContent = nFixe + ' λ fixe';
+}
+
+document.querySelectorAll('th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (sortCol === col) sortDir *= -1;
+    else { sortCol = col; sortDir = (col === 'nom' || col === 'interp_text' || col === 'dec_text') ? 1 : -1; }
+    document.querySelectorAll('th').forEach(t => t.classList.remove('sorted-asc', 'sorted-desc'));
+    th.classList.add(sortDir > 0 ? 'sorted-asc' : 'sorted-desc');
+    render();
+  });
+});
+
+['search', 'filter-lam-dir', 'filter-marge-dir', 'filter-dec', 'filter-marge', 'filter-int-marge', 'filter-heure', 'filter-pays', 'filter-competition', 'filter-interp'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', render);
+  el.addEventListener('change', render);
+});
+
+// Init
+if (DEFAULT_CSV_TEXT && DEFAULT_CSV_TEXT.trim()) {
+  loadCsvInput(DEFAULT_CSV_TEXT, '2026-07-21_PRELIVEALL_U.csv (intégré)');
+} else {
+  populateHeureFilter();
+  populatePaysFilter();
+  populateCompetitionFilter();
+  render();
+}
+
+window.Live = { toggleDetail, getRawRows: () => lastRawRows, getMatchData: () => RAW_DATA, hasData: () => RAW_DATA.length > 0 };
+})();
+
+</script>
+
+<script>
+(function(){
+'use strict';
+/* =========================================================
+   1. DONNEES INTEGREES (fichier source par défaut)
+   ========================================================= */
+const RAW_DATA = ``;
+
+/* =========================================================
+   2. COLONNES (ordre "Nom Match" -> "MargeMin_Valeur")
+   ========================================================= */
+const COLUMNS = [
+  {key:'nomMatch',        label:'Nom Match',          type:'text'},
+  {key:'pays',            label:'Pays',               type:'select'},
+  {key:'competition',     label:'Compétition',        type:'select'},
+  {key:'heureMatch',      label:'Heure du match',     type:'select', hourFilter:true},
+  {key:'snapshot',        label:'Snapshot',           type:'select'},
+  {key:'heureCollecte',   label:'Heure de collecte',  type:'select'},
+  {key:'marche',          label:'MargeMin_Marche',    type:'select'},
+  {key:'sens',            label:'MargeMin_Sens',      type:'select'},
+  {key:'seuil',           label:'MargeMin_Seuil',     type:'range'},
+  {key:'cote',            label:'MargeMin_Cote',      type:'range'},
+  {key:'valeur',          label:'MargeMin_Valeur',    type:'range'},
+];
+
+/* =========================================================
+   3. PARSER
+   ========================================================= */
+const LINE_RE = /Nom Match\s*=\s*(.*?)\s+Pays\s*=\s*(.*?)\s+Compétition\s*=\s*(.*?)\s+Heure du match\s*=\s*(.*?)\s+Snapshot\s*=\s*(.*?)\s+Heure de collecte\s*=\s*(.*?)\s+MargeMin_Marche=(.*?)\s+MargeMin_Sens=(\S+)\s+MargeMin_Seuil=([\d.,]+)\s+MargeMin_Cote=([\d.,]+)\s+MargeMin_Valeur=([\d.,]+)/;
+
+function parseData(text){
+  const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l.length>0);
+  const rows = [];
+  for(const line of lines){
+    const m = line.match(LINE_RE);
+    if(!m) continue;
+    rows.push({
+      nomMatch: m[1].trim(),
+      pays: m[2].trim(),
+      competition: m[3].trim(),
+      heureMatch: m[4].trim(),
+      snapshot: m[5].trim(),
+      heureCollecte: m[6].trim(),
+      marche: m[7].trim(),
+      sens: m[8].trim(),
+      seuil: parseFloat(m[9].replace(',','.')),
+      cote: parseFloat(m[10].replace(',','.')),
+      valeur: parseFloat(m[11].replace(',','.')),
+    });
+  }
+  return rows;
+}
+
+/* =========================================================
+   4. STATE
+   ========================================================= */
+let ALL_ROWS = [];
+let sortKey = 'heureCollecte';
+let sortDir = -1;
+const activeFilters = {}; // key -> value (select) or {min,max} (range) or string (text)
+
+/* =========================================================
+   5. RENDER FILTERS
+   ========================================================= */
+function uniqueSorted(rows, key){
+  return [...new Set(rows.map(r=>r[key]))].sort((a,b)=> (''+a).localeCompare((''+b), 'fr', {numeric:true}));
+}
+
+// Extrait l'heure d'horloge (préfixe HH) d'une chaîne contenant un HH:MM —
+// utilisé pour filtrer "Heure du match" par heure de début (11 -> 11:00,
+// 11:15, 11:30, 11:45…) plutôt que par horaire exact.
+function extractHeurePrefixe(str){
+  const m = ('' + (str || '')).match(/(\d{1,2}):\d{2}/);
+  return m ? m[1] : '';
+}
+
+function buildFilters(){
+  const grid = document.getElementById('filtersGrid');
+  grid.innerHTML = '';
+  COLUMNS.forEach(col=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'f-field';
+    const label = document.createElement('label');
+    label.textContent = col.label;
+    wrap.appendChild(label);
+
+    if(col.type === 'text'){
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = 'rechercher…';
+      input.addEventListener('input', ()=>{
+        activeFilters[col.key] = input.value.trim().toLowerCase();
+        applyFilters();
+      });
+      wrap.appendChild(input);
+    } else if(col.type === 'select' && col.hourFilter){
+      const sel = document.createElement('select');
+      sel.innerHTML = '<option value="">— tous —</option>';
+      const heures = Array.from(new Set(ALL_ROWS.map(r => extractHeurePrefixe(r[col.key])).filter(h => h)));
+      heures.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+      heures.forEach(h=>{
+        const opt = document.createElement('option');
+        opt.value = h; opt.textContent = h + 'h';
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', ()=>{
+        activeFilters[col.key] = sel.value;
+        applyFilters();
+      });
+      wrap.appendChild(sel);
+    } else if(col.type === 'select'){
+      const sel = document.createElement('select');
+      sel.innerHTML = '<option value="">— tous —</option>';
+      uniqueSorted(ALL_ROWS, col.key).forEach(v=>{
+        const opt = document.createElement('option');
+        opt.value = v; opt.textContent = v;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', ()=>{
+        activeFilters[col.key] = sel.value;
+        applyFilters();
+      });
+      wrap.appendChild(sel);
+    } else if(col.type === 'range'){
+      const vals = ALL_ROWS.map(r=>r[col.key]).filter(v=>!isNaN(v));
+      const min = vals.length? Math.min(...vals) : 0;
+      const max = vals.length? Math.max(...vals) : 0;
+      const range = document.createElement('div');
+      range.className = 'f-range';
+      const inMin = document.createElement('input');
+      inMin.type = 'number'; inMin.step='0.001'; inMin.placeholder = min.toFixed(2);
+      const sep = document.createElement('span'); sep.textContent='→';
+      const inMax = document.createElement('input');
+      inMax.type = 'number'; inMax.step='0.001'; inMax.placeholder = max.toFixed(2);
+      const update = ()=>{
+        activeFilters[col.key] = {
+          min: inMin.value===''? null: parseFloat(inMin.value),
+          max: inMax.value===''? null: parseFloat(inMax.value)
+        };
+        applyFilters();
+      };
+      inMin.addEventListener('input', update);
+      inMax.addEventListener('input', update);
+      range.appendChild(inMin); range.appendChild(sep); range.appendChild(inMax);
+      wrap.appendChild(range);
+    }
+    grid.appendChild(wrap);
+  });
+}
+
+/* =========================================================
+   6. APPLY FILTERS
+   ========================================================= */
+function applyFilters(){
+  let rows = ALL_ROWS.filter(r=>{
+    for(const col of COLUMNS){
+      const f = activeFilters[col.key];
+      if(f === undefined || f === null) continue;
+      if(col.type === 'text'){
+        if(f && !(''+r[col.key]).toLowerCase().includes(f)) return false;
+      } else if(col.type === 'select'){
+        if(f){
+          if(col.hourFilter){
+            if(extractHeurePrefixe(r[col.key]) !== f) return false;
+          } else if(r[col.key] !== f){
+            return false;
+          }
+        }
+      } else if(col.type === 'range'){
+        if(f.min !== null && !isNaN(f.min) && r[col.key] < f.min) return false;
+        if(f.max !== null && !isNaN(f.max) && r[col.key] > f.max) return false;
+      }
+    }
+    return true;
+  });
+  rows = sortRows(rows);
+  renderTable(rows);
+  document.getElementById('countLive').textContent = rows.length;
+  document.getElementById('countTotal').textContent = ALL_ROWS.length;
+  document.getElementById('statFiltered').textContent = rows.length;
+}
+
+function sortRows(rows){
+  const col = COLUMNS.find(c=>c.key===sortKey);
+  const isNum = col && col.type === 'range';
+  return [...rows].sort((a,b)=>{
+    let va = a[sortKey], vb = b[sortKey];
+    if(isNum){ va = va||0; vb = vb||0; return (va-vb)*sortDir; }
+    return (''+va).localeCompare((''+vb), 'fr', {numeric:true}) * sortDir;
+  });
+}
+
+/* =========================================================
+   7. RENDER TABLE (générique, réutilisé pour main + min + max)
+   ========================================================= */
+function fmtValeur(v, cls){
+  return `<span class="valeur ${cls||''}">${v.toFixed(3)}</span>`;
+}
+function fmtSens(s){
+  const c = s.toUpperCase()==='OVER' ? 'over' : 'under';
+  return `<span class="badge ${c}">${s}</span>`;
+}
+
+function rowCells(r){
+  return `
+    <td class="match-name">${escapeHtml(r.nomMatch)}</td>
+    <td>${escapeHtml(r.pays)}</td>
+    <td>${escapeHtml(r.competition)}</td>
+    <td>${escapeHtml(r.heureMatch)}</td>
+    <td>${escapeHtml(r.snapshot)}</td>
+    <td>${escapeHtml(r.heureCollecte)}</td>
+    <td>${escapeHtml(r.marche)}</td>
+    <td>${fmtSens(r.sens)}</td>
+    <td>${r.seuil.toFixed(2)}</td>
+    <td>${r.cote.toFixed(2)}</td>
+    <td>${fmtValeur(r.valeur)}</td>
+  `;
+}
+
+function escapeHtml(s){
+  return (''+s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function buildHeadRow(elId, clickable){
+  const tr = document.getElementById(elId);
+  tr.innerHTML = '';
+  COLUMNS.forEach(col=>{
+    const th = document.createElement('th');
+    th.textContent = col.label;
+    if(clickable){
+      th.addEventListener('click', ()=>{
+        if(sortKey===col.key){ sortDir *= -1; } else { sortKey = col.key; sortDir = 1; }
+        applyFilters();
+      });
+      if(sortKey===col.key){
+        const arrow = document.createElement('span');
+        arrow.className='arrow';
+        arrow.textContent = sortDir===1 ? '▲':'▼';
+        th.appendChild(arrow);
+      }
+    }
+    tr.appendChild(th);
+  });
+}
+
+function renderTable(rows){
+  buildHeadRow('tableHead', true);
+  const tbody = document.getElementById('tableBody');
+  if(rows.length===0){
+    tbody.innerHTML = `<tr><td colspan="${COLUMNS.length}" class="empty-msg">Aucune ligne ne correspond aux filtres.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(r=>`<tr>${rowCells(r)}</tr>`).join('');
+}
+
+/* =========================================================
+   8. FONCTIONS MIN / MAX PAR MATCH
+   (regroupe toutes les "Heure de collecte" d'un même "Nom Match"
+    et retourne la ligne complète correspondant au MargeMin_Valeur
+    le plus petit / le plus grand)
+   ========================================================= */
+function minMaxParMatch(rows){
+  const groups = {};
+  rows.forEach(r=>{
+    if(!groups[r.nomMatch]) groups[r.nomMatch] = [];
+    groups[r.nomMatch].push(r);
+  });
+  const mins = [], maxs = [];
+  Object.values(groups).forEach(list=>{
+    let minRow = list[0], maxRow = list[0];
+    list.forEach(r=>{
+      if(r.valeur < minRow.valeur) minRow = r;
+      if(r.valeur > maxRow.valeur) maxRow = r;
+    });
+    mins.push(minRow);
+    maxs.push(maxRow);
+  });
+  mins.sort((a,b)=>a.valeur-b.valeur);
+  maxs.sort((a,b)=>b.valeur-a.valeur);
+  return {mins, maxs};
+}
+
+function renderMinMax(){
+  const {mins, maxs} = minMaxParMatch(ALL_ROWS.length ? applyMinMaxSourceRows() : []);
+  buildHeadRow('minHead', false);
+  buildHeadRow('maxHead', false);
+  document.getElementById('minBody').innerHTML = mins.map(r=>
+    `<tr>${rowCells(r).replace('class="valeur ">'+r.valeur.toFixed(3), 'class="valeur low">'+r.valeur.toFixed(3))}</tr>`
+  ).join('');
+  document.getElementById('maxBody').innerHTML = maxs.map(r=>
+    `<tr>${rowCells(r).replace('class="valeur ">'+r.valeur.toFixed(3), 'class="valeur high">'+r.valeur.toFixed(3))}</tr>`
+  ).join('');
+}
+
+// Les tableaux min/max se basent sur l'ensemble des données actuellement filtrées
+function applyMinMaxSourceRows(){
+  return currentFilteredRows;
+}
+
+let currentFilteredRows = [];
+const _origApplyFilters = applyFilters;
+applyFilters = function(){
+  let rows = ALL_ROWS.filter(r=>{
+    for(const col of COLUMNS){
+      const f = activeFilters[col.key];
+      if(f === undefined || f === null) continue;
+      if(col.type === 'text'){
+        if(f && !(''+r[col.key]).toLowerCase().includes(f)) return false;
+      } else if(col.type === 'select'){
+        if(f){
+          if(col.hourFilter){
+            if(extractHeurePrefixe(r[col.key]) !== f) return false;
+          } else if(r[col.key] !== f){
+            return false;
+          }
+        }
+      } else if(col.type === 'range'){
+        if(f.min !== null && !isNaN(f.min) && r[col.key] < f.min) return false;
+        if(f.max !== null && !isNaN(f.max) && r[col.key] > f.max) return false;
+      }
+    }
+    return true;
+  });
+  currentFilteredRows = rows;
+  rows = sortRows(rows);
+  renderTable(rows);
+  document.getElementById('countLive').textContent = rows.length;
+  document.getElementById('countTotal').textContent = ALL_ROWS.length;
+  document.getElementById('statFiltered').textContent = rows.length;
+  renderMinMax();
+};
+
+/* =========================================================
+   9. INIT / LOAD
+   ========================================================= */
+function loadDataset(text, label){
+  ALL_ROWS = parseData(text);
+  document.getElementById('fname').textContent = `— fichier chargé : ${label} —`;
+  document.getElementById('statTotal').textContent = ALL_ROWS.length;
+  document.getElementById('statMatches').textContent = new Set(ALL_ROWS.map(r=>r.nomMatch)).size;
+  for(const k in activeFilters) delete activeFilters[k];
+  buildFilters();
+  applyFilters();
+}
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  for(const k in activeFilters) delete activeFilters[k];
+  buildFilters();
+  applyFilters();
+});
+
+document.getElementById('fileInput').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => loadDataset(ev.target.result, file.name);
+  reader.readAsText(file, 'utf-8');
+});
+
+const filebar = document.getElementById('filebar');
+['dragenter','dragover'].forEach(evt=>{
+  filebar.addEventListener(evt, e=>{ e.preventDefault(); filebar.classList.add('drag'); });
+});
+['dragleave','drop'].forEach(evt=>{
+  filebar.addEventListener(evt, e=>{ e.preventDefault(); filebar.classList.remove('drag'); });
+});
+filebar.addEventListener('drop', e=>{
+  const file = e.dataTransfer.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => loadDataset(ev.target.result, file.name);
+  reader.readAsText(file, 'utf-8');
+});
+
+loadDataset(RAW_DATA, '2026-07-21_COTES_MARGEMIN_U.txt (intégré)');
+
+window.MargeMin = { getRows: () => ALL_ROWS, hasData: () => ALL_ROWS.length > 0 };
+})();
+
+</script>
+
+<script>
+/* =========================================================================
+   ONGLET 3 — CROISEMENT
+   Produit UNE LIGNE PAR MATCH. Pour chaque match, on regarde TOUTES les
+   collectes de l'audit MargeMin (onglet 2) et on retient celle dont
+   MargeMin_Valeur est la PLUS PETITE (marge la plus faible = cote la plus
+   fiable du bookmaker). On associe ensuite à ce candidat la ligne CSV
+   (onglet 1 — Suivi Live) la plus proche dans le temps du même match, pour
+   récupérer heure/pays/competition/iteration/timestamp/lambda_total/marge.
+
+   Colonnes de sortie (telles que demandées) :
+   nom, heure, pays, competition, iteration, timestamp, lambda_total, marge,
+   Snapshot, Heure de collecte, MargeMin_Marche, MargeMin_Sens,
+   MargeMin_Seuil, MargeMin_Cote, MargeMin_Valeur
+   ========================================================================= */
+(function () {
+  'use strict';
+
+  const COLUMNS = [
+    { key: 'nom',            label: 'Nom',                 type: 'text'  },
+    { key: 'heure',          label: 'Heure',               type: 'select', hourFilter: true},
+    { key: 'pays',           label: 'Pays',                type: 'select'},
+    { key: 'competition',    label: 'Compétition',         type: 'select'},
+    { key: 'iteration',      label: 'Itération',           type: 'range' },
+    { key: 'timestamp',      label: 'Timestamp',           type: 'select'},
+    { key: 'lambda_total',   label: 'Lambda total',        type: 'range' },
+    { key: 'marge',          label: 'Marge',                type: 'range' },
+    { key: 'snapshot',       label: 'Snapshot',            type: 'select'},
+    { key: 'snapDistinct',   label: 'Snap Distinct',       type: 'range' },
+    { key: 'heureCollecte',  label: 'Heure de collecte',   type: 'select'},
+    { key: 'margeMinMarche', label: 'MargeMin_Marche',     type: 'select'},
+    { key: 'margeMinSens',   label: 'MargeMin_Sens',       type: 'select'},
+    { key: 'margeMinSeuil',  label: 'MargeMin_Seuil',      type: 'range' },
+    { key: 'margeMinCote',   label: 'MargeMin_Cote',       type: 'range' },
+    { key: 'margeMinValeur', label: 'MargeMin_Valeur',     type: 'range' },
+  ];
+
+  // Tolérance d'appariement CSV : au-delà de cet écart (en secondes) entre
+  // le timestamp CSV le plus proche et la Heure de collecte du candidat
+  // MargeMin minimal, on considère qu'aucune ligne CSV ne correspond de
+  // façon fiable (heure/pays/iteration/lambda/marge resteront vides).
+  const TOLERANCE_ECART_SEC = 20 * 60; // 20 minutes
+
+  let crossRows = [];       // une ligne par match (résultat agrégé)
+  let filteredRows = [];
+  let sortKey = 'margeMinValeur';
+  let sortDir = 1;          // marge la plus faible en premier
+  const activeFilters = {};
+
+  function timeToSeconds(str) {
+    const m = (str || '').match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+    if (!m) return null;
+    return (+m[1]) * 3600 + (+m[2]) * 60 + (+(m[3] || 0));
+  }
+
+  function ecartSeconds(tsA, tsB) {
+    const a = timeToSeconds(tsA), b = timeToSeconds(tsB);
+    if (a === null || b === null) return null;
+    let diff = Math.abs(a - b);
+    if (diff > 12 * 3600) diff = 24 * 3600 - diff; // passage de minuit
+    return diff;
+  }
+
+  function fmtEcart(sec) {
+    if (sec === null || sec === undefined) return '—';
+    const m = Math.floor(sec / 60), s = Math.round(sec % 60);
+    return m > 0 ? `${m}min ${s}s` : `${s}s`;
+  }
+
+  /* ---- Sélectionne, parmi toutes les collectes TXT d'un match, celle
+     dont MargeMin_Valeur est la plus petite (départage par la cote la plus
+     petite en cas d'égalité) ---- */
+  function collecteMargeMinimale(txtRowsDuMatch) {
+    if (!txtRowsDuMatch.length) return null;
+    let best = txtRowsDuMatch[0];
+    for (const r of txtRowsDuMatch) {
+      if (r.valeur < best.valeur || (r.valeur === best.valeur && r.cote < best.cote)) {
+        best = r;
+      }
+    }
+    return best;
+  }
+
+  /* ---- Parmi les lignes CSV d'un même match, celle dont le timestamp est
+     le plus proche de la Heure de collecte du candidat MargeMin retenu ---- */
+  function csvLePlusProche(csvRowsDuMatch, heureCollecteCible) {
+    let best = null, bestEcart = Infinity;
+    csvRowsDuMatch.forEach(c => {
+      const e = ecartSeconds(c.timestamp, heureCollecteCible);
+      if (e !== null && e < bestEcart) { bestEcart = e; best = c; }
+    });
+    if (best && bestEcart <= TOLERANCE_ECART_SEC) return { row: best, ecart: bestEcart };
+    return { row: null, ecart: null };
+  }
+
+  /* ---- Calcul du croisement : une ligne par match ---- */
+  function recompute() {
+    const liveRows = (window.Live && window.Live.getRawRows) ? window.Live.getRawRows() : [];
+    const mmRows = (window.MargeMin && window.MargeMin.getRows) ? window.MargeMin.getRows() : [];
+
+    const mmByMatch = {};
+    mmRows.forEach(r => {
+      if (!mmByMatch[r.nomMatch]) mmByMatch[r.nomMatch] = [];
+      mmByMatch[r.nomMatch].push(r);
+    });
+    const csvByMatch = {};
+    liveRows.forEach(r => {
+      if (!csvByMatch[r.nom]) csvByMatch[r.nom] = [];
+      csvByMatch[r.nom].push(r);
+    });
+
+    // Un match n'apparaît dans le croisement que s'il possède au moins une
+    // collecte d'audit MargeMin (sans elle, aucun minimum n'est calculable).
+    const nomsMatchs = Object.keys(mmByMatch);
+
+    crossRows = nomsMatchs.map(nom => {
+      const txtRowsDuMatch = mmByMatch[nom];
+      const minTxt = collecteMargeMinimale(txtRowsDuMatch);
+      const csvRowsDuMatch = csvByMatch[nom] || [];
+      const { row: csvMatch, ecart } = csvLePlusProche(csvRowsDuMatch, minTxt.heureCollecte);
+
+      return {
+        nom: nom,
+        heure: csvMatch ? csvMatch.heure : '',
+        pays: csvMatch ? csvMatch.pays : (txtRowsDuMatch[0] ? txtRowsDuMatch[0].pays : ''),
+        competition: csvMatch ? csvMatch.competition : (txtRowsDuMatch[0] ? txtRowsDuMatch[0].competition : ''),
+        iteration: csvMatch ? csvMatch.iteration : null,
+        timestamp: csvMatch ? csvMatch.timestamp : null,
+        lambda_total: csvMatch ? csvMatch.lambda_total : null,
+        marge: csvMatch ? csvMatch.marge : null,
+        snapshot: minTxt.snapshot,
+        snapDistinct: new Set(txtRowsDuMatch.map(r => r.snapshot)).size,
+        heureCollecte: minTxt.heureCollecte,
+        margeMinMarche: minTxt.marche,
+        margeMinSens: minTxt.sens,
+        margeMinSeuil: minTxt.seuil,
+        margeMinCote: minTxt.cote,
+        margeMinValeur: minTxt.valeur,
+        _nbCollectes: txtRowsDuMatch.length,
+        _apparieCsv: !!csvMatch,
+        _ecartCsv: ecart,
+      };
+    });
+
+    buildFilters();
+    applyFilters();
+    updateStats();
+  }
+
+  /* ---- Filtres ---- */
+  function uniqueSorted(rows, key) {
+    return [...new Set(rows.map(r => r[key]).filter(v => v !== null && v !== undefined && v !== ''))]
+      .sort((a, b) => ('' + a).localeCompare('' + b, 'fr', { numeric: true }));
+  }
+
+  // Extrait l'heure d'horloge (préfixe HH) d'une chaîne contenant un HH:MM —
+  // utilisé pour filtrer "Heure" par heure de début (11 -> 11:00, 11:15,
+  // 11:30, 11:45…) plutôt que par horaire exact.
+  function extractHeurePrefixe(str) {
+    const m = ('' + (str || '')).match(/(\d{1,2}):\d{2}/);
+    return m ? m[1] : '';
+  }
+
+  function buildFilters() {
+    const grid = document.getElementById('cross-filtersGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    COLUMNS.forEach(col => {
+      const wrap = document.createElement('div');
+      wrap.className = 'f-field';
+      const label = document.createElement('label');
+      label.textContent = col.label;
+      wrap.appendChild(label);
+
+      if (col.type === 'text') {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'rechercher…';
+        input.addEventListener('input', () => {
+          activeFilters[col.key] = input.value.trim().toLowerCase();
+          applyFilters();
+        });
+        wrap.appendChild(input);
+      } else if (col.type === 'select' && col.hourFilter) {
+        const sel = document.createElement('select');
+        sel.innerHTML = '<option value="">— tous —</option>';
+        const heures = Array.from(new Set(crossRows.map(r => extractHeurePrefixe(r[col.key])).filter(h => h)));
+        heures.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+        heures.forEach(h => {
+          const opt = document.createElement('option');
+          opt.value = h; opt.textContent = h + 'h';
+          sel.appendChild(opt);
+        });
+        sel.addEventListener('change', () => {
+          activeFilters[col.key] = sel.value;
+          applyFilters();
+        });
+        wrap.appendChild(sel);
+      } else if (col.type === 'select') {
+        const sel = document.createElement('select');
+        sel.innerHTML = '<option value="">— tous —</option>';
+        uniqueSorted(crossRows, col.key).forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v; opt.textContent = v;
+          sel.appendChild(opt);
+        });
+        sel.addEventListener('change', () => {
+          activeFilters[col.key] = sel.value;
+          applyFilters();
+        });
+        wrap.appendChild(sel);
+      } else if (col.type === 'range') {
+        const vals = crossRows.map(r => r[col.key]).filter(v => v !== null && v !== undefined && !isNaN(v));
+        const min = vals.length ? Math.min(...vals) : 0;
+        const max = vals.length ? Math.max(...vals) : 0;
+        const range = document.createElement('div');
+        range.className = 'f-range';
+        const inMin = document.createElement('input');
+        inMin.type = 'number'; inMin.step = '0.001'; inMin.placeholder = min.toFixed(2);
+        const sep = document.createElement('span'); sep.textContent = '→';
+        const inMax = document.createElement('input');
+        inMax.type = 'number'; inMax.step = '0.001'; inMax.placeholder = max.toFixed(2);
+        const update = () => {
+          activeFilters[col.key] = {
+            min: inMin.value === '' ? null : parseFloat(inMin.value),
+            max: inMax.value === '' ? null : parseFloat(inMax.value),
+          };
+          applyFilters();
+        };
+        inMin.addEventListener('input', update);
+        inMax.addEventListener('input', update);
+        range.appendChild(inMin); range.appendChild(sep); range.appendChild(inMax);
+        wrap.appendChild(range);
+      }
+      grid.appendChild(wrap);
+    });
+
+    // Filtre supplémentaire : statut d'appariement CSV
+    const wrapStatut = document.createElement('div');
+    wrapStatut.className = 'f-field';
+    const lbl = document.createElement('label');
+    lbl.textContent = 'CSV apparié';
+    wrapStatut.appendChild(lbl);
+    const selStatut = document.createElement('select');
+    selStatut.innerHTML = '<option value="">— tous —</option><option value="apparie">Apparié</option><option value="non">Non apparié</option>';
+    selStatut.addEventListener('change', () => {
+      activeFilters['_statut'] = selStatut.value;
+      applyFilters();
+    });
+    wrapStatut.appendChild(selStatut);
+    grid.appendChild(wrapStatut);
+  }
+
+  function applyFilters() {
+    filteredRows = crossRows.filter(r => {
+      for (const col of COLUMNS) {
+        const f = activeFilters[col.key];
+        if (f === undefined || f === null) continue;
+        if (col.type === 'text') {
+          if (f && !('' + r[col.key]).toLowerCase().includes(f)) return false;
+        } else if (col.type === 'select') {
+          if (f) {
+            if (col.hourFilter) {
+              if (extractHeurePrefixe(r[col.key]) !== f) return false;
+            } else if (r[col.key] !== f) {
+              return false;
+            }
+          }
+        } else if (col.type === 'range') {
+          if (f.min !== null && !isNaN(f.min) && (r[col.key] === null || r[col.key] < f.min)) return false;
+          if (f.max !== null && !isNaN(f.max) && (r[col.key] === null || r[col.key] > f.max)) return false;
+        }
+      }
+      const fStatut = activeFilters['_statut'];
+      if (fStatut === 'apparie' && !r._apparieCsv) return false;
+      if (fStatut === 'non' && r._apparieCsv) return false;
+      return true;
+    });
+    filteredRows = sortRows(filteredRows);
+    renderTable(filteredRows);
+    const live = document.getElementById('cross-countLive');
+    const total = document.getElementById('cross-countTotal');
+    if (live) live.textContent = filteredRows.length;
+    if (total) total.textContent = crossRows.length;
+  }
+
+  function sortRows(rows) {
+    const col = COLUMNS.find(c => c.key === sortKey);
+    const isNum = col && col.type === 'range';
+    return [...rows].sort((a, b) => {
+      let va = a[sortKey], vb = b[sortKey];
+      if (isNum) {
+        va = (va === null || va === undefined) ? Infinity : va;
+        vb = (vb === null || vb === undefined) ? Infinity : vb;
+        return (va - vb) * sortDir;
+      }
+      va = va === null || va === undefined ? '' : va;
+      vb = vb === null || vb === undefined ? '' : vb;
+      return ('' + va).localeCompare('' + vb, 'fr', { numeric: true }) * sortDir;
+    });
+  }
+
+  /* ---- Rendu ---- */
+  function escapeHtml(s) {
+    return ('' + s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function fmtVal(v, d) {
+    return (v === null || v === undefined || isNaN(v)) ? '—' : Number(v).toFixed(d);
+  }
+  function fmtSens(s) {
+    if (!s) return '—';
+    const c = s.toUpperCase() === 'OVER' ? 'over' : 'under';
+    return `<span class="badge ${c}">${escapeHtml(s)}</span>`;
+  }
+
+  function buildHeadRow() {
+    const tr = document.getElementById('cross-tableHead');
+    if (!tr) return;
+    tr.innerHTML = '';
+    COLUMNS.forEach(col => {
+      const th = document.createElement('th');
+      th.textContent = col.label;
+      th.addEventListener('click', () => {
+        if (sortKey === col.key) { sortDir *= -1; } else { sortKey = col.key; sortDir = 1; }
+        applyFilters();
+      });
+      if (sortKey === col.key) {
+        const arrow = document.createElement('span');
+        arrow.className = 'arrow';
+        arrow.textContent = sortDir === 1 ? '▲' : '▼';
+        th.appendChild(arrow);
+      }
+      tr.appendChild(th);
+    });
+    const thCollectes = document.createElement('th');
+    thCollectes.textContent = 'Collectes';
+    tr.appendChild(thCollectes);
+    const thStatut = document.createElement('th');
+    thStatut.textContent = 'CSV';
+    tr.appendChild(thStatut);
+    const thEcart = document.createElement('th');
+    thEcart.textContent = 'Écart CSV';
+    tr.appendChild(thEcart);
+  }
+
+  function rowCells(r) {
+    return `
+      <td class="match-name">${escapeHtml(r.nom)}</td>
+      <td>${r.heure ? escapeHtml(r.heure) : '—'}</td>
+      <td>${r.pays ? escapeHtml(r.pays) : '—'}</td>
+      <td>${r.competition ? escapeHtml(r.competition) : '—'}</td>
+      <td>${r.iteration !== null && r.iteration !== undefined ? r.iteration : '—'}</td>
+      <td>${r.timestamp ? escapeHtml(r.timestamp) : '—'}</td>
+      <td>${fmtVal(r.lambda_total, 2)}</td>
+      <td>${fmtVal(r.marge, 2)}</td>
+      <td>${r.snapshot ? escapeHtml(r.snapshot) : '—'}</td>
+      <td>${r.snapDistinct !== null && r.snapDistinct !== undefined ? r.snapDistinct : '—'}</td>
+      <td>${r.heureCollecte ? escapeHtml(r.heureCollecte) : '—'}</td>
+      <td>${r.margeMinMarche ? escapeHtml(r.margeMinMarche) : '—'}</td>
+      <td>${fmtSens(r.margeMinSens)}</td>
+      <td>${fmtVal(r.margeMinSeuil, 2)}</td>
+      <td>${fmtVal(r.margeMinCote, 2)}</td>
+      <td>${r.margeMinValeur !== null && r.margeMinValeur !== undefined ? `<span class="valeur">${fmtVal(r.margeMinValeur, 3)}</span>` : '—'}</td>
+      <td>${r._nbCollectes}</td>
+      <td>${r._apparieCsv ? '<span class="badge under">Apparié</span>' : '<span class="badge over">Non apparié</span>'}</td>
+      <td>${fmtEcart(r._ecartCsv)}</td>
+    `;
+  }
+
+  function renderTable(rows) {
+    buildHeadRow();
+    const tbody = document.getElementById('cross-tableBody');
+    if (!tbody) return;
+    if (rows.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="${COLUMNS.length + 3}" class="empty-msg">Aucune ligne — charge un TXT (onglet Audit MargeMin), et idéalement un CSV (onglet Suivi Live), puis clique sur "Recalculer".</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.map(r => `<tr>${rowCells(r)}</tr>`).join('');
+  }
+
+  function updateStats() {
+    const total = crossRows.length;
+    const apparies = crossRows.filter(r => r._apparieCsv).length;
+    const nonApparies = total - apparies;
+    const elTotal = document.getElementById('cross-statTotal');
+    const elApp = document.getElementById('cross-statApparies');
+    const elNon = document.getElementById('cross-statNonApparies');
+    if (elTotal) elTotal.textContent = total;
+    if (elApp) elApp.textContent = apparies;
+    if (elNon) elNon.textContent = nonApparies;
+  }
+
+  function resetFilters() {
+    for (const k in activeFilters) delete activeFilters[k];
+    buildFilters();
+    applyFilters();
+  }
+
+  document.getElementById('cross-resetBtn')?.addEventListener('click', resetFilters);
+  document.getElementById('cross-recalcBtn')?.addEventListener('click', recompute);
+
+  window.Cross = { recompute };
+})();
+
+</script>
+
+<script>
+/* =========================================================================
+   ONGLET 4 — CROISEMENT (MARGE MAXIMALE)
+   Identique à l'onglet 3, mais produit UNE LIGNE PAR MATCH basée sur la
+   collecte dont MargeMin_Valeur est la PLUS GRANDE (marge la plus forte =
+   cote la moins fiable / marché le plus flou du bookmaker à ce moment-là).
+   On associe ensuite à ce candidat la ligne CSV
+   (onglet 1 — Suivi Live) la plus proche dans le temps du même match, pour
+   récupérer heure/pays/competition/iteration/timestamp/lambda_total/marge.
+
+   Colonnes de sortie (telles que demandées) :
+   nom, heure, pays, competition, iteration, timestamp, lambda_total, marge,
+   Snapshot, Heure de collecte, MargeMin_Marche, MargeMin_Sens,
+   MargeMin_Seuil, MargeMin_Cote, MargeMin_Valeur
+   ========================================================================= */
+(function () {
+  'use strict';
+
+  const COLUMNS = [
+    { key: 'nom',            label: 'Nom',                 type: 'text'  },
+    { key: 'heure',          label: 'Heure',               type: 'select', hourFilter: true},
+    { key: 'lambda_total',   label: 'LT',                  type: 'range' },
+    { key: 'choix1',         label: 'C1',                  type: 'select'},
+    { key: 'choix2',         label: 'C2',                  type: 'select'},
+    { key: 'snapshot',       label: 'SNP',                 type: 'select'},
+    { key: 'snapDistinct',   label: 'SD',                  type: 'range' },
+    { key: 'margeMinMarche', label: 'MM',                  type: 'select'},
+    { key: 'margeMinSens',   label: 'MS',                  type: 'select'},
+    { key: 'margeMinSeuil',  label: 'MMS',                 type: 'range' },
+    { key: 'avgOver',        label: 'MO',                  type: 'range' },
+    { key: 'avgUnder',       label: 'MU',                  type: 'range' },
+    { key: 'lam1',           label: 'λ1',                  type: 'range' },
+    { key: 'lam2',           label: 'λ2',                  type: 'range' },
+    { key: 'interpText',     label: 'INT',                 type: 'select'},
+    { key: 'decText',        label: 'DEC',                 type: 'select'},
+  ];
+
+  // Tolérance d'appariement CSV : au-delà de cet écart (en secondes) entre
+  // le timestamp CSV le plus proche et la Heure de collecte du candidat
+  // MargeMin minimal, on considère qu'aucune ligne CSV ne correspond de
+  // façon fiable (heure/pays/iteration/lambda/marge resteront vides).
+  const TOLERANCE_ECART_SEC = 20 * 60; // 20 minutes
+
+  let crossRows = [];       // une ligne par match (résultat agrégé)
+  let filteredRows = [];
+  let sortKey = 'nom';
+  let sortDir = 1;
+  const activeFilters = {};
+
+  // Formate un nombre à 1 décimale, en string, pour l'affichage dans les
+  // libellés CHOIX 1 (ex: "M UNDER (4.5)"). Retourne '' si non calculable.
+  function fmt1(v) {
+    return (v === null || v === undefined || isNaN(v)) ? '' : (Math.round(v * 10) / 10).toString();
+  }
+
+  // Extrait l'heure HH:MM sans la date (ex: "2026-07-21 09:30" -> "09:30")
+  function onlyTime(v) {
+    if (!v) return v;
+    const m = String(v).match(/(\d{1,2}:\d{2})(?::\d{2})?\s*$/);
+    return m ? m[1] : v;
+  }
+
+  /* ---- Choix 1 / Choix 2 -------------------------------------------------
+     D'après la règle métier (audit MargeMin croisé avec Suivi Live) :
+     - Choix 2 suit toujours λ1 vs λ2 : "1X" si λ1 > λ2, "X2" si λ2 > λ1,
+       dès qu'une des 6 combinaisons Marché/Sens ci-dessous est reconnue.
+     - Choix 1 dépend de la combinaison MargeMin_Marche / MargeMin_Sens
+       reconnue (MATCH, ÉQUIPE 1, ÉQUIPE 2 × UNDER/OVER), du seuil
+       MargeMin_Seuil (variable selon le match), de Moyenne Over/Under
+       (onglet 1) et de λ1/λ2 (onglet 1, Détail). ---- */
+  function computeChoix(marche, sens, seuil, lambdaTotal, avgOver, avgUnder, lam1, lam2) {
+    marche = (marche || '').toUpperCase();
+    sens = (sens || '').toUpperCase();
+    const hasLam = lam1 !== null && lam1 !== undefined && !isNaN(lam1) && lam2 !== null && lam2 !== undefined && !isNaN(lam2);
+    const hasAvg = avgOver !== null && avgOver !== undefined && !isNaN(avgOver) && avgUnder !== null && avgUnder !== undefined && !isNaN(avgUnder);
+    const isMatch = marche === 'MATCH';
+    const isE1 = marche.indexOf('1') !== -1;
+    const isE2 = marche.indexOf('2') !== -1;
+    const isUnder = sens === 'UNDER';
+    const isOver = sens === 'OVER';
+
+    const choix2Defaut = () => {
+      if (!hasLam) return '';
+      if (lam1 > lam2) return '1X';
+      if (lam2 > lam1) return 'X2';
+      return '';
+    };
+
+    let choix1 = '', choix2 = '';
+
+    if (isMatch && isUnder) {
+      choix2 = choix2Defaut();
+      if (hasAvg && avgUnder > avgOver) choix1 = 'M UNDER (' + fmt1(seuil - 1) + ')';
+    } else if (isMatch && isOver) {
+      choix2 = choix2Defaut();
+      if (hasAvg && avgOver > avgUnder && avgOver > 60) choix1 = 'M OVER (' + fmt1(lambdaTotal - 1) + ')';
+    } else if (isE1 && isUnder) {
+      choix2 = choix2Defaut();
+      if (hasLam && lam1 < lam2) choix1 = 'E1 UNDER UNDER (' + fmt1(seuil - 1) + ')';
+    } else if (isE1 && isOver) {
+      choix2 = choix2Defaut();
+      if (hasAvg && hasLam && avgOver > avgUnder && lam1 > lam2 && avgOver > 60) choix1 = 'M OVER (' + fmt1(seuil) + ')';
+    } else if (isE2 && isUnder) {
+      choix2 = choix2Defaut();
+      if (hasLam && lam2 < lam1) choix1 = 'E2 UNDER UNDER (' + fmt1(seuil - 1) + ')';
+    } else if (isE2 && isOver) {
+      choix2 = choix2Defaut();
+      if (hasAvg && hasLam && avgOver > avgUnder && lam2 > lam1 && avgOver > 60) choix1 = 'M OVER (' + fmt1(seuil) + ')';
+    }
+
+    return { choix1, choix2 };
+  }
+
+  function timeToSeconds(str) {
+    const m = (str || '').match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+    if (!m) return null;
+    return (+m[1]) * 3600 + (+m[2]) * 60 + (+(m[3] || 0));
+  }
+
+  function ecartSeconds(tsA, tsB) {
+    const a = timeToSeconds(tsA), b = timeToSeconds(tsB);
+    if (a === null || b === null) return null;
+    let diff = Math.abs(a - b);
+    if (diff > 12 * 3600) diff = 24 * 3600 - diff; // passage de minuit
+    return diff;
+  }
+
+  function fmtEcart(sec) {
+    if (sec === null || sec === undefined) return '—';
+    const m = Math.floor(sec / 60), s = Math.round(sec % 60);
+    return m > 0 ? `${m}min ${s}s` : `${s}s`;
+  }
+
+  /* ---- Sélectionne, parmi toutes les collectes TXT d'un match, celle
+     dont MargeMin_Valeur est la plus petite (départage par la cote la plus
+     petite en cas d'égalité) ---- */
+  function collecteMargeMaximale(txtRowsDuMatch) {
+    if (!txtRowsDuMatch.length) return null;
+    let best = txtRowsDuMatch[0];
+    for (const r of txtRowsDuMatch) {
+      if (r.valeur > best.valeur || (r.valeur === best.valeur && r.cote > best.cote)) {
+        best = r;
+      }
+    }
+    return best;
+  }
+
+  /* ---- Parmi les lignes CSV d'un même match, celle dont le timestamp est
+     le plus proche de la Heure de collecte du candidat MargeMin retenu ---- */
+  function csvLePlusProche(csvRowsDuMatch, heureCollecteCible) {
+    let best = null, bestEcart = Infinity;
+    csvRowsDuMatch.forEach(c => {
+      const e = ecartSeconds(c.timestamp, heureCollecteCible);
+      if (e !== null && e < bestEcart) { bestEcart = e; best = c; }
+    });
+    if (best && bestEcart <= TOLERANCE_ECART_SEC) return { row: best, ecart: bestEcart };
+    return { row: null, ecart: null };
+  }
+
+  /* ---- Calcul du croisement : une ligne par match ---- */
+  function recompute() {
+    const liveRows = (window.Live && window.Live.getRawRows) ? window.Live.getRawRows() : [];
+    const mmRows = (window.MargeMin && window.MargeMin.getRows) ? window.MargeMin.getRows() : [];
+    const liveMatchData = (window.Live && window.Live.getMatchData) ? window.Live.getMatchData() : [];
+
+    const mmByMatch = {};
+    mmRows.forEach(r => {
+      if (!mmByMatch[r.nomMatch]) mmByMatch[r.nomMatch] = [];
+      mmByMatch[r.nomMatch].push(r);
+    });
+    const csvByMatch = {};
+    liveRows.forEach(r => {
+      if (!csvByMatch[r.nom]) csvByMatch[r.nom] = [];
+      csvByMatch[r.nom].push(r);
+    });
+    // Données agrégées par match de l'onglet 1 (Lambda Total final, Moyenne
+    // Over/Under, λ1/λ2 de fin, Interprétation, Décision)
+    const liveMatchByNom = {};
+    liveMatchData.forEach(d => { liveMatchByNom[d.nom] = d; });
+
+    // Un match n'apparaît dans le croisement que s'il possède au moins une
+    // collecte d'audit MargeMin (sans elle, aucun minimum n'est calculable).
+    const nomsMatchs = Object.keys(mmByMatch);
+
+    crossRows = nomsMatchs.map(nom => {
+      const txtRowsDuMatch = mmByMatch[nom];
+      const minTxt = collecteMargeMaximale(txtRowsDuMatch);
+      const csvRowsDuMatch = csvByMatch[nom] || [];
+      const { row: csvMatch, ecart } = csvLePlusProche(csvRowsDuMatch, minTxt.heureCollecte);
+      const md = liveMatchByNom[nom] || null;
+      const avgOver = md ? md.avg_over : null;
+      const avgUnder = md ? md.avg_under : null;
+      const lam1 = md ? md.lam1_fin : null;
+      const lam2 = md ? md.lam2_fin : null;
+      const { choix1, choix2 } = computeChoix(
+        minTxt.marche, minTxt.sens, minTxt.seuil,
+        csvMatch ? csvMatch.lambda_total : null,
+        avgOver, avgUnder, lam1, lam2
+      );
+
+      return {
+        nom: nom,
+        heure: csvMatch ? csvMatch.heure : '',
+        pays: csvMatch ? csvMatch.pays : (txtRowsDuMatch[0] ? txtRowsDuMatch[0].pays : ''),
+        competition: csvMatch ? csvMatch.competition : (txtRowsDuMatch[0] ? txtRowsDuMatch[0].competition : ''),
+        iteration: csvMatch ? csvMatch.iteration : null,
+        timestamp: csvMatch ? csvMatch.timestamp : null,
+        lambda_total: csvMatch ? csvMatch.lambda_total : null,
+        marge: csvMatch ? csvMatch.marge : null,
+        snapshot: minTxt.snapshot,
+        snapDistinct: new Set(txtRowsDuMatch.map(r => r.snapshot)).size,
+        heureCollecte: minTxt.heureCollecte,
+        margeMinMarche: minTxt.marche,
+        margeMinSens: minTxt.sens,
+        margeMinSeuil: minTxt.seuil,
+        margeMinCote: minTxt.cote,
+        margeMinValeur: minTxt.valeur,
+        choix1, choix2,
+        avgOver, avgUnder, lam1, lam2,
+        interpText: md ? md.interp_text : null,
+        decText: md ? md.dec_text : null,
+        _nbCollectes: txtRowsDuMatch.length,
+        _apparieCsv: !!csvMatch,
+        _ecartCsv: ecart,
+      };
+    });
+
+    buildFilters();
+    applyFilters();
+    updateStats();
+  }
+
+  /* ---- Filtres ---- */
+  function uniqueSorted(rows, key) {
+    return [...new Set(rows.map(r => r[key]).filter(v => v !== null && v !== undefined && v !== ''))]
+      .sort((a, b) => ('' + a).localeCompare('' + b, 'fr', { numeric: true }));
+  }
+
+  // Extrait l'heure d'horloge (préfixe HH) d'une chaîne contenant un HH:MM —
+  // utilisé pour filtrer "Heure" par heure de début (11 -> 11:00, 11:15,
+  // 11:30, 11:45…) plutôt que par horaire exact.
+  function extractHeurePrefixe(str) {
+    const m = ('' + (str || '')).match(/(\d{1,2}):\d{2}/);
+    return m ? m[1] : '';
+  }
+
+  function buildFilters() {
+    const grid = document.getElementById('crossmax-filtersGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    COLUMNS.forEach(col => {
+      const wrap = document.createElement('div');
+      wrap.className = 'f-field';
+      const label = document.createElement('label');
+      label.textContent = col.label;
+      wrap.appendChild(label);
+
+      if (col.type === 'text') {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'rechercher…';
+        input.addEventListener('input', () => {
+          activeFilters[col.key] = input.value.trim().toLowerCase();
+          applyFilters();
+        });
+        wrap.appendChild(input);
+      } else if (col.type === 'select' && col.hourFilter) {
+        const sel = document.createElement('select');
+        sel.innerHTML = '<option value="">— tous —</option>';
+        const heures = Array.from(new Set(crossRows.map(r => extractHeurePrefixe(r[col.key])).filter(h => h)));
+        heures.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+        heures.forEach(h => {
+          const opt = document.createElement('option');
+          opt.value = h; opt.textContent = h + 'h';
+          sel.appendChild(opt);
+        });
+        sel.addEventListener('change', () => {
+          activeFilters[col.key] = sel.value;
+          applyFilters();
+        });
+        wrap.appendChild(sel);
+      } else if (col.type === 'select') {
+        const sel = document.createElement('select');
+        sel.innerHTML = '<option value="">— tous —</option>';
+        uniqueSorted(crossRows, col.key).forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v; opt.textContent = v;
+          sel.appendChild(opt);
+        });
+        sel.addEventListener('change', () => {
+          activeFilters[col.key] = sel.value;
+          applyFilters();
+        });
+        wrap.appendChild(sel);
+      } else if (col.type === 'range') {
+        const vals = crossRows.map(r => r[col.key]).filter(v => v !== null && v !== undefined && !isNaN(v));
+        const min = vals.length ? Math.min(...vals) : 0;
+        const max = vals.length ? Math.max(...vals) : 0;
+        const range = document.createElement('div');
+        range.className = 'f-range';
+        const inMin = document.createElement('input');
+        inMin.type = 'number'; inMin.step = '0.001'; inMin.placeholder = min.toFixed(2);
+        const sep = document.createElement('span'); sep.textContent = '→';
+        const inMax = document.createElement('input');
+        inMax.type = 'number'; inMax.step = '0.001'; inMax.placeholder = max.toFixed(2);
+        const update = () => {
+          activeFilters[col.key] = {
+            min: inMin.value === '' ? null : parseFloat(inMin.value),
+            max: inMax.value === '' ? null : parseFloat(inMax.value),
+          };
+          applyFilters();
+        };
+        inMin.addEventListener('input', update);
+        inMax.addEventListener('input', update);
+        range.appendChild(inMin); range.appendChild(sep); range.appendChild(inMax);
+        wrap.appendChild(range);
+      }
+      grid.appendChild(wrap);
+    });
+  }
+
+  function applyFilters() {
+    filteredRows = crossRows.filter(r => {
+      for (const col of COLUMNS) {
+        const f = activeFilters[col.key];
+        if (f === undefined || f === null) continue;
+        if (col.type === 'text') {
+          if (f && !('' + r[col.key]).toLowerCase().includes(f)) return false;
+        } else if (col.type === 'select') {
+          if (f) {
+            if (col.hourFilter) {
+              if (extractHeurePrefixe(r[col.key]) !== f) return false;
+            } else if (r[col.key] !== f) {
+              return false;
+            }
+          }
+        } else if (col.type === 'range') {
+          if (f.min !== null && !isNaN(f.min) && (r[col.key] === null || r[col.key] < f.min)) return false;
+          if (f.max !== null && !isNaN(f.max) && (r[col.key] === null || r[col.key] > f.max)) return false;
+        }
+      }
+      return true;
+    });
+    filteredRows = sortRows(filteredRows);
+    renderTable(filteredRows);
+    const live = document.getElementById('crossmax-countLive');
+    const total = document.getElementById('crossmax-countTotal');
+    if (live) live.textContent = filteredRows.length;
+    if (total) total.textContent = crossRows.length;
+  }
+
+  function sortRows(rows) {
+    const col = COLUMNS.find(c => c.key === sortKey);
+    const isNum = col && col.type === 'range';
+    return [...rows].sort((a, b) => {
+      let va = a[sortKey], vb = b[sortKey];
+      if (isNum) {
+        va = (va === null || va === undefined) ? Infinity : va;
+        vb = (vb === null || vb === undefined) ? Infinity : vb;
+        return (va - vb) * sortDir;
+      }
+      va = va === null || va === undefined ? '' : va;
+      vb = vb === null || vb === undefined ? '' : vb;
+      return ('' + va).localeCompare('' + vb, 'fr', { numeric: true }) * sortDir;
+    });
+  }
+
+  /* ---- Rendu ---- */
+  function escapeHtml(s) {
+    return ('' + s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function fmtVal(v, d) {
+    return (v === null || v === undefined || isNaN(v)) ? '—' : Number(v).toFixed(d);
+  }
+  function fmtSens(s) {
+    if (!s) return '—';
+    const c = s.toUpperCase() === 'OVER' ? 'over' : 'under';
+    return `<span class="badge ${c}">${escapeHtml(s)}</span>`;
+  }
+
+  function buildHeadRow() {
+    const tr = document.getElementById('crossmax-tableHead');
+    if (!tr) return;
+    tr.innerHTML = '';
+    COLUMNS.forEach(col => {
+      const th = document.createElement('th');
+      th.textContent = col.label;
+      th.addEventListener('click', () => {
+        if (sortKey === col.key) { sortDir *= -1; } else { sortKey = col.key; sortDir = 1; }
+        applyFilters();
+      });
+      if (sortKey === col.key) {
+        const arrow = document.createElement('span');
+        arrow.className = 'arrow';
+        arrow.textContent = sortDir === 1 ? '▲' : '▼';
+        th.appendChild(arrow);
+      }
+      tr.appendChild(th);
+    });
+  }
+
+  function rowCells(r) {
+    return `
+      <td class="match-name">${escapeHtml(r.nom)}</td>
+      <td>${r.heure ? escapeHtml(onlyTime(r.heure)) : '—'}</td>
+      <td>${fmtVal(r.lambda_total, 2)}</td>
+      <td>${r.choix1 ? `<span class="badge under">${escapeHtml(r.choix1)}</span>` : '—'}</td>
+      <td>${r.choix2 ? `<span class="badge over">${escapeHtml(r.choix2)}</span>` : '—'}</td>
+      <td>${r.snapshot ? escapeHtml(r.snapshot) : '—'}</td>
+      <td>${r.snapDistinct !== null && r.snapDistinct !== undefined ? r.snapDistinct : '—'}</td>
+      <td>${r.margeMinMarche ? escapeHtml(r.margeMinMarche) : '—'}</td>
+      <td>${fmtSens(r.margeMinSens)}</td>
+      <td>${fmtVal(r.margeMinSeuil, 2)}</td>
+      <td>${r.avgOver === null || r.avgOver === undefined || isNaN(r.avgOver) ? '—' : fmtVal(r.avgOver, 1) + '%'}</td>
+      <td>${r.avgUnder === null || r.avgUnder === undefined || isNaN(r.avgUnder) ? '—' : fmtVal(r.avgUnder, 1) + '%'}</td>
+      <td>${fmtVal(r.lam1, 2)}</td>
+      <td>${fmtVal(r.lam2, 2)}</td>
+      <td>${r.interpText ? escapeHtml(r.interpText) : '—'}</td>
+      <td>${r.decText ? escapeHtml(r.decText) : '—'}</td>
+    `;
+  }
+
+  function renderTable(rows) {
+    buildHeadRow();
+    const tbody = document.getElementById('crossmax-tableBody');
+    if (!tbody) return;
+    if (rows.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="${COLUMNS.length}" class="empty-msg">Aucune ligne — charge un TXT (onglet Audit MargeMin), et idéalement un CSV (onglet Suivi Live), puis clique sur "Recalculer".</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.map(r => `<tr>${rowCells(r)}</tr>`).join('');
+  }
+
+  function updateStats() {
+    const total = crossRows.length;
+    const apparies = crossRows.filter(r => r._apparieCsv).length;
+    const nonApparies = total - apparies;
+    const elTotal = document.getElementById('crossmax-statTotal');
+    const elApp = document.getElementById('crossmax-statApparies');
+    const elNon = document.getElementById('crossmax-statNonApparies');
+    if (elTotal) elTotal.textContent = total;
+    if (elApp) elApp.textContent = apparies;
+    if (elNon) elNon.textContent = nonApparies;
+  }
+
+  function resetFilters() {
+    for (const k in activeFilters) delete activeFilters[k];
+    buildFilters();
+    applyFilters();
+  }
+
+  /* ---- Export TXT : NOM,HEURE,MM,MS,MMS -----------------------------------
+     Exporte les lignes actuellement filtrées/affichées (ou toutes les
+     lignes si aucun filtre n'est actif) au format attendu par
+     Selection_Auto.py (nom du fichier : Rapport_HHMMSS.txt). ---- */
+  function exportRapportTxt() {
+    const rows = (filteredRows && filteredRows.length) ? filteredRows : crossRows;
+    const lignes = ['NOM,HEURE,MM,MS,MMS'];
+    rows.forEach(r => {
+      const heure = r.heure ? onlyTime(r.heure) : '';
+      const marche = r.margeMinMarche || '';
+      const sens = r.margeMinSens || '';
+      const seuil = (r.margeMinSeuil === null || r.margeMinSeuil === undefined || isNaN(r.margeMinSeuil))
+        ? '' : fmt1(r.margeMinSeuil);
+      lignes.push(`${r.nom}, ${heure}, ${marche}, ${sens}, ${seuil}`);
+    });
+    const contenu = lignes.join('\n');
+
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mi = String(now.getMinutes()).padStart(2, '0');
+    const ss = String(now.getSeconds()).padStart(2, '0');
+    const nomFichier = `Rapport_${hh}${mi}${ss}.txt`;
+
+    const blob = new Blob([contenu], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nomFichier;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  document.getElementById('crossmax-resetBtn')?.addEventListener('click', resetFilters);
+  document.getElementById('crossmax-recalcBtn')?.addEventListener('click', recompute);
+  document.getElementById('crossmax-exportBtn')?.addEventListener('click', exportRapportTxt);
+
+  window.CrossMax = { recompute };
+})();
+
+</script>
+
+<script>
+/* =========================================================================
+   BASCULE ENTRE LES 4 ONGLETS
+   ========================================================================= */
+(function () {
+  const btns = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.tab-panel');
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      btns.forEach(b => b.classList.toggle('active', b === btn));
+      panels.forEach(p => p.classList.toggle('active', p.id === target));
+      if (target === 'panelCross' && window.Cross) {
+        window.Cross.recompute();
+      }
+      if (target === 'panelCrossMax' && window.CrossMax) {
+        window.CrossMax.recompute();
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
