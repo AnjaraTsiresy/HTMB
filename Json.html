@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+<title>OPS CONSOLE // UNIFIÉ — Pré-live + Marge Min/Max</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-void:#08090c; --bg-canvas:#0c0e12; --bg-panel:#12151a; --bg-panel-alt:#161a20; --bg-raised:#1a1f27;
+  --border:#232830; --border-soft:#1c2028; --border-glow:#2a3542;
+  --text-hi:#e7ecf3; --text-mid:#9aa5b1; --text-dim:#5c6773;
+  --blue:#3fa9f5; --blue-glow:rgba(63,169,245,.35);
+  --green:#3ecf6e; --green-glow:rgba(62,207,110,.35);
+  --red:#ff4757; --red-glow:rgba(255,71,87,.35);
+  --amber:#f5a623; --amber-glow:rgba(245,166,35,.35);
+  --purple:#b06cff; --purple-glow:rgba(176,108,255,.3);
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',Consolas,monospace;
+  --sans:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:var(--sans);background:var(--bg-void);color:var(--text-hi);font-size:13px;display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;position:relative}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.5;background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0px,rgba(255,255,255,.018) 1px,transparent 1px,transparent 3px);mix-blend-mode:overlay}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(63,169,245,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(63,169,245,.05) 1px,transparent 1px);background-size:34px 34px;-webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 10%,transparent 75%);mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 10%,transparent 75%)}
+::selection{background:var(--blue-glow);color:#fff}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg-canvas)}
+::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background:var(--blue)}
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 var(--green-glow),0 0 6px var(--green)}50%{box-shadow:0 0 0 5px transparent,0 0 10px var(--green)}}
+@keyframes rowIn{from{opacity:0;transform:translateY(-2px)}to{opacity:1;transform:translateY(0)}}
+
+.topbar{flex:0 0 auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:linear-gradient(180deg,var(--bg-panel),var(--bg-canvas));border-bottom:1px solid var(--border);padding:10px 18px;position:relative;z-index:6}
+.topbar::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--blue-glow),transparent)}
+.brand{font-family:var(--mono);font-size:13px;font-weight:800;letter-spacing:1.5px;color:var(--text-hi);text-transform:uppercase;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.brand .dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse-dot 1.8s infinite}
+.brand small{display:block;font-family:var(--mono);font-size:9.5px;color:var(--text-dim);letter-spacing:1px;font-weight:500;text-transform:none;margin-top:2px}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.stat-badge{font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--text-mid);background:var(--bg-raised);border:1px solid var(--border);border-radius:20px;padding:5px 11px;white-space:nowrap}
+.stat-badge b{color:var(--text-hi)}
+
+.filebar{flex:0 0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--bg-panel-alt);border-bottom:1px solid var(--border-soft);padding:9px 18px;transition:.15s}
+.filebar.drag{background:rgba(63,169,245,.08);border-bottom-color:var(--blue)}
+.upload-btn{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--blue);background:rgba(63,169,245,.08);border:1px solid rgba(63,169,245,.4);border-radius:6px;padding:7px 14px;cursor:pointer;transition:.15s}
+.upload-btn:hover{background:rgba(63,169,245,.16);box-shadow:0 0 10px var(--blue-glow)}
+.export-btn{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--green);background:rgba(62,207,110,.08);border:1px solid rgba(62,207,110,.4);border-radius:6px;padding:7px 14px;cursor:pointer;transition:.15s}
+.export-btn:hover{background:rgba(62,207,110,.16);box-shadow:0 0 10px var(--green-glow)}
+.reset-btn{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--text-mid);background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;padding:7px 14px;cursor:pointer;transition:.15s}
+.reset-btn:hover{color:var(--text-hi);border-color:var(--border-glow)}
+#file-input{display:none}
+.file-name{font-family:var(--mono);font-size:11px;color:var(--text-dim)}
+.upload-hint{font-family:var(--mono);font-size:9.5px;color:var(--text-dim);margin-left:auto;max-width:520px;line-height:1.4}
+
+.controls{flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;background:var(--bg-canvas);border-bottom:1px solid var(--border-soft);padding:10px 18px;max-height:38vh;overflow-y:auto}
+.controls label{display:flex;flex-direction:column;gap:3px;font-family:var(--mono);font-size:9.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.4px}
+.controls input,.controls select{font-family:var(--mono);font-size:11.5px;background:var(--bg-raised);border:1px solid var(--border);border-radius:5px;color:var(--text-hi);padding:6px 8px;outline:none}
+.controls input:focus,.controls select:focus{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-glow)}
+.controls input[type=number]{width:64px}
+#search{width:190px}
+#count-shown{font-family:var(--mono);font-size:11px;color:var(--text-mid);margin-left:auto;align-self:center;white-space:nowrap}
+
+.app-body{flex:1 1 auto;min-height:0;overflow:auto;position:relative;z-index:1}
+.table-wrap{padding:0}
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+thead th{position:sticky;top:0;z-index:3;background:var(--bg-panel);border-bottom:1px solid var(--border);padding:9px 10px;text-align:left;font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-dim);cursor:pointer;white-space:nowrap;user-select:none}
+thead th:hover{color:var(--text-hi)}
+thead th.sorted-asc::after{content:' ▲';color:var(--blue)}
+thead th.sorted-desc::after{content:' ▼';color:var(--blue)}
+tbody td{padding:8px 10px;border-bottom:1px solid var(--border-soft);white-space:nowrap;vertical-align:middle}
+tr.data-row{animation:rowIn .15s ease}
+tr.data-row:hover td{background:rgba(63,169,245,.04)}
+.nom-cell{max-width:230px;overflow:hidden;text-overflow:ellipsis;font-weight:600;color:var(--text-hi)}
+.empty-state{text-align:center;padding:40px;color:var(--text-dim);font-family:var(--mono)}
+
+.delta-pos{color:var(--green);font-weight:700}
+.delta-neg{color:var(--red);font-weight:700}
+.delta-zero{color:var(--text-dim)}
+.bar-cell{display:flex;align-items:center;gap:6px}
+.minibar{height:6px;border-radius:3px;background:var(--border-glow)}
+.minibar.bar-pos{background:var(--green)}
+.minibar.bar-neg{background:var(--red)}
+
+.pill{display:inline-block;padding:3px 9px;border-radius:20px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.3px;white-space:nowrap}
+.interp-normal{color:var(--green);background:rgba(62,207,110,.1);border:1px solid rgba(62,207,110,.3)}
+.interp-anormal{color:var(--red);background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3)}
+.interp-immobile{color:var(--text-dim);background:var(--bg-raised);border:1px solid var(--border)}
+.dec-over{color:var(--green);background:rgba(62,207,110,.1);border:1px solid rgba(62,207,110,.3)}
+.dec-under{color:var(--blue);background:rgba(63,169,245,.1);border:1px solid rgba(63,169,245,.3)}
+.dec-forte-over{color:var(--amber);background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.35)}
+.dec-forte-under{color:var(--purple);background:rgba(176,108,255,.12);border:1px solid rgba(176,108,255,.35)}
+.dec-attente{color:var(--text-dim);background:var(--bg-raised);border:1px solid var(--border)}
+.badge-over{color:var(--amber)}
+.badge-under{color:var(--blue)}
+
+.mm-cell{display:flex;flex-direction:column;gap:1px;font-family:var(--mono);font-size:10.5px}
+.mm-cell .l1{color:var(--text-hi)}
+.mm-cell .l2{color:var(--text-dim);font-size:9.5px}
+
+.expand-btn{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--blue);background:rgba(63,169,245,.08);border:1px solid rgba(63,169,245,.35);border-radius:5px;padding:5px 10px;cursor:pointer}
+.expand-btn:hover{background:rgba(63,169,245,.16)}
+tr.row-detail{display:none}
+tr.row-detail td{background:var(--bg-panel-alt);padding:16px}
+.detail-inner{display:grid;grid-template-columns:1fr 1.3fr;gap:18px}
+@media (max-width:1100px){.detail-inner{grid-template-columns:1fr}}
+.section-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);margin-bottom:8px}
+.chart-wrap{height:230px;background:var(--bg-raised);border:1px solid var(--border);border-radius:8px;padding:10px}
+.detail-table-wrap{max-height:280px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+.detail-table{width:100%;border-collapse:collapse;font-size:10.5px}
+.detail-table th{position:sticky;top:0;background:var(--bg-raised);padding:6px 8px;text-align:left;font-family:var(--mono);font-size:9px;color:var(--text-dim);text-transform:uppercase;white-space:nowrap}
+.detail-table td{padding:6px 8px;border-top:1px solid var(--border-soft);white-space:nowrap;font-family:var(--mono)}
+.choix-box{margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--text-mid);background:var(--bg-raised);border:1px solid var(--border);border-radius:8px;padding:10px}
+.choix-box b{color:var(--text-hi)}
+
+.chk-th{width:32px}
+th.chk-th input,td.chk-td input{cursor:pointer;width:14px;height:14px}
+.col-chk{display:flex;align-items:center;gap:6px;cursor:default}
+.col-chk input{cursor:pointer;flex:0 0 auto}
+.col-chk input:hover{outline:2px solid var(--blue-glow)}
+td.chk-td{text-align:center}
+.r-input{font-family:var(--mono);font-size:12px;font-weight:700;background:var(--bg-raised);border:1px solid var(--border);border-radius:5px;color:var(--text-hi);padding:4px 2px;width:44px;text-align:center;outline:none}
+.r-input:focus{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-glow)}
+.col-hidden{display:none}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="dot"></span>OPS CONSOLE // UNIFIÉ<small>bet261 — pré-live + audit marge min/max — source JSON unique</small></div>
+  <div class="stats">
+    <span class="stat-badge" id="stat-file">Aucun fichier chargé</span>
+    <span class="stat-badge"><b id="stat-matches">0</b> matchs</span>
+    <span class="stat-badge"><b id="stat-snapshots">0</b> snapshots</span>
+    <span class="stat-badge" id="stat-ignored" title="Points de capture pris à moins de 60 min du coup d'envoi, exclus de l'analyse">0 points ignorés (&lt; H-1)</span>
+  </div>
+</div>
+
+<div class="filebar" id="filebar">
+  <button class="upload-btn" onclick="document.getElementById('file-input').click()">⤓ Charger fichier(s) .jsonl / .json</button>
+  <input type="file" id="file-input" accept=".jsonl,.json,.txt" multiple>
+  <button class="export-btn" id="export-csv-btn">⇩ Export CSV (résumé par match)</button>
+  <button class="export-btn" id="export-json-btn">⇩ Export JSON (lignes/colonnes cochées)</button>
+  <button class="reset-btn" id="reset-btn">↺ Réinitialiser filtres</button>
+  <span class="file-name" id="file-name">// Glisser-déposer un ou plusieurs fichiers .jsonl acceptés</span>
+  <span class="upload-hint">Format attendu : un objet JSON par ligne — nom, heure, pays, competition, iteration, timestamp, snapshot, lambda_total, marge, cotes O/U 2.5, c1/cx/c2, lambda1/lambda2, margemin_*, margemax_*</span>
+</div>
+
+<div class="controls" id="controls">
+  <label>Recherche<input type="text" id="search" placeholder="nom du match…"></label>
+  <label>Pays<select id="filter-pays"><option value="">Tous</option></select></label>
+  <label>Compétition<select id="filter-competition"><option value="">Toutes</option></select></label>
+  <label>Heure<select id="filter-heure"><option value="">Toutes</option></select></label>
+  <label>Heure Max<input type="number" id="filter-heure-max" min="0" max="23" placeholder="XXh"></label>
+  <label>Heure Min<input type="number" id="filter-heure-min" min="0" max="23" placeholder="XXh"></label>
+  <label>Interprétation Lambda<select id="filter-lam-dir"><option value="">Toutes</option><option value="croissant">Croissant</option><option value="décroissant">Décroissant</option><option value="fixe">Fixe</option></select></label>
+  <label>Interprétation Marge<select id="filter-marge-dir"><option value="">Toutes</option><option value="croissant">Croissant</option><option value="décroissant">Décroissant</option><option value="fixe">Fixe</option></select></label>
+  <label>Interprétation<select id="filter-interp"><option value="">Toutes</option><option value="Normal">Normal</option><option value="Anormal">Anormal</option><option value="Immobile">Immobile</option></select></label>
+  <label>Décision<select id="filter-dec">
+    <option value="">Toutes</option>
+    <option value="Lambda Croissant et Marge Croissant">Lambda Croissant / Marge Croissant</option>
+    <option value="Lambda Décroissant et Marge Décroissant">Lambda Décroissant / Marge Décroissant</option>
+    <option value="Lambda Croissant et Marge Décroissant">Lambda Croissant / Marge Décroissant</option>
+    <option value="Lambda Décroissant et Marge Croissant">Lambda Décroissant / Marge Croissant</option>
+  </select></label>
+  <label>REC<select id="filter-rec">
+    <option value="">Toutes</option>
+    <option value="(D+;M-) OVER 0.5">(D+;M-) OVER 0.5</option>
+    <option value="(D+;M+) OVER 0.5">(D+;M+) OVER 0.5</option>
+    <option value="(D+;M+)">(D+;M+) — marge ≥ 9</option>
+    <option value="(D-;M-) UNDER 5.5">(D-;M-) UNDER 5.5</option>
+    <option value="(D-;M+) UNDER 5.5">(D-;M+) UNDER 5.5</option>
+    <option value="(D0;M0) ZERO MOUVEMENT">(D0;M0) ZERO MOUVEMENT</option>
+    <option value="(D0;M+/-) ZERO MOUVEMENT DELTA">(D0;M+/-) ZERO MOUVEMENT DELTA</option>
+    <option value="(D-/+;M0) ZERO MOUVEMENT MARGE">(D-/+;M0) ZERO MOUVEMENT MARGE</option>
+  </select></label>
+  <label>Marge<select id="filter-marge">
+    <option value="">Toutes</option>
+    <option value="lt6">&lt; 6</option>
+    <option value="gt9">&gt; 9</option>
+    <option value="lt10">&lt; 10</option>
+    <option value="lt12">&lt; 12</option>
+    <option value="lt16">&lt; 16</option>
+    <option value="lt18">&lt; 18</option>
+    <option value="lt20">&lt; 20</option>
+  </select></label>
+  <label>int_marge<select id="filter-int-marge">
+    <option value="">Toutes</option>
+    <option value="0-6">Entre 0 et 6</option>
+    <option value="6-9">Entre 6 et 9</option>
+    <option value="9-12">Entre 9 et 12</option>
+    <option value="12-16">Entre 12 et 16</option>
+    <option value="16-18">Entre 16 et 18</option>
+    <option value="18-20">Entre 18 et 20</option>
+  </select></label>
+  <label>SD Min<input type="number" id="filter-sd-min" min="0"></label>
+  <label>SD Max<input type="number" id="filter-sd-max" min="0" placeholder="max"></label>
+  <label>MargeMin Marché<select id="filter-mm-marche"><option value="">Tous</option><option value="MATCH">MATCH</option><option value="ÉQUIPE 1">ÉQUIPE 1</option><option value="ÉQUIPE 2">ÉQUIPE 2</option></select></label>
+  <label>MargeMin Sens<select id="filter-mm-sens"><option value="">Tous</option><option value="OVER">OVER</option><option value="UNDER">UNDER</option></select></label>
+  <label>MargeMin Valeur Max<input type="number" id="filter-mm-valeur-max" step="0.1" placeholder="max %"></label>
+  <label>MargeMax Valeur Min<input type="number" id="filter-mx-valeur-min" step="0.1" placeholder="min %"></label>
+  <label>Diff O/U Min<input type="number" id="filter-diff-ou-min" step="0.1" placeholder="min"></label>
+  <label>Diff O/U Max<input type="number" id="filter-diff-ou-max" step="0.1" placeholder="max"></label>
+  <label>Diff λ1-λ2 Min<input type="number" id="filter-diff-lam12-min" step="0.01" placeholder="min"></label>
+  <label>Diff λ1-λ2 Max<input type="number" id="filter-diff-lam12-max" step="0.01" placeholder="max"></label>
+  <span id="count-shown"></span>
+</div>
+
+<div class="app-body">
+<div class="table-wrap">
+<table id="main-table">
+<thead>
+<tr>
+  <th class="chk-th"><input type="checkbox" id="select-all-rows" title="Sélectionner / désélectionner toutes les lignes affichées"></th>
+  <th data-col="nom"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="nom" checked> Match</label></th>
+  <th data-col="delta_lambda"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="lambda" checked> λ déb → fin (Δ)</label></th>
+  <th data-col="delta_marge"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="marge" checked> Marge déb → fin (Δ)</label></th>
+  <th data-col="avg_over"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="moy_ou" checked> Moy O/U</label></th>
+  <th data-col="diff_ou"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="diff_ou" checked> Diff (MO-MU)</label></th>
+  <th data-col="interp_text"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="interp" checked> Interprétation</label></th>
+  <th data-col="dec_text"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="decision" checked> Décision</label></th>
+  <th data-col="lambda_globale"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="lambda_globale" checked> λ globale</label></th>
+  <th data-col="diff_lambda12"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="diff_lambda12" checked> Diff (λ1-λ2)</label></th>
+  <th data-col="mm_valeur"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="margemin" checked> MargeMin</label></th>
+  <th data-col="mx_valeur"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="margemax" checked> MargeMax</label></th>
+  <th data-col="marche_match"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="marche_match" checked> Seuils Match</label></th>
+  <th data-col="marche_e1"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="marche_e1" checked> Seuils Equipe1</label></th>
+  <th data-col="marche_e2"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="marche_e2" checked> Seuils Equipe2</label></th>
+  <th>Détail</th>
+  <th data-col="r1"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="r1" checked> R1</label></th>
+  <th data-col="r2"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="r2" checked> R2</label></th>
+  <th data-col="heure"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="heure" checked> Heure</label></th>
+  <th data-col="pays"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="pays" checked> Pays</label></th>
+  <th data-col="competition"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="competition" checked> Compétition</label></th>
+  <th data-col="n_iter"><label class="col-chk"><input type="checkbox" class="colcb" data-colid="n_iter" checked> N pts</label></th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   1. UTILITAIRES NUMÉRIQUES / TEMPS
+   ============================================================ */
+function r2(v){ return Math.round(v*100)/100; }
+function r3(v){ return Math.round(v*1000)/1000; }
+function toPct(v){ if (isNaN(v)) return v; return v<=1.5 ? v*100 : v; }
+function fmtNum(v,d){ return (v===null||v===undefined||isNaN(v)) ? '—' : v.toFixed(d); }
+function escapeHtml(s){ return (''+(s??'')).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function parseMinutes(str){
+  if (!str) return null;
+  const m = String(str).match(/(\d{1,2}):(\d{2})/);
+  if (!m) return null;
+  const h = parseInt(m[1],10), mn = parseInt(m[2],10);
+  if (isNaN(h)||isNaN(mn)) return null;
+  return h*60+mn;
+}
+// Ignore les points capturés à moins de 60 min du coup d'envoi (H-45, H-30…)
+function isBeforeH1(row){
+  const ko = parseMinutes(row.heure);
+  const cap = parseMinutes(row.timestamp);
+  if (ko===null || cap===null) return true;
+  let diff = ko - cap;
+  if (diff < 0) diff += 1440;
+  return diff >= 60;
+}
+function extractHeurePrefixe(heureStr){
+  const m = (heureStr||'').match(/(\d{1,2}):\d{2}\s*$/);
+  return m ? m[1].padStart(2,'0') : null;
+}
+
+/* ============================================================
+   2. MOUVEMENT / INTERPRÉTATION / DÉCISION / REC
+   (logique reprise à l'identique de la version précédente)
+   ============================================================ */
+function movementInfo(values, deltaTotal, fixeThreshold, bigStepThreshold, label){
+  if (Math.abs(deltaTotal) < fixeThreshold) return {dir:'fixe', anormal:false, text:label+' fixe'};
+  const dir = deltaTotal > 0 ? 'croissant' : 'décroissant';
+  let reversals=0, steps=0, maxStep=0;
+  for (let i=1;i<values.length;i++){
+    const d = values[i]-values[i-1];
+    maxStep = Math.max(maxStep, Math.abs(d));
+    if (Math.abs(d) < 1e-9) continue;
+    steps++;
+    if (i>1){
+      const prevD = values[i-1]-values[i-2];
+      if (Math.abs(prevD) > 1e-9 && Math.sign(d) !== Math.sign(prevD)) reversals++;
+    }
+  }
+  const anormal = (steps>0 && (reversals/steps)>0.35) || maxStep>bigStepThreshold;
+  return {dir, anormal, text: label+' '+dir+' '+(anormal?'anormal':'normal')};
+}
+function computeInterpretation(d){
+  const lamVals = d.timeline.map(r=>r.lam);
+  const margeVals = d.timeline.map(r=>r.marge);
+  const lamInfo = movementInfo(lamVals, d.delta_lambda, 0.05, 0.25, 'Lambda');
+  const margeInfo = movementInfo(margeVals, d.delta_marge, 0.15, 1.0, 'Marge');
+  let detail = (lamInfo.dir==='fixe' && margeInfo.dir==='fixe') ? 'Lambda et Marge immobile' : (lamInfo.text+' / '+margeInfo.text);
+  let text;
+  if (lamInfo.dir==='fixe' && margeInfo.dir==='fixe') text='Immobile';
+  else if (lamInfo.anormal || margeInfo.anormal) text='Anormal';
+  else text='Normal';
+  return {lamInfo, margeInfo, text, detail};
+}
+function computeDecisionLabel(lamInfo, margeInfo){
+  if (lamInfo.dir==='fixe' && margeInfo.dir==='fixe') return {label:'Lambda et Marge stables', cls:'dec-attente'};
+  if (lamInfo.dir==='fixe') return {label:'Lambda fixe / Marge '+margeInfo.dir, cls:'dec-attente'};
+  if (margeInfo.dir==='fixe') return {label:'Lambda '+lamInfo.dir+' / Marge fixe', cls:'dec-attente'};
+  if (lamInfo.dir==='croissant' && margeInfo.dir==='croissant') return {label:'Lambda Croissant et Marge Croissant', cls:'dec-over'};
+  if (lamInfo.dir==='décroissant' && margeInfo.dir==='décroissant') return {label:'Lambda Décroissant et Marge Décroissant', cls:'dec-under'};
+  if (lamInfo.dir==='croissant' && margeInfo.dir==='décroissant') return {label:'Lambda Croissant et Marge Décroissant', cls:'dec-forte-over'};
+  return {label:'Lambda Décroissant et Marge Croissant', cls:'dec-forte-under'};
+}
+function computeRecLabel(dl, dm, margeFin){
+  if (dl>0 && dm<0) return {label:'(D+;M-) OVER 0.5', cls:'dec-forte-over'};
+  if (dl>0 && dm>0) return margeFin<9 ? {label:'(D+;M+) OVER 0.5', cls:'dec-over'} : {label:'(D+;M+)', cls:'dec-over'};
+  if (dl<0 && dm<0) return {label:'(D-;M-) UNDER 5.5', cls:'dec-under'};
+  if (dl<0 && dm>0) return {label:'(D-;M+) UNDER 5.5', cls:'dec-forte-under'};
+  if (dl===0 && dm===0) return {label:'(D0;M0) ZERO MOUVEMENT', cls:'dec-attente'};
+  if (dl===0 && dm!==0) return {label:'(D0;M+/-) ZERO MOUVEMENT DELTA', cls:'dec-attente'};
+  return {label:'(D-/+;M0) ZERO MOUVEMENT MARGE', cls:'dec-attente'};
+}
+/* ---- Choix 1 / Choix 2 : règle métier MargeMin croisée avec λ1/λ2 & moyennes O/U ---- */
+function fmt1(v){ return (v===null||v===undefined||isNaN(v)) ? '' : (Math.round(v*10)/10).toString(); }
+function computeChoix(marche, sens, seuil, lambdaTotal, avgOver, avgUnder, lam1, lam2){
+  marche = (marche||'').toUpperCase();
+  sens = (sens||'').toUpperCase();
+  const hasLam = lam1!==null && lam1!==undefined && !isNaN(lam1) && lam2!==null && lam2!==undefined && !isNaN(lam2);
+  const hasAvg = avgOver!==null && avgOver!==undefined && !isNaN(avgOver) && avgUnder!==null && avgUnder!==undefined && !isNaN(avgUnder);
+  const isMatch = marche==='MATCH', isE1 = marche.indexOf('1')!==-1, isE2 = marche.indexOf('2')!==-1;
+  const isUnder = sens==='UNDER', isOver = sens==='OVER';
+  const choix2Defaut = () => { if (!hasLam) return ''; if (lam1>lam2) return '1X'; if (lam2>lam1) return 'X2'; return ''; };
+  let choix1='', choix2='';
+  if (isMatch && isUnder){ choix2=choix2Defaut(); if (hasAvg && avgUnder>avgOver) choix1='M UNDER ('+fmt1(seuil-1)+')'; }
+  else if (isMatch && isOver){ choix2=choix2Defaut(); if (hasAvg && avgOver>avgUnder && avgOver>60) choix1='M OVER ('+fmt1(lambdaTotal-1)+')'; }
+  else if (isE1 && isUnder){ choix2=choix2Defaut(); if (hasLam && lam1<lam2) choix1='E1 UNDER UNDER ('+fmt1(seuil-1)+')'; }
+  else if (isE1 && isOver){ choix2=choix2Defaut(); if (hasAvg && hasLam && avgOver>avgUnder && lam1>lam2 && avgOver>60) choix1='M OVER ('+fmt1(seuil)+')'; }
+  else if (isE2 && isUnder){ choix2=choix2Defaut(); if (hasLam && lam2<lam1) choix1='E2 UNDER UNDER ('+fmt1(seuil-1)+')'; }
+  else if (isE2 && isOver){ choix2=choix2Defaut(); if (hasAvg && hasLam && avgOver>avgUnder && lam2>lam1 && avgOver>60) choix1='M OVER ('+fmt1(seuil)+')'; }
+  return {choix1, choix2};
+}
+function comboLePlusFrequent(list){
+  const counts = {};
+  list.forEach(r=>{
+    if (r.margemin_valeur===null||r.margemin_valeur===undefined) return;
+    const key = r.margemin_marche+'|'+r.margemin_sens+'|'+r.margemin_seuil;
+    if (!counts[key]) counts[key] = {count:0, marche:r.margemin_marche, sens:r.margemin_sens, seuil:r.margemin_seuil};
+    counts[key].count++;
+  });
+  let best=null;
+  Object.values(counts).forEach(c=>{ if(!best||c.count>best.count) best=c; });
+  return best;
+}
+/* ---- Seuils Match/Equipe1/Equipe2 : meilleur candidat min / max côté snapshot,
+   restreint au marché concerné (MATCH / ÉQUIPE 1 / ÉQUIPE 2), sur tous les snapshots du match ---- */
+function fmtSens(s){ if (!s) return ''; s = String(s).toLowerCase(); return s.charAt(0).toUpperCase()+s.slice(1); }
+function abbrMarche(m){
+  m = (m||'').toUpperCase();
+  if (m==='MATCH') return 'M';
+  if (m.indexOf('1')!==-1) return 'E1';
+  if (m.indexOf('2')!==-1) return 'E2';
+  return m||'—';
+}
+function marketMinMaxEntries(timeline, marcheFilterFn){
+  let minE=null, maxE=null;
+  timeline.forEach(t=>{
+    if (t.margemin_valeur!=null && marcheFilterFn(t.margemin_marche)){
+      if (!minE || t.margemin_valeur < minE.margemin_valeur) minE = t;
+    }
+    if (t.margemax_valeur!=null && marcheFilterFn(t.margemax_marche)){
+      if (!maxE || t.margemax_valeur > maxE.margemax_valeur) maxE = t;
+    }
+  });
+  return {minE, maxE};
+}
+function marcheLabel(timeline, marcheFilterFn, abbr){
+  const {minE, maxE} = marketMinMaxEntries(timeline, marcheFilterFn);
+  const left = minE ? `${abbr}:${fmtSens(minE.margemin_sens)}(${fmt1(minE.margemin_seuil)})` : '—';
+  const right = maxE ? `${abbr}:${fmtSens(maxE.margemax_sens)}(${fmt1(maxE.margemax_seuil)})` : '—';
+  return (minE||maxE) ? `${left} / ${right}` : '—';
+}
+
+/* ============================================================
+   3. PARSING DES FICHIERS (JSONL ou tableau JSON)
+   ============================================================ */
+function parseFileText(text){
+  const trimmed = (text||'').trim();
+  if (!trimmed) return [];
+  // Tableau JSON classique
+  if (trimmed[0] === '['){
+    try { const arr = JSON.parse(trimmed); if (Array.isArray(arr)) return arr; } catch(e){}
+  }
+  // JSON Lines : un objet par ligne (ignore lignes vides / non parsables)
+  const out = [];
+  trimmed.split(/\r?\n/).forEach(line=>{
+    const l = line.trim();
+    if (!l) return;
+    try { out.push(JSON.parse(l)); } catch(e){ /* ligne corrompue ignorée */ }
+  });
+  return out;
+}
+
+/* ============================================================
+   4. AGRÉGATION PAR MATCH
+   ============================================================ */
+let ALL_RAW = [];       // toutes les lignes brutes chargées (tous fichiers confondus)
+let RAW_DATA = [];      // matchs agrégés (avant filtre)
+let filteredData = [];  // matchs après filtre courant
+let ignoredCount = 0;
+let sortCol = 'delta_lambda', sortDir = -1;
+let charts = {};
+let selectedRows = new Set();      // noms de match cochés pour l'export JSON
+let colSelected = {                // colonnes cochées pour l'export JSON
+  nom:true, lambda:true, marge:true, moy_ou:true, diff_ou:true, interp:true, decision:true,
+  lambda_globale:true, diff_lambda12:true, margemin:true, margemax:true,
+  marche_match:true, marche_e1:true, marche_e2:true,
+  r1:true, r2:true, heure:true, pays:true, competition:true, n_iter:true
+};
+let matchResultsByNom = {};        // persistance des scores R1/R2 saisis, par nom de match
+
+function processData(rawRows){
+  ignoredCount = 0;
+  const kept = rawRows.filter(r=>{
+    const keep = isBeforeH1(r);
+    if (!keep) ignoredCount++;
+    return keep;
+  }).filter(r=>r && r.nom);
+
+  const groups = {};
+  kept.forEach(r=>{
+    const n = (r.nom||'').trim();
+    if (!n) return;
+    if (!groups[n]) groups[n] = [];
+    groups[n].push(r);
+  });
+
+  const result = [];
+  Object.keys(groups).sort().forEach(nom=>{
+    const grp = groups[nom].slice().sort((a,b)=>{
+      const ta=(a.timestamp||'').trim(), tb=(b.timestamp||'').trim();
+      if (ta!==tb) return ta.localeCompare(tb);
+      return (parseInt(a.iteration)||0)-(parseInt(b.iteration)||0);
+    });
+    const first = grp[0], last = grp[grp.length-1];
+    const heure = (first.heure||'').trim();
+    const lam0 = parseFloat(first.lambda_total), lamN = parseFloat(last.lambda_total);
+    const marge0 = parseFloat(first.marge), margeN = parseFloat(last.marge);
+    const dl = r3(lamN-lam0), dm = r2(margeN-marge0);
+
+    const timeline = grp.map(r=>({
+      ts: r.timestamp||'', snapshot: r.snapshot||'',
+      lam: r2(parseFloat(r.lambda_total)), marge: r2(parseFloat(r.marge)),
+      c_over: r2(parseFloat(r.cote_over_25)), c_under: r2(parseFloat(r.cote_under_25)),
+      p_over: r2(toPct(parseFloat(r.p_over))), p_under: r2(toPct(parseFloat(r.p_under))),
+      c1: r.c1!==undefined && r.c1!==null && r.c1!=='' ? r2(parseFloat(r.c1)) : null,
+      cx: r.cx!==undefined && r.cx!==null && r.cx!=='' ? r2(parseFloat(r.cx)) : null,
+      c2: r.c2!==undefined && r.c2!==null && r.c2!=='' ? r2(parseFloat(r.c2)) : null,
+      lam1: r.lambda1!==undefined && r.lambda1!==null && r.lambda1!=='' ? r2(parseFloat(r.lambda1)) : null,
+      lam2: r.lambda2!==undefined && r.lambda2!==null && r.lambda2!=='' ? r2(parseFloat(r.lambda2)) : null,
+      bo: r.bo!==undefined && r.bo!==null && r.bo!=='' ? r2(parseFloat(r.bo)) : null,
+      bn: r.bn!==undefined && r.bn!==null && r.bn!=='' ? r2(parseFloat(r.bn)) : null,
+      margemin_marche: r.margemin_marche ?? null, margemin_sens: r.margemin_sens ?? null,
+      margemin_seuil: r.margemin_seuil!=null ? parseFloat(r.margemin_seuil) : null,
+      margemin_cote: r.margemin_cote!=null ? parseFloat(r.margemin_cote) : null,
+      margemin_valeur: r.margemin_valeur!=null ? parseFloat(r.margemin_valeur) : null,
+      margemax_marche: r.margemax_marche ?? null, margemax_sens: r.margemax_sens ?? null,
+      margemax_seuil: r.margemax_seuil!=null ? parseFloat(r.margemax_seuil) : null,
+      margemax_cote: r.margemax_cote!=null ? parseFloat(r.margemax_cote) : null,
+      margemax_valeur: r.margemax_valeur!=null ? parseFloat(r.margemax_valeur) : null,
+    }));
+
+    const validOver = timeline.map(r=>r.p_over).filter(v=>!isNaN(v));
+    const validUnder = timeline.map(r=>r.p_under).filter(v=>!isNaN(v));
+    const avgOver = validOver.length ? r2(validOver.reduce((s,v)=>s+v,0)/validOver.length) : null;
+    const avgUnder = validUnder.length ? r2(validUnder.reduce((s,v)=>s+v,0)/validUnder.length) : null;
+
+    const lam1_debut = timeline[0].lam1, lam2_debut = timeline[0].lam2;
+    const lam1_fin = timeline[timeline.length-1].lam1, lam2_fin = timeline[timeline.length-1].lam2;
+
+    // MargeMin / MargeMax : snapshot extrême sur toute la trajectoire du match
+    const withMin = timeline.filter(t=>t.margemin_valeur!==null && !isNaN(t.margemin_valeur));
+    const withMax = timeline.filter(t=>t.margemax_valeur!==null && !isNaN(t.margemax_valeur));
+    let minRow = null, maxRow = null;
+    withMin.forEach(t=>{ if (!minRow || t.margemin_valeur < minRow.margemin_valeur) minRow = t; });
+    withMax.forEach(t=>{ if (!maxRow || t.margemax_valeur > maxRow.margemax_valeur) maxRow = t; });
+    const nombreMin = comboLePlusFrequent(timeline);
+
+    const sd = new Set(timeline.map(t=>t.snapshot).filter(Boolean)).size;
+
+    const diff_ou = (avgOver!=null && avgUnder!=null) ? r2(avgOver-avgUnder) : null;
+    const diff_lambda12 = (lam1_fin!=null && lam2_fin!=null) ? r2(lam1_fin-lam2_fin) : null;
+    const marche_match = marcheLabel(timeline, m=>(m||'').toUpperCase()==='MATCH', 'M');
+    const marche_e1 = marcheLabel(timeline, m=>{ const u=(m||'').toUpperCase(); return u!=='MATCH' && u.indexOf('1')!==-1; }, 'E1');
+    const marche_e2 = marcheLabel(timeline, m=>{ const u=(m||'').toUpperCase(); return u!=='MATCH' && u.indexOf('2')!==-1; }, 'E2');
+
+    let choix1='', choix2='';
+    if (minRow){
+      const c = computeChoix(minRow.margemin_marche, minRow.margemin_sens, minRow.margemin_seuil, r2(lamN), avgOver, avgUnder, lam1_fin, lam2_fin);
+      choix1 = c.choix1; choix2 = c.choix2;
+    }
+
+    result.push({
+      nom, n_iter: grp.length, heure,
+      pays: (first.pays||'').trim(), competition: (first.competition||'').trim(),
+      lam_debut: r2(lam0), lam_fin: r2(lamN), delta_lambda: dl,
+      marge_debut: r2(marge0), marge_fin: r2(margeN), delta_marge: dm,
+      avg_over: avgOver, avg_under: avgUnder, diff_ou,
+      lambda_globale: Math.round(lamN), diff_lambda12,
+      lam1_debut, lam2_debut, lam1_fin, lam2_fin,
+      sd, minRow, maxRow, nombreMin, choix1, choix2,
+      marche_match, marche_e1, marche_e2,
+      score1: (matchResultsByNom[nom] && matchResultsByNom[nom].score1 !== undefined) ? matchResultsByNom[nom].score1 : null,
+      score2: (matchResultsByNom[nom] && matchResultsByNom[nom].score2 !== undefined) ? matchResultsByNom[nom].score2 : null,
+      timeline
+    });
+  });
+  return result;
+}
+
+/* ============================================================
+   5. CHARGEMENT FICHIER(S)
+   ============================================================ */
+function loadFiles(fileList, label){
+  const files = Array.from(fileList);
+  if (!files.length) return;
+  document.getElementById('file-name').textContent = '⏳ Chargement de ' + files.length + ' fichier(s)…';
+  const readers = files.map(f => f.text());
+  Promise.all(readers).then(texts=>{
+    let rows = [];
+    texts.forEach(t => { rows = rows.concat(parseFileText(t)); });
+    ALL_RAW = rows;
+    RAW_DATA = processData(ALL_RAW);
+    selectedRows = new Set(RAW_DATA.map(d=>d.nom));
+    document.getElementById('file-name').textContent = '✅ ' + files.map(f=>f.name).join(', ');
+    document.getElementById('stat-file').textContent = label || (files.length+' fichier(s)');
+    document.getElementById('stat-matches').textContent = RAW_DATA.length;
+    document.getElementById('stat-snapshots').textContent = ALL_RAW.length;
+    document.getElementById('stat-ignored').textContent = ignoredCount + ' points ignorés (< H-1)';
+    populateSelectFilters();
+    sortCol='delta_lambda'; sortDir=-1;
+    document.querySelectorAll('th').forEach(t=>t.classList.remove('sorted-asc','sorted-desc'));
+    document.querySelector('th[data-col="delta_lambda"]')?.classList.add('sorted-desc');
+    render();
+  }).catch(err=>{
+    document.getElementById('file-name').textContent = '❌ Erreur : ' + err.message;
+  });
+}
+
+document.getElementById('file-input').addEventListener('change', e=>{
+  if (e.target.files && e.target.files.length) loadFiles(e.target.files);
+});
+const filebar = document.getElementById('filebar');
+['dragenter','dragover'].forEach(evt=>filebar.addEventListener(evt, e=>{ e.preventDefault(); filebar.classList.add('drag'); }));
+['dragleave','drop'].forEach(evt=>filebar.addEventListener(evt, e=>{ e.preventDefault(); filebar.classList.remove('drag'); }));
+filebar.addEventListener('drop', e=>{
+  if (e.dataTransfer.files && e.dataTransfer.files.length) loadFiles(e.dataTransfer.files);
+});
+
+/* ============================================================
+   6. FILTRES
+   ============================================================ */
+function populateMetaFilter(id, field, allLabel){
+  const sel = document.getElementById(id);
+  const current = sel.value;
+  const values = Array.from(new Set(RAW_DATA.map(d=>d[field]).filter(v=>v))).sort((a,b)=>a.localeCompare(b));
+  sel.innerHTML = `<option value="">${allLabel}</option>` + values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+  if (values.includes(current)) sel.value = current;
+}
+function populateHeureFilter(){
+  const sel = document.getElementById('filter-heure');
+  const current = sel.value;
+  const heures = Array.from(new Set(RAW_DATA.map(d=>extractHeurePrefixe(d.heure)).filter(h=>h)));
+  heures.sort((a,b)=>parseInt(a,10)-parseInt(b,10));
+  sel.innerHTML = '<option value="">Toutes</option>' + heures.map(h=>`<option value="${h}">${h}h</option>`).join('');
+  if (heures.includes(current)) sel.value = current;
+}
+function populateSelectFilters(){
+  populateHeureFilter();
+  populateMetaFilter('filter-pays', 'pays', 'Tous');
+  populateMetaFilter('filter-competition', 'competition', 'Toutes');
+}
+
+const margeRules = {
+  lt6: v=>v<6, gt9: v=>v>9, lt10: v=>v<10, lt12: v=>v<12, lt16: v=>v<16, lt18: v=>v<18, lt20: v=>v<20
+};
+const intMargeRules = {
+  '0-6': v=>v>=0 && v<6, '6-9': v=>v>=6 && v<9, '9-12': v=>v>=9 && v<12,
+  '12-16': v=>v>=12 && v<16, '16-18': v=>v>=16 && v<18, '18-20': v=>v>=18 && v<20
+};
+
+function applyFiltersAndRender(){
+  RAW_DATA.forEach(d=>{
+    const interp = computeInterpretation(d);
+    d._lamInfo = interp.lamInfo; d._margeInfo = interp.margeInfo;
+    d.interp_text = interp.text; d.interp_detail = interp.detail;
+    d._interpCls = interp.text==='Anormal' ? 'interp-anormal' : interp.text==='Immobile' ? 'interp-immobile' : 'interp-normal';
+    const dec = computeDecisionLabel(interp.lamInfo, interp.margeInfo);
+    d.dec_text = dec.label; d._decCls = dec.cls;
+    const rec = computeRecLabel(d.delta_lambda, d.delta_marge, d.marge_fin);
+    d.rec_text = rec.label; d._recCls = rec.cls;
+    d.mm_valeur = d.minRow ? d.minRow.margemin_valeur : null;
+    d.mx_valeur = d.maxRow ? d.maxRow.margemax_valeur : null;
+  });
+
+  const search = document.getElementById('search').value.toLowerCase();
+  const fPays = document.getElementById('filter-pays').value;
+  const fComp = document.getElementById('filter-competition').value;
+  const fHeure = document.getElementById('filter-heure').value;
+  const fHeureMaxRaw = document.getElementById('filter-heure-max').value;
+  const fHeureMinRaw = document.getElementById('filter-heure-min').value;
+  const fHeureMax = fHeureMaxRaw==='' ? null : parseInt(fHeureMaxRaw,10);
+  const fHeureMin = fHeureMinRaw==='' ? null : parseInt(fHeureMinRaw,10);
+  const fLamDir = document.getElementById('filter-lam-dir').value;
+  const fMargeDir = document.getElementById('filter-marge-dir').value;
+  const fInterp = document.getElementById('filter-interp').value;
+  const fDec = document.getElementById('filter-dec').value;
+  const fRec = document.getElementById('filter-rec').value;
+  const fMarge = document.getElementById('filter-marge').value;
+  const fIntMarge = document.getElementById('filter-int-marge').value;
+  const fSdMinRaw = document.getElementById('filter-sd-min').value;
+  const fSdMaxRaw = document.getElementById('filter-sd-max').value;
+  const fSdMin = fSdMinRaw==='' ? null : parseInt(fSdMinRaw,10);
+  const fSdMax = fSdMaxRaw==='' ? null : parseInt(fSdMaxRaw,10);
+  const fMmMarche = document.getElementById('filter-mm-marche').value;
+  const fMmSens = document.getElementById('filter-mm-sens').value;
+  const fMmValeurMaxRaw = document.getElementById('filter-mm-valeur-max').value;
+  const fMxValeurMinRaw = document.getElementById('filter-mx-valeur-min').value;
+  const fMmValeurMax = fMmValeurMaxRaw==='' ? null : parseFloat(fMmValeurMaxRaw);
+  const fMxValeurMin = fMxValeurMinRaw==='' ? null : parseFloat(fMxValeurMinRaw);
+  const fDiffOuMinRaw = document.getElementById('filter-diff-ou-min').value;
+  const fDiffOuMaxRaw = document.getElementById('filter-diff-ou-max').value;
+  const fDiffLam12MinRaw = document.getElementById('filter-diff-lam12-min').value;
+  const fDiffLam12MaxRaw = document.getElementById('filter-diff-lam12-max').value;
+  const fDiffOuMin = fDiffOuMinRaw==='' ? null : parseFloat(fDiffOuMinRaw);
+  const fDiffOuMax = fDiffOuMaxRaw==='' ? null : parseFloat(fDiffOuMaxRaw);
+  const fDiffLam12Min = fDiffLam12MinRaw==='' ? null : parseFloat(fDiffLam12MinRaw);
+  const fDiffLam12Max = fDiffLam12MaxRaw==='' ? null : parseFloat(fDiffLam12MaxRaw);
+
+  filteredData = RAW_DATA.filter(d=>{
+    if (search && !d.nom.toLowerCase().includes(search)) return false;
+    if (fPays && d.pays!==fPays) return false;
+    if (fComp && d.competition!==fComp) return false;
+    if (fHeure && extractHeurePrefixe(d.heure)!==fHeure) return false;
+    if (fHeureMax!==null && !isNaN(fHeureMax)){ const h=parseInt(extractHeurePrefixe(d.heure),10); if (isNaN(h) || !(h>fHeureMax)) return false; }
+    if (fHeureMin!==null && !isNaN(fHeureMin)){ const h=parseInt(extractHeurePrefixe(d.heure),10); if (isNaN(h) || !(h<fHeureMin)) return false; }
+    if (fLamDir && d._lamInfo.dir!==fLamDir) return false;
+    if (fMargeDir && d._margeInfo.dir!==fMargeDir) return false;
+    if (fInterp && d.interp_text!==fInterp) return false;
+    if (fDec && d.dec_text!==fDec) return false;
+    if (fRec && d.rec_text!==fRec) return false;
+    if (fMarge && !(margeRules[fMarge] && margeRules[fMarge](d.marge_fin))) return false;
+    if (fIntMarge && !(intMargeRules[fIntMarge] && intMargeRules[fIntMarge](d.marge_fin))) return false;
+    if (fSdMin!==null && !isNaN(fSdMin) && d.sd<fSdMin) return false;
+    if (fSdMax!==null && !isNaN(fSdMax) && d.sd>fSdMax) return false;
+    if (fMmMarche && (!d.minRow || d.minRow.margemin_marche!==fMmMarche)) return false;
+    if (fMmSens && (!d.minRow || d.minRow.margemin_sens!==fMmSens)) return false;
+    if (fMmValeurMax!==null && !isNaN(fMmValeurMax) && (d.mm_valeur===null || d.mm_valeur>fMmValeurMax)) return false;
+    if (fMxValeurMin!==null && !isNaN(fMxValeurMin) && (d.mx_valeur===null || d.mx_valeur<fMxValeurMin)) return false;
+    if (fDiffOuMin!==null && !isNaN(fDiffOuMin) && (d.diff_ou===null || d.diff_ou<fDiffOuMin)) return false;
+    if (fDiffOuMax!==null && !isNaN(fDiffOuMax) && (d.diff_ou===null || d.diff_ou>fDiffOuMax)) return false;
+    if (fDiffLam12Min!==null && !isNaN(fDiffLam12Min) && (d.diff_lambda12===null || d.diff_lambda12<fDiffLam12Min)) return false;
+    if (fDiffLam12Max!==null && !isNaN(fDiffLam12Max) && (d.diff_lambda12===null || d.diff_lambda12>fDiffLam12Max)) return false;
+    return true;
+  });
+
+  filteredData.sort((a,b)=>{
+    const av=a[sortCol]??'', bv=b[sortCol]??'';
+    if (typeof av==='number') return (av-bv)*sortDir;
+    return String(av).localeCompare(String(bv))*sortDir;
+  });
+
+  render();
+}
+
+/* ============================================================
+   7. RENDU TABLE + DÉTAIL (chart + itérations)
+   ============================================================ */
+function fmtDelta(v,d){
+  if (v===null||v===undefined||isNaN(v)) return '<span class="delta-zero">—</span>';
+  if (Math.abs(v) < Math.pow(10,-d)) return '<span class="delta-zero">0</span>';
+  const cls = v>0 ? 'delta-pos' : 'delta-neg';
+  return `<span class="${cls}">${v>0?'+':''}${v.toFixed(d)}</span>`;
+}
+function miniBar(v,max){
+  const pct = Math.min(Math.abs(v)/(max||1),1)*70;
+  const cls = v>0?'bar-pos':v<0?'bar-neg':'';
+  return `<div class="minibar ${cls}" style="width:${pct.toFixed(1)}px"></div>`;
+}
+function mmCell(row, marcheKey, sensKey, seuilKey, coteKey, valeurKey, ts){
+  if (!row) return '<span style="color:var(--text-dim)">—</span>';
+  const sensCls = (row[sensKey]||'').toUpperCase()==='OVER' ? 'badge-over' : 'badge-under';
+  return `<div class="mm-cell">
+    <span class="l1">${fmtNum(row[valeurKey],2)}%</span>
+    <span class="l2">${escapeHtml(row[marcheKey]||'—')} <span class="${sensCls}">${escapeHtml(row[sensKey]||'')}</span> seuil ${fmtNum(row[seuilKey],2)} @ ${fmtNum(row[coteKey],2)}</span>
+    <span class="l2">${escapeHtml((row[ts]||'').slice(0,19))}</span>
+  </div>`;
+}
+
+function buildDetailHTML(d, idx){
+  const tl = d.timeline;
+  const rows = tl.map(r=>`<tr>
+    <td>${escapeHtml(r.ts)}</td><td>${escapeHtml(r.snapshot)}</td>
+    <td>${fmtNum(r.lam,2)}</td><td>${fmtNum(r.marge,2)}</td>
+    <td>${fmtNum(r.c_over,2)}</td><td>${fmtNum(r.c_under,2)}</td>
+    <td>${fmtNum(r.c1,2)}</td><td>${fmtNum(r.cx,2)}</td><td>${fmtNum(r.c2,2)}</td>
+    <td>${fmtNum(r.lam1,2)}</td><td>${fmtNum(r.lam2,2)}</td>
+    <td>${fmtNum(r.bo,2)}</td><td>${fmtNum(r.bn,2)}</td>
+    <td>${r.margemin_valeur!=null ? fmtNum(r.margemin_valeur,2)+'% '+escapeHtml(r.margemin_marche||'')+' '+escapeHtml(r.margemin_sens||'') : '—'}</td>
+    <td>${r.margemax_valeur!=null ? fmtNum(r.margemax_valeur,2)+'% '+escapeHtml(r.margemax_marche||'')+' '+escapeHtml(r.margemax_sens||'') : '—'}</td>
+  </tr>`).join('');
+  return `<div class="detail-inner">
+    <div>
+      <div class="section-label">Évolution λ, marge & λ par équipe</div>
+      <div class="chart-wrap"><canvas id="chart-${idx}"></canvas></div>
+      <div class="choix-box">
+        <b>λ équipe 1</b> (début → fin) : ${fmtNum(d.lam1_debut,2)} → ${fmtNum(d.lam1_fin,2)}<br>
+        <b>λ équipe 2</b> (début → fin) : ${fmtNum(d.lam2_debut,2)} → ${fmtNum(d.lam2_fin,2)}<br>
+        <b>Choix 1</b> : ${escapeHtml(d.choix1||'—')} &nbsp; <b>Choix 2</b> : ${escapeHtml(d.choix2||'—')}<br>
+        ${d.nombreMin ? `<b>Combo MargeMin le + fréquent</b> : ${d.nombreMin.count}× ${escapeHtml(d.nombreMin.marche)} ${escapeHtml(d.nombreMin.sens)} seuil ${fmtNum(d.nombreMin.seuil,2)}` : ''}
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Tableau complet des snapshots (λ/marge + audit MargeMin/MargeMax)</div>
+      <div class="detail-table-wrap">
+      <table class="detail-table">
+        <thead><tr><th>Heure collecte</th><th>Snap</th><th>λ</th><th>marge</th><th>c_over</th><th>c_und</th><th>c1</th><th>cX</th><th>c2</th><th>λ1</th><th>λ2</th><th>BTTS O</th><th>BTTS N</th><th>MargeMin</th><th>MargeMax</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      </div>
+    </div>
+  </div>`;
+}
+function drawChart(idx){
+  const d = filteredData[idx];
+  const canvas = document.getElementById('chart-'+idx);
+  if (!canvas) return;
+  if (charts[idx]){ charts[idx].destroy(); delete charts[idx]; }
+  const labels = d.timeline.map(r=>(r.ts||'').slice(11,16) || (r.ts||'').slice(0,5));
+  const gridColor='rgba(255,255,255,.07)', tickColor='#9aa5b1';
+  charts[idx] = new Chart(canvas, {
+    type:'line',
+    data:{ labels, datasets:[
+      {label:'λ', data:d.timeline.map(r=>r.lam), borderColor:'#3fa9f5', backgroundColor:'rgba(63,169,245,.12)', fill:true, tension:.3, yAxisID:'y', pointRadius:3, pointBackgroundColor:'#3fa9f5', pointBorderColor:'#0c0e12', borderWidth:2.2},
+      {label:'marge', data:d.timeline.map(r=>r.marge), borderColor:'#f5a623', backgroundColor:'transparent', tension:.3, yAxisID:'y2', pointRadius:2, borderWidth:1.6, borderDash:[4,3]},
+      {label:'λ1', data:d.timeline.map(r=>r.lam1), borderColor:'#3ecf6e', backgroundColor:'transparent', tension:.3, yAxisID:'y', pointRadius:2, borderWidth:1.2, borderDash:[2,4]},
+      {label:'λ2', data:d.timeline.map(r=>r.lam2), borderColor:'#b06cff', backgroundColor:'transparent', tension:.3, yAxisID:'y', pointRadius:2, borderWidth:1.2, borderDash:[2,4]}
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:true, position:'top', labels:{font:{size:10, family:"'JetBrains Mono',monospace"}, boxWidth:10, color:tickColor}}},
+      scales:{
+        x:{ticks:{font:{size:9, family:"'JetBrains Mono',monospace"}, color:tickColor, maxRotation:45, autoSkip:true}, grid:{color:gridColor}},
+        y:{position:'left', title:{display:true, text:'λ', font:{size:9}, color:tickColor}, ticks:{font:{size:9}, color:tickColor}, grid:{color:gridColor}},
+        y2:{position:'right', title:{display:true, text:'marge', font:{size:9}, color:tickColor}, ticks:{font:{size:9}, color:tickColor}, grid:{drawOnChartArea:false}}
+      }
+    }
+  });
+}
+window.toggleDetail = function(idx){
+  const detailRow = document.getElementById('detail-'+idx);
+  const inner = document.getElementById('detail-inner-'+idx);
+  const btn = document.querySelector(`tr[data-idx="${idx}"] .expand-btn`);
+  if (detailRow.style.display === 'table-row'){
+    detailRow.style.display='none'; btn.textContent='▶ voir';
+    if (charts[idx]){ charts[idx].destroy(); delete charts[idx]; }
+  } else {
+    detailRow.style.display='table-row'; btn.textContent='▼ fermer';
+    inner.innerHTML = buildDetailHTML(filteredData[idx], idx);
+    setTimeout(()=>drawChart(idx), 50);
+  }
+};
+
+function render(){
+  const maxDL = Math.max(...filteredData.map(d=>Math.abs(d.delta_lambda)), 0.01);
+  const maxDM = Math.max(...filteredData.map(d=>Math.abs(d.delta_marge)), 0.01);
+  Object.values(charts).forEach(c=>c.destroy());
+  charts = {};
+
+  document.getElementById('tbody').innerHTML = filteredData.length===0
+    ? `<tr><td colspan="22" class="empty-state">Aucun match ne correspond aux filtres (ou aucun fichier chargé).</td></tr>`
+    : filteredData.map((d,i)=>`
+      <tr class="data-row" data-idx="${i}">
+        <td class="chk-td"><input type="checkbox" class="row-cb" data-nom="${escapeHtml(d.nom)}" ${selectedRows.has(d.nom)?'checked':''}></td>
+        <td class="nom-cell" title="${escapeHtml(d.nom)}">${escapeHtml(d.nom)}</td>
+        <td><div class="bar-cell">${fmtNum(d.lam_debut,2)} → ${fmtNum(d.lam_fin,2)} ${miniBar(d.delta_lambda,maxDL)}${fmtDelta(d.delta_lambda,3)}</div></td>
+        <td><div class="bar-cell">${fmtNum(d.marge_debut,2)} → ${fmtNum(d.marge_fin,2)} ${miniBar(d.delta_marge,maxDM)}${fmtDelta(d.delta_marge,2)}</div></td>
+        <td>${d.avg_over==null?'—':d.avg_over.toFixed(1)+'% / '+ (d.avg_under==null?'—':d.avg_under.toFixed(1)+'%')}</td>
+        <td>${fmtDelta(d.diff_ou,1)}</td>
+        <td><span class="pill ${d._interpCls}" title="${escapeHtml(d.interp_detail)}">${d.interp_text}</span></td>
+        <td><span class="pill ${d._decCls}">${d.dec_text}</span></td>
+        <td>${d.lambda_globale}</td>
+        <td>${fmtDelta(d.diff_lambda12,2)}</td>
+        <td>${mmCell(d.minRow,'margemin_marche','margemin_sens','margemin_seuil','margemin_cote','margemin_valeur','ts')}</td>
+        <td>${mmCell(d.maxRow,'margemax_marche','margemax_sens','margemax_seuil','margemax_cote','margemax_valeur','ts')}</td>
+        <td style="font-family:var(--mono);font-size:10.5px">${escapeHtml(d.marche_match)}</td>
+        <td style="font-family:var(--mono);font-size:10.5px">${escapeHtml(d.marche_e1)}</td>
+        <td style="font-family:var(--mono);font-size:10.5px">${escapeHtml(d.marche_e2)}</td>
+        <td><button class="expand-btn" onclick="toggleDetail(${i})">▶ voir</button></td>
+        <td><input type="number" class="r-input" data-nom="${escapeHtml(d.nom)}" data-field="score1" min="0" max="10" step="1" value="${d.score1===null||d.score1===undefined?'':d.score1}"></td>
+        <td><input type="number" class="r-input" data-nom="${escapeHtml(d.nom)}" data-field="score2" min="0" max="10" step="1" value="${d.score2===null||d.score2===undefined?'':d.score2}"></td>
+        <td style="color:var(--text-mid);font-size:11px">${escapeHtml(d.heure)||'—'}</td>
+        <td style="color:var(--text-mid);font-size:11px">${escapeHtml(d.pays)||'—'}</td>
+        <td style="color:var(--text-mid);font-size:11px" title="${escapeHtml(d.competition)}">${escapeHtml(d.competition)||'—'}</td>
+        <td>${d.n_iter}</td>
+      </tr>
+      <tr class="row-detail" id="detail-${i}">
+        <td colspan="22"><div id="detail-inner-${i}"></div></td>
+      </tr>`).join('');
+
+  document.getElementById('count-shown').textContent = `${filteredData.length} / ${RAW_DATA.length} matchs affichés — ${selectedRows.size} sélectionnés pour export`;
+  updateSelectAllState();
+  attachRowCellListeners();
+}
+
+function updateSelectAllState(){
+  const cb = document.getElementById('select-all-rows');
+  if (!cb) return;
+  const visibleNoms = filteredData.map(d=>d.nom);
+  const allChecked = visibleNoms.length>0 && visibleNoms.every(n=>selectedRows.has(n));
+  const noneChecked = visibleNoms.every(n=>!selectedRows.has(n));
+  cb.checked = allChecked;
+  cb.indeterminate = !allChecked && !noneChecked;
+}
+
+function attachRowCellListeners(){
+  document.querySelectorAll('.row-cb').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      const nom = cb.dataset.nom;
+      if (cb.checked) selectedRows.add(nom); else selectedRows.delete(nom);
+      document.getElementById('count-shown').textContent = `${filteredData.length} / ${RAW_DATA.length} matchs affichés — ${selectedRows.size} sélectionnés pour export`;
+      updateSelectAllState();
+    });
+  });
+  document.querySelectorAll('.r-input').forEach(inp=>{
+    ['click','mousedown'].forEach(evt=>inp.addEventListener(evt, e=>e.stopPropagation()));
+    inp.addEventListener('change', ()=>{
+      const nom = inp.dataset.nom, field = inp.dataset.field;
+      const val = inp.value === '' ? null : parseFloat(inp.value);
+      const d = RAW_DATA.find(m=>m.nom===nom);
+      if (d) d[field] = val;
+      if (!matchResultsByNom[nom]) matchResultsByNom[nom] = {};
+      matchResultsByNom[nom][field] = val;
+    });
+  });
+}
+
+document.querySelectorAll('th[data-col]').forEach(th=>{
+  th.addEventListener('click', (e)=>{
+    if (e.target && (e.target.type==='checkbox' || e.target.closest('label.col-chk'))) return;
+    const col = th.dataset.col;
+    if (sortCol===col) sortDir *= -1;
+    else { sortCol=col; sortDir = (col==='nom'||col==='interp_text'||col==='dec_text'||col==='rec_text') ? 1 : -1; }
+    document.querySelectorAll('th').forEach(t=>t.classList.remove('sorted-asc','sorted-desc'));
+    th.classList.add(sortDir>0?'sorted-asc':'sorted-desc');
+    applyFiltersAndRender();
+  });
+});
+document.querySelectorAll('.colcb').forEach(cb=>{
+  ['click','mousedown'].forEach(evt=>cb.addEventListener(evt, e=>e.stopPropagation()));
+  cb.addEventListener('change', ()=>{ colSelected[cb.dataset.colid] = cb.checked; });
+});
+document.getElementById('select-all-rows').addEventListener('change', (e)=>{
+  const checked = e.target.checked;
+  filteredData.forEach(d=>{ if (checked) selectedRows.add(d.nom); else selectedRows.delete(d.nom); });
+  render();
+});
+['search','filter-pays','filter-competition','filter-heure','filter-heure-max','filter-heure-min',
+ 'filter-lam-dir','filter-marge-dir','filter-interp','filter-dec','filter-rec','filter-marge','filter-int-marge',
+ 'filter-sd-min','filter-sd-max','filter-mm-marche','filter-mm-sens','filter-mm-valeur-max','filter-mx-valeur-min',
+ 'filter-diff-ou-min','filter-diff-ou-max','filter-diff-lam12-min','filter-diff-lam12-max'
+].forEach(id=>{
+  const el = document.getElementById(id);
+  el.addEventListener('input', applyFiltersAndRender);
+  el.addEventListener('change', applyFiltersAndRender);
+});
+document.getElementById('reset-btn').addEventListener('click', ()=>{
+  document.querySelectorAll('#controls input').forEach(i=>i.value='');
+  document.querySelectorAll('#controls select').forEach(s=>s.value='');
+  applyFiltersAndRender();
+});
+
+/* ============================================================
+   8. EXPORTS
+   ============================================================ */
+function downloadBlob(content, filename, mime){
+  const blob = new Blob([content], {type:mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function csvEscape(v){
+  if (v===null||v===undefined) return '';
+  const s = String(v);
+  return /[",\n;]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+}
+document.getElementById('export-csv-btn').addEventListener('click', ()=>{
+  const cols = ['nom','heure','pays','competition','n_iter','lam_debut','lam_fin','delta_lambda',
+    'marge_debut','marge_fin','delta_marge','avg_over','avg_under','diff_ou','interp_text','dec_text',
+    'lambda_globale','diff_lambda12','sd','marche_match','marche_e1','marche_e2','score1','score2'];
+  const extra = ['mm_marche','mm_sens','mm_seuil','mm_cote','mm_valeur','mm_heure',
+    'mx_marche','mx_sens','mx_seuil','mx_cote','mx_valeur','mx_heure'];
+  const header = [...cols, ...extra].join(';');
+  const lines = filteredData.map(d=>{
+    const base = cols.map(c=>csvEscape(d[c]));
+    const mn = d.minRow||{}, mx = d.maxRow||{};
+    const ex = [mn.margemin_marche, mn.margemin_sens, mn.margemin_seuil, mn.margemin_cote, mn.margemin_valeur, mn.ts,
+                mx.margemax_marche, mx.margemax_sens, mx.margemax_seuil, mx.margemax_cote, mx.margemax_valeur, mx.ts].map(csvEscape);
+    return [...base, ...ex].join(';');
+  });
+  downloadBlob(header+'\n'+lines.join('\n'), 'export_resume_matchs.csv', 'text/csv;charset=utf-8');
+});
+
+/* Construit, pour un match donné, le sous-ensemble de champs correspondant
+   à une colonne cochée (colid) — utilisé par l'export JSON sélectif. */
+function fieldsForColumn(colid, d){
+  const mn = d.minRow||{}, mx = d.maxRow||{};
+  switch(colid){
+    case 'nom': return {match: d.nom};
+    case 'lambda': return {lambda_debut: d.lam_debut, lambda_fin: d.lam_fin, delta_lambda: d.delta_lambda};
+    case 'marge': return {marge_debut: d.marge_debut, marge_fin: d.marge_fin, delta_marge: d.delta_marge};
+    case 'moy_ou': return {moyenne_over: d.avg_over, moyenne_under: d.avg_under};
+    case 'diff_ou': return {diff_over_under: d.diff_ou};
+    case 'interp': return {interpretation: d.interp_text};
+    case 'decision': return {decision: d.dec_text};
+    case 'lambda_globale': return {lambda_globale: d.lambda_globale};
+    case 'diff_lambda12': return {diff_lambda1_lambda2: d.diff_lambda12};
+    case 'margemin': return {margemin_marche: mn.margemin_marche??null, margemin_sens: mn.margemin_sens??null, margemin_seuil: mn.margemin_seuil??null, margemin_cote: mn.margemin_cote??null, margemin_valeur: mn.margemin_valeur??null, margemin_heure: mn.ts??null};
+    case 'margemax': return {margemax_marche: mx.margemax_marche??null, margemax_sens: mx.margemax_sens??null, margemax_seuil: mx.margemax_seuil??null, margemax_cote: mx.margemax_cote??null, margemax_valeur: mx.margemax_valeur??null, margemax_heure: mx.ts??null};
+    case 'marche_match': return {seuils_match: d.marche_match};
+    case 'marche_e1': return {seuils_equipe1: d.marche_e1};
+    case 'marche_e2': return {seuils_equipe2: d.marche_e2};
+    case 'r1': return {r1: d.score1};
+    case 'r2': return {r2: d.score2};
+    case 'heure': return {heure_match: d.heure};
+    case 'pays': return {pays: d.pays};
+    case 'competition': return {competition: d.competition};
+    case 'n_iter': return {n_snapshots: d.n_iter};
+    default: return {};
+  }
+}
+document.getElementById('export-json-btn').addEventListener('click', ()=>{
+  const rowsSel = filteredData.filter(d=>selectedRows.has(d.nom));
+  const colsChecked = Object.keys(colSelected).filter(id=>colSelected[id]);
+  if (!rowsSel.length){
+    alert("Aucune ligne cochée : cochez au moins une ligne dans la première colonne du tableau avant d'exporter.");
+    return;
+  }
+  const out = rowsSel.map(d=>{
+    let obj = {};
+    colsChecked.forEach(colid=>{ obj = Object.assign(obj, fieldsForColumn(colid, d)); });
+    return obj;
+  });
+  downloadBlob(JSON.stringify(out, null, 2), 'export_selection.json', 'application/json;charset=utf-8');
+});
+
+/* ============================================================
+   9. INIT
+   ============================================================ */
+populateSelectFilters();
+render();
+})();
+</script>
+</body>
+</html>
