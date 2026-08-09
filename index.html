@@ -654,6 +654,12 @@ function pctCell(v){
   const cls = v>=70 ? 'conf-high' : v>=45 ? 'conf-mid' : 'conf-low';
   return `<div class="conf-cell"><div class="conf-track"><div class="conf-fill ${cls}" style="width:${v}%"></div></div><span class="conf-val ${cls}">${v.toFixed(1)}%</span></div>`;
 }
+function pctCoteCell(v){
+  if (v===null||v===undefined||isNaN(v)) return '<span class="choix-dim">—</span>';
+  const cls = v>=70 ? 'conf-high' : v>=45 ? 'conf-mid' : 'conf-low';
+  const cote = v>0 ? (100/v).toFixed(2) : '—';
+  return `<div class="conf-cell"><div class="conf-track"><div class="conf-fill ${cls}" style="width:${v}%"></div></div><span class="conf-val ${cls}">${v.toFixed(1)}% (${cote})</span></div>`;
+}
 
 /* ============================================================
    COHÉRENCE — croise % Over 1.5, % Over 2.5, % Under 3.5, % Under 4.5
@@ -1390,11 +1396,11 @@ function render(){
       <tr class="data-row" data-idx="${i}">
         <td class="chk-td" data-label="Sél."><input type="checkbox" class="row-cb" data-nom="${escapeHtml(d.nom)}" ${selectedRows.has(d.nom)?'checked':''}></td>
         <td class="nom-cell" data-label="Match" title="${escapeHtml(d.nom)}">${escapeHtml(d.nom)}</td>
-        <td data-label="% Over 1.5" title="λ pondéré ${fmtNum(d.lam_pondere,2)}">${pctCell(d.over15_pct)}</td>
-        <td data-label="% Under 4.5" title="λ pondéré ${fmtNum(d.lam_pondere,2)}">${pctCell(d.under45_pct)}</td>
+        <td data-label="% Over 1.5" title="λ pondéré ${fmtNum(d.lam_pondere,2)}">${pctCoteCell(d.over15_pct)}</td>
+        <td data-label="% Under 4.5" title="λ pondéré ${fmtNum(d.lam_pondere,2)}">${pctCoteCell(d.under45_pct)}</td>
         <td data-label="D14%">${pctCell(d.d_pct)}</td>
-        <td data-label="% Over 2.5" title="λ pondéré ${fmtNum(d.lam_pondere,2)}">${pctCell(d.over25_pct)}</td>
-        <td data-label="% Under 3.5" title="λ pondéré ${fmtNum(d.lam_pondere,2)}">${pctCell(d.under35_pct)}</td>
+        <td data-label="% Over 2.5" title="λ pondéré ${fmtNum(d.lam_pondere,2)}">${pctCoteCell(d.over25_pct)}</td>
+        <td data-label="% Under 3.5" title="λ pondéré ${fmtNum(d.lam_pondere,2)}">${pctCoteCell(d.under35_pct)}</td>
         <td data-label="D23%">${pctCell(d.d23_pct)}</td>
         <td data-label="λ déb → fin (Δ)"><div class="bar-cell">${fmtNum(d.lam_debut,2)} → ${fmtNum(d.lam_fin,2)} ${miniBar(d.delta_lambda,maxDL)}${fmtDelta(d.delta_lambda,3)}</div></td>
         <td data-label="Marge déb → fin (Δ)"><div class="bar-cell">${fmtNum(d.marge_debut,2)} → ${fmtNum(d.marge_fin,2)} ${miniBar(d.delta_marge,maxDM)}${fmtDelta(d.delta_marge,2)}</div></td>
@@ -1894,6 +1900,11 @@ render();
     return '<span class="choix-dim">—</span>';
   }
   function rcFmt(v){ return (v===null||v===undefined||isNaN(v)) ? '—' : v.toFixed(2)+'%'; }
+  function rcFmtCote(v){
+    if (v===null||v===undefined||isNaN(v)) return '—';
+    const cote = v>0 ? (100/v).toFixed(2) : '—';
+    return `${v.toFixed(2)}% (${cote})`;
+  }
   function rcFmtDelta(v,d){
     if (v===null||v===undefined||isNaN(v)) return '<span class="delta-zero">—</span>';
     if (Math.abs(v) < Math.pow(10,-d)) return '<span class="delta-zero">0</span>';
@@ -1923,11 +1934,11 @@ render();
       return '<tr class="data-row">' +
         `<td class="nom-cell">${rcEscapeHtml(inp.nom)}</td>` +
         `<td class="nom-cell">${rcEscapeHtml(b.nom)}</td>` +
-        `<td>${rcFmt(inp.over15_pct)}</td>` +
-        `<td>${rcFmt(inp.under45_pct)}</td>` +
+        `<td>${rcFmtCote(inp.over15_pct)}</td>` +
+        `<td>${rcFmtCote(inp.under45_pct)}</td>` +
         `<td>${rcFmt(inp.d_pct)}</td>` +
-        `<td>${rcFmt(inp.over25_pct)}</td>` +
-        `<td>${rcFmt(inp.under35_pct)}</td>` +
+        `<td>${rcFmtCote(inp.over25_pct)}</td>` +
+        `<td>${rcFmtCote(inp.under35_pct)}</td>` +
         `<td>${rcFmt(inp.d23_pct)}</td>` +
         `<td>${rcSignCell(inp.sign)}</td>` +
         `<td>${rcDeltaBlock(inp.lam_debut, inp.lam_fin, inp.delta_lambda, 3)}</td>` +
