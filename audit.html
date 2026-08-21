@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audit croisé PMU ↔ Winamax — Marchés "Nombre de buts"</title>
+<style>
+  :root {
+    --bg: #0f1420;
+    --panel: #171f30;
+    --panel-2: #1e2740;
+    --border: #2a3450;
+    --text: #e7ecf7;
+    --text-dim: #9aa7c2;
+    --accent: #4f8cff;
+    --pmu: #f2b705;
+    --winamax: #e2001a;
+    --ok: #33c17a;
+    --warn: #ff9f43;
+    --danger: #ff5c5c;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px;
+  }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h1 .pmu { color: var(--pmu); }
+  h1 .winamax { color: var(--winamax); }
+  .subtitle { color: var(--text-dim); font-size: 13px; margin-bottom: 24px; }
+
+  .dropzones { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+  .dropzone {
+    flex: 1 1 260px;
+    background: var(--panel);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    position: relative;
+  }
+  .dropzone.pmu { border-color: rgba(242,183,5,.35); }
+  .dropzone.winamax { border-color: rgba(226,0,26,.35); }
+  .dropzone:hover, .dropzone.dragover { background: var(--panel-2); }
+  .dropzone .label { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+  .dropzone.pmu .label { color: var(--pmu); }
+  .dropzone.winamax .label { color: var(--winamax); }
+  .dropzone .hint { color: var(--text-dim); font-size: 12px; }
+  .dropzone .filename { margin-top: 8px; font-size: 12px; color: var(--ok); word-break: break-all; }
+  .dropzone input { display: none; }
+
+  .summary { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    min-width: 140px;
+  }
+  .card .n { font-size: 24px; font-weight: 700; }
+  .card .l { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; margin-top: 2px; }
+  .card.ok .n { color: var(--ok); }
+  .card.warn .n { color: var(--warn); }
+  .card.danger .n { color: var(--danger); }
+
+  section { margin-bottom: 26px; }
+  .section-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .section-title .count { font-weight: 400; color: var(--text-dim); font-size: 12px; }
+
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+  .controls input[type=text] {
+    background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 6px; padding: 7px 10px; font-size: 13px; min-width: 220px;
+  }
+  .controls select {
+    background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 6px; padding: 7px 10px; font-size: 13px;
+  }
+
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border-radius: var(--radius); overflow: hidden; font-size: 13px; }
+  thead th {
+    text-align: left; background: var(--panel-2); color: var(--text-dim);
+    font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+  }
+  thead th.pmu { color: var(--pmu); }
+  thead th.winamax { color: var(--winamax); }
+  .ecart-fort { color: var(--danger); font-weight: 600; }
+  .ecart-nul { color: var(--text-dim); }
+  tbody td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,.02); }
+
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;
+  }
+  .badge.pmu { background: rgba(242,183,5,.15); color: var(--pmu); }
+  .badge.winamax { background: rgba(226,0,26,.15); color: var(--winamax); }
+
+  .sens-plus { color: var(--ok); }
+  .sens-moins { color: var(--danger); }
+
+  .empty-state { color: var(--text-dim); font-size: 13px; padding: 20px; text-align: center; background: var(--panel); border-radius: var(--radius); border: 1px dashed var(--border); }
+
+  .reason { color: var(--text-dim); font-size: 12px; }
+
+  .site-row td { border-bottom: 1px solid var(--border); }
+  .site-row.pmu-row { background: rgba(242,183,5,.04); }
+  .site-row.winamax-row { background: rgba(226,0,26,.04); }
+  .match-group td:first-child { font-weight: 600; }
+  .lambda-na, .marche-na { color: var(--text-dim); }
+
+  footer { color: var(--text-dim); font-size: 11px; margin-top: 30px; text-align: center; }
+</style>
+</head>
+<body>
+
+<h1><span class="pmu">PMU</span> ↔ <span class="winamax">Winamax</span> — Audit croisé des marchés "Nombre de buts"</h1>
+<div class="subtitle">100% local : les deux fichiers JSON sont lus dans le navigateur, rien n'est envoyé à un serveur.</div>
+
+<div class="dropzones">
+  <label class="dropzone pmu" id="zone-pmu">
+    <div class="label">📄 Fichier PMU (JSON)</div>
+    <div class="hint">Clique ou dépose le fichier produit par PMU_Scraper.py</div>
+    <div class="filename" id="filename-pmu"></div>
+    <input type="file" id="input-pmu" accept="application/json,.json">
+  </label>
+  <label class="dropzone winamax" id="zone-winamax">
+    <div class="label">📄 Fichier Winamax (JSON)</div>
+    <div class="hint">Clique ou dépose le fichier produit par Winamax_Scraper.py</div>
+    <div class="filename" id="filename-winamax"></div>
+    <input type="file" id="input-winamax" accept="application/json,.json">
+  </label>
+</div>
+
+<div class="summary" id="summary" style="display:none;">
+  <div class="card"><div class="n" id="s-pmu">0</div><div class="l">Matchs PMU</div></div>
+  <div class="card"><div class="n" id="s-winamax">0</div><div class="l">Matchs Winamax</div></div>
+  <div class="card ok"><div class="n" id="s-apparies">0</div><div class="l">Matchs appariés</div></div>
+  <div class="card warn"><div class="n" id="s-non-apparies">0</div><div class="l">Non appariés</div></div>
+  <div class="card danger"><div class="n" id="s-manquants">0</div><div class="l">Marchés manquants</div></div>
+</div>
+
+<section id="section-analyse" style="display:none;">
+  <div class="section-title">Analyse des matchs appariés (λ &amp; marges) <span class="count" id="count-analyse"></span></div>
+  <div class="controls">
+    <input type="text" id="filtre-recherche-analyse" placeholder="Filtrer par nom de match...">
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Match</th>
+        <th>Site</th>
+        <th>Lambda Match</th>
+        <th>Lambda E1</th>
+        <th>Lambda E2</th>
+        <th>Marché Min (marge la + petite)</th>
+        <th>Marché Max (marge la + grande)</th>
+        <th>Mouvement &amp; Marge Match</th>
+        <th>Mouvement &amp; Marge E1</th>
+        <th>Mouvement &amp; Marge E2</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-analyse"></tbody>
+  </table>
+  <div class="empty-state" id="empty-analyse" style="display:none;">Aucun match ne correspond au filtre.</div>
+</section>
+
+<section id="section-comparaison" style="display:none;">
+  <div class="section-title">Comparaison seuils &amp; marges — <span class="pmu">PMU</span> vs <span class="winamax">Winamax</span> <span class="count" id="count-comparaison"></span></div>
+  <div class="controls">
+    <input type="text" id="filtre-recherche-comparaison" placeholder="Rechercher un match...">
+    <select id="filtre-marche-comparaison">
+      <option value="">Marché — tous</option>
+      <option value="Match">Match</option>
+      <option value="Équipe 1">Équipe 1</option>
+      <option value="Équipe 2">Équipe 2</option>
+    </select>
+    <select id="filtre-heure-comparaison">
+      <option value="">Heure — toutes</option>
+    </select>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Match</th>
+        <th>Heure</th>
+        <th>Marché</th>
+        <th>Seuil</th>
+        <th class="pmu">PMU Plus de</th>
+        <th class="pmu">PMU Moins de</th>
+        <th class="pmu">PMU Marge</th>
+        <th class="winamax">Winamax Plus de</th>
+        <th class="winamax">Winamax Moins de</th>
+        <th class="winamax">Winamax Marge</th>
+        <th>Écart marge</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-comparaison"></tbody>
+  </table>
+  <div class="empty-state" id="empty-comparaison" style="display:none;">Aucun seuil ne correspond à la recherche.</div>
+</section>
+
+<footer>Appariement : équipe 1/équipe 2 comparées par inclusion de texte (tolère les noms tronqués d'un site à l'autre) + heure strictement identique entre les deux sites.</footer>
+
+<script>
+let dataPMU = null;
+let dataWinamax = null;
+let groupesPMU = [];
+let groupesWinamax = [];
+let lignesManquantes = [];
+let matchsApparies = [];
+let lignesComparaison = [];
+
+// ---------- Normalisation / appariement ----------
+function normaliser(nom) {
+  if (!nom) return "";
+  return nom
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // retire les accents
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function nomsCorrespondent(a, b) {
+  const na = normaliser(a), nb = normaliser(b);
+  if (!na || !nb) return false;
+  return na.includes(nb) || nb.includes(na);
+}
+
+function heureEgale(h1, h2) {
+  if (!h1 || !h2) return false;
+  return h1.trim() === h2.trim();
+}
+
+// ---------- Regroupement multi-snapshots (clé collecte_a) ----------
+// Le JSON capture désormais en continu plusieurs relevés (snapshots) du même
+// match. On regroupe par nom de match + heure, on trie par date de collecte,
+// et on garde le premier (début) et le dernier (fin) relevé pour calculer
+// l'évolution du Lambda et de la marge.
+function grouperParMatch(data) {
+  const map = new Map();
+  (data || []).forEach(item => {
+    const clef = `${item.match}||${item.heure}`;
+    if (!map.has(clef)) map.set(clef, []);
+    map.get(clef).push(item);
+  });
+  const groupes = [];
+  for (const snaps of map.values()) {
+    snaps.sort((a, b) => new Date(a.collecte_a) - new Date(b.collecte_a));
+    groupes.push({
+      match: snaps[0].match,
+      heure: snaps[0].heure,
+      competition: snaps[0].competition,
+      debut: snaps[0],
+      fin: snaps[snaps.length - 1],
+      nbSnapshots: snaps.length,
+    });
+  }
+  return groupes;
+}
+
+// ---------- λ (Poisson démargé) & marges ----------
+function construirePaires(liste) {
+  // Regroupe les issues par seuil, ne garde que les paires complètes
+  // (Plus de + Moins de disponibles) : la marge et la démarginalisation
+  // n'ont de sens que si les deux côtés du même seuil sont connus.
+  const map = new Map();
+  (liste || []).forEach(it => {
+    if (!map.has(it.seuil)) map.set(it.seuil, {});
+    const entree = map.get(it.seuil);
+    if (it.sens === "Plus de") entree.over = it.cote;
+    else if (it.sens === "Moins de") entree.under = it.cote;
+  });
+  const paires = [];
+  for (const [seuil, { over, under }] of map) {
+    if (over != null && under != null) paires.push({ seuil, over, under });
+  }
+  return paires.sort((a, b) => a.seuil - b.seuil);
+}
+
+function poissonCdf(k, lambda) {
+  let terme = Math.exp(-lambda);
+  let somme = terme;
+  for (let i = 1; i <= k; i++) {
+    terme *= lambda / i;
+    somme += terme;
+  }
+  return somme;
+}
+
+function probaOverPoisson(seuil, lambda) {
+  // seuil = k + 0.5 -> P(Plus de seuil) = P(N >= k+1) = 1 - CDF(k, lambda)
+  const k = Math.floor(seuil);
+  return 1 - poissonCdf(k, lambda);
+}
+
+function fitLambda(paires) {
+  if (!paires.length) return null;
+
+  // Probabilité "Plus de" démarginée (retire la marge du bookmaker) pour
+  // chaque seuil disponible.
+  const cibles = paires.map(p => {
+    const invO = 1 / p.over, invU = 1 / p.under;
+    return { seuil: p.seuil, pOver: invO / (invO + invU) };
+  });
+
+  function sse(lambda) {
+    let s = 0;
+    for (const c of cibles) {
+      const diff = probaOverPoisson(c.seuil, lambda) - c.pOver;
+      s += diff * diff;
+    }
+    return s;
+  }
+
+  // Recherche par grille (grossière puis affinée) : suffisant pour une
+  // précision à 2 décimales, pas besoin d'un solveur externe côté navigateur.
+  let meilleur = { lambda: 0.01, valeur: Infinity };
+  for (let l = 0.01; l <= 8; l += 0.02) {
+    const v = sse(l);
+    if (v < meilleur.valeur) meilleur = { lambda: l, valeur: v };
+  }
+  const base = meilleur.lambda;
+  for (let l = Math.max(0.001, base - 0.02); l <= base + 0.02; l += 0.0005) {
+    const v = sse(l);
+    if (v < meilleur.valeur) meilleur = { lambda: l, valeur: v };
+  }
+  return meilleur.lambda;
+}
+
+function lambdasSite(m) {
+  return {
+    match: fitLambda(construirePaires(m.marche_match)),
+    equipe1: fitLambda(construirePaires(m.marche_equipe1)),
+    equipe2: fitLambda(construirePaires(m.marche_equipe2)),
+  };
+}
+
+function analyserMarges(m) {
+  const marches = [
+    { libelle: "Match", paires: construirePaires(m.marche_match) },
+    { libelle: "Équipe 1", paires: construirePaires(m.marche_equipe1) },
+    { libelle: "Équipe 2", paires: construirePaires(m.marche_equipe2) },
+  ];
+
+  const toutes = [];
+  marches.forEach(mk => {
+    mk.paires.forEach(p => {
+      // Over et Under d'un même seuil partagent la même marge (overround).
+      const marge = 1 / p.over + 1 / p.under - 1;
+      toutes.push({ marche: mk.libelle, seuil: p.seuil, over: p.over, under: p.under, marge });
+    });
+  });
+
+  if (!toutes.length) return { min: null, max: null };
+
+  const pMin = toutes.reduce((a, b) => (b.marge < a.marge ? b : a));
+  const pMax = toutes.reduce((a, b) => (b.marge > a.marge ? b : a));
+
+  // Marge min -> on garde le sens à la cote la plus PETITE (le plus probable).
+  // Marge max -> on garde le sens à la cote la plus GRANDE.
+  function formater(p, garderPetiteCote) {
+    const estOver = garderPetiteCote ? p.over <= p.under : p.over >= p.under;
+    const cote = estOver ? p.over : p.under;
+    return {
+      texte: `${p.marche} - ${estOver ? "Over" : "Under"} (${p.seuil})`,
+      cote,
+      marge: p.marge,
+    };
+  }
+
+  return { min: formater(pMin, true), max: formater(pMax, false) };
+}
+
+// Marge moyenne d'un marché (moyenne des marges de tous les seuils disponibles).
+function margeMoyenne(liste) {
+  const paires = construirePaires(liste);
+  if (!paires.length) return null;
+  const somme = paires.reduce((s, p) => s + (1 / p.over + 1 / p.under - 1), 0);
+  return somme / paires.length;
+}
+
+// Calcule, pour chaque marché (Match / Équipe 1 / Équipe 2), la variation du
+// Lambda et de la marge moyenne entre le premier et le dernier snapshot.
+function calculerMouvement(snapDebut, snapFin) {
+  const marches = [
+    { cle: "match", debut: snapDebut.marche_match, fin: snapFin.marche_match },
+    { cle: "equipe1", debut: snapDebut.marche_equipe1, fin: snapFin.marche_equipe1 },
+    { cle: "equipe2", debut: snapDebut.marche_equipe2, fin: snapFin.marche_equipe2 },
+  ];
+  const resultat = {};
+  marches.forEach(mk => {
+    resultat[mk.cle] = {
+      lambdaDebut: fitLambda(construirePaires(mk.debut)),
+      lambdaFin: fitLambda(construirePaires(mk.fin)),
+      margeDebut: margeMoyenne(mk.debut),
+      margeFin: margeMoyenne(mk.fin),
+    };
+  });
+  return resultat;
+}
+
+// Retourne les paires seuil/over/under/marge pour un marché donné.
+function construirePairesAvecMarge(liste) {
+  return construirePaires(liste).map(p => ({
+    seuil: p.seuil,
+    over: p.over,
+    under: p.under,
+    marge: 1 / p.over + 1 / p.under - 1,
+  }));
+}
+
+// Construit, pour un match apparié, la liste des lignes seuil-par-seuil
+// (Match / Équipe 1 / Équipe 2) avec les valeurs PMU et Winamax côte à côte.
+function construireLignesComparaison(nomAffiche, heure, mp, mw) {
+  const marches = [
+    { libelle: "Match", pmu: mp.marche_match, winamax: mw.marche_match },
+    { libelle: "Équipe 1", pmu: mp.marche_equipe1, winamax: mw.marche_equipe1 },
+    { libelle: "Équipe 2", pmu: mp.marche_equipe2, winamax: mw.marche_equipe2 },
+  ];
+
+  const lignes = [];
+  marches.forEach(mk => {
+    const pairesPMU = construirePairesAvecMarge(mk.pmu);
+    const pairesWinamax = construirePairesAvecMarge(mk.winamax);
+    const mapPMU = new Map(pairesPMU.map(p => [p.seuil, p]));
+    const mapWinamax = new Map(pairesWinamax.map(p => [p.seuil, p]));
+    const seuils = Array.from(new Set([...mapPMU.keys(), ...mapWinamax.keys()])).sort((a, b) => a - b);
+
+    seuils.forEach(seuil => {
+      const pP = mapPMU.get(seuil) || null;
+      const pW = mapWinamax.get(seuil) || null;
+      const ecart = (pP && pW) ? Math.abs(pP.marge - pW.marge) : null;
+      lignes.push({ match: nomAffiche, heure: heure || "—", marche: mk.libelle, seuil, pmu: pP, winamax: pW, ecart });
+    });
+  });
+  return lignes;
+}
+
+function clefsMarche(liste) {
+  const map = new Map();
+  (liste || []).forEach(item => {
+    const clef = `${item.sens}|${item.seuil}`;
+    map.set(clef, item.cote);
+  });
+  return map;
+}
+
+const LIBELLES_MARCHE = {
+  marche_match: "Match",
+  marche_equipe1: "Équipe 1",
+  marche_equipe2: "Équipe 2",
+};
+
+function comparerMarche(nomMatchAffiche, cleMarche, listePMU, listeWinamax, lignesOut) {
+  const mapPMU = clefsMarche(listePMU);
+  const mapWinamax = clefsMarche(listeWinamax);
+  const libelle = LIBELLES_MARCHE[cleMarche];
+
+  // Présent chez Winamax, absent chez PMU
+  for (const [clef, cote] of mapWinamax) {
+    if (!mapPMU.has(clef)) {
+      const [sens, seuil] = clef.split("|");
+      lignesOut.push({
+        match: nomMatchAffiche,
+        marche: libelle,
+        sens, seuil: parseFloat(seuil),
+        manquantSur: "PMU",
+        disponibleSur: "Winamax",
+        cote,
+      });
+    }
+  }
+  // Présent chez PMU, absent chez Winamax
+  for (const [clef, cote] of mapPMU) {
+    if (!mapWinamax.has(clef)) {
+      const [sens, seuil] = clef.split("|");
+      lignesOut.push({
+        match: nomMatchAffiche,
+        marche: libelle,
+        sens, seuil: parseFloat(seuil),
+        manquantSur: "Winamax",
+        disponibleSur: "PMU",
+        cote,
+      });
+    }
+  }
+}
+
+function lancerComparaison() {
+  if (!dataPMU || !dataWinamax) return;
+
+  groupesPMU = grouperParMatch(dataPMU);
+  groupesWinamax = grouperParMatch(dataWinamax);
+
+  const winamaxUtilises = new Set();
+  const nonApparies = [];
+  lignesManquantes = [];
+  matchsApparies = [];
+  lignesComparaison = [];
+  let nbApparies = 0;
+
+  groupesPMU.forEach(gp => {
+    const mp = gp.fin;
+    const [ep1p, ep2p] = (mp.match || "").split(" - ").map(s => (s || "").trim());
+    let candidat = null;
+
+    groupesWinamax.forEach((gw, idxW) => {
+      if (winamaxUtilises.has(idxW)) return;
+      const mw = gw.fin;
+      const [ep1w, ep2w] = (mw.match || "").split(" - ").map(s => (s || "").trim());
+
+      const equipesOk = nomsCorrespondent(ep1p, ep1w) && nomsCorrespondent(ep2p, ep2w);
+      const heureOk = heureEgale(mp.heure, mw.heure);
+
+      if (equipesOk && heureOk) {
+        candidat = { groupe: gw, idx: idxW };
+      }
+    });
+
+    if (candidat) {
+      winamaxUtilises.add(candidat.idx);
+      nbApparies++;
+      const mw = candidat.groupe.fin;
+      const nomAffiche = mp.match === mw.match
+        ? mp.match
+        : `${mp.match} (PMU) / ${mw.match} (Winamax)`;
+
+      comparerMarche(nomAffiche, "marche_match", mp.marche_match, mw.marche_match, lignesManquantes);
+      comparerMarche(nomAffiche, "marche_equipe1", mp.marche_equipe1, mw.marche_equipe1, lignesManquantes);
+      comparerMarche(nomAffiche, "marche_equipe2", mp.marche_equipe2, mw.marche_equipe2, lignesManquantes);
+
+      matchsApparies.push({
+        nom: nomAffiche,
+        pmu: { lambdas: lambdasSite(mp), marges: analyserMarges(mp), mouvement: calculerMouvement(gp.debut, gp.fin) },
+        winamax: { lambdas: lambdasSite(mw), marges: analyserMarges(mw), mouvement: calculerMouvement(candidat.groupe.debut, candidat.groupe.fin) },
+      });
+
+      lignesComparaison.push(...construireLignesComparaison(nomAffiche, mp.heure, mp, mw));
+    } else {
+      let raison = "Aucune correspondance équipes/heure trouvée côté Winamax";
+      const nomsProches = groupesWinamax.filter((gw, idxW) => {
+        if (winamaxUtilises.has(idxW)) return false;
+        const [ep1w, ep2w] = (gw.fin.match || "").split(" - ").map(s => (s || "").trim());
+        return nomsCorrespondent(ep1p, ep1w) && nomsCorrespondent(ep2p, ep2w);
+      });
+      if (nomsProches.length > 0) {
+        raison = "Équipes reconnues mais heure différente ou manquante (PMU: " + (mp.heure || "—") + " / Winamax: " + (nomsProches[0].heure || "—") + ")";
+      }
+      nonApparies.push({ site: "PMU", match: mp.match, competition: mp.competition, heure: mp.heure, raison });
+    }
+  });
+
+  groupesWinamax.forEach((gw, idxW) => {
+    if (winamaxUtilises.has(idxW)) return;
+    const mw = gw.fin;
+    let raison = "Aucune correspondance équipes/heure trouvée côté PMU";
+    const [ep1w, ep2w] = (mw.match || "").split(" - ").map(s => (s || "").trim());
+    const nomsProches = groupesPMU.filter(gp => {
+      const [ep1p, ep2p] = (gp.fin.match || "").split(" - ").map(s => (s || "").trim());
+      return nomsCorrespondent(ep1p, ep1w) && nomsCorrespondent(ep2p, ep2w);
+    });
+    if (nomsProches.length > 0) {
+      raison = "Équipes reconnues mais heure différente ou manquante (Winamax: " + (mw.heure || "—") + " / PMU: " + (nomsProches[0].fin.heure || "—") + ")";
+    }
+    nonApparies.push({ site: "Winamax", match: mw.match, competition: mw.competition, heure: mw.heure, raison });
+  });
+
+  afficherResultats(nbApparies, nonApparies);
+}
+
+// ---------- Rendu ----------
+function afficherResultats(nbApparies, nonApparies) {
+  document.getElementById("summary").style.display = "flex";
+  document.getElementById("s-pmu").textContent = groupesPMU.length;
+  document.getElementById("s-winamax").textContent = groupesWinamax.length;
+  document.getElementById("s-apparies").textContent = nbApparies;
+  document.getElementById("s-non-apparies").textContent = nonApparies.length;
+  document.getElementById("s-manquants").textContent = lignesManquantes.length;
+
+  document.getElementById("section-analyse").style.display = matchsApparies.length ? "block" : "none";
+  document.getElementById("section-comparaison").style.display = matchsApparies.length ? "block" : "none";
+  rendreTableauAnalyse();
+  peuplerFiltreHeure();
+  rendreTableauComparaison();
+}
+
+function formaterLambda(l) {
+  return l == null ? '<span class="lambda-na">—</span>' : l.toFixed(2);
+}
+
+function formaterMarcheExtreme(m) {
+  if (!m) return '<span class="marche-na">—</span>';
+  return `${escapeHtml(m.texte)} <span class="reason">(cote ${m.cote}, marge ${(m.marge * 100).toFixed(1)}%)</span>`;
+}
+
+function formaterMouvement(mv) {
+  if (!mv || (mv.lambdaDebut == null && mv.lambdaFin == null)) {
+    return '<span class="lambda-na">—</span>';
+  }
+  const ld = mv.lambdaDebut == null ? "—" : mv.lambdaDebut.toFixed(2);
+  const lf = mv.lambdaFin == null ? "—" : mv.lambdaFin.toFixed(2);
+  const md = mv.margeDebut == null ? "—" : (mv.margeDebut * 100).toFixed(1) + "%";
+  const mf = mv.margeFin == null ? "—" : (mv.margeFin * 100).toFixed(1) + "%";
+  const bougeBeaucoup = mv.lambdaDebut != null && mv.lambdaFin != null && Math.abs(mv.lambdaFin - mv.lambdaDebut) >= 0.15;
+  const classe = bougeBeaucoup ? "ecart-fort" : "";
+  return `<span class="${classe}">${ld} → ${lf}</span><br><span class="reason">${md} → ${mf}</span>`;
+}
+
+function rendreTableauAnalyse() {
+  const recherche = normaliser(document.getElementById("filtre-recherche-analyse").value);
+  const lignesFiltrees = matchsApparies.filter(m => !recherche || normaliser(m.nom).includes(recherche));
+
+  document.getElementById("count-analyse").textContent = `(${lignesFiltrees.length} / ${matchsApparies.length})`;
+
+  const tbody = document.getElementById("tbody-analyse");
+  tbody.innerHTML = "";
+  document.getElementById("empty-analyse").style.display = lignesFiltrees.length ? "none" : "block";
+
+  lignesFiltrees
+    .sort((a, b) => a.nom.localeCompare(b.nom))
+    .forEach(m => {
+      [["pmu", "PMU", m.pmu], ["winamax", "Winamax", m.winamax]].forEach(([classe, label, donnees], idx) => {
+        const tr = document.createElement("tr");
+        tr.className = `site-row ${classe}-row${idx === 0 ? " match-group" : ""}`;
+        tr.innerHTML = `
+          <td>${idx === 0 ? escapeHtml(m.nom) : ""}</td>
+          <td><span class="badge ${classe}">${label}</span></td>
+          <td>${formaterLambda(donnees.lambdas.match)}</td>
+          <td>${formaterLambda(donnees.lambdas.equipe1)}</td>
+          <td>${formaterLambda(donnees.lambdas.equipe2)}</td>
+          <td>${formaterMarcheExtreme(donnees.marges.min)}</td>
+          <td>${formaterMarcheExtreme(donnees.marges.max)}</td>
+          <td>${formaterMouvement(donnees.mouvement.match)}</td>
+          <td>${formaterMouvement(donnees.mouvement.equipe1)}</td>
+          <td>${formaterMouvement(donnees.mouvement.equipe2)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+}
+
+function formaterCote(p, cle) {
+  if (!p) return '<span class="marche-na">—</span>';
+  return String(p[cle]);
+}
+
+function formaterMargeSeule(p) {
+  if (!p) return '<span class="marche-na">—</span>';
+  return `${(p.marge * 100).toFixed(2)}%`;
+}
+
+function peuplerFiltreHeure() {
+  const select = document.getElementById("filtre-heure-comparaison");
+  const valeurActuelle = select.value;
+  const heures = Array.from(new Set(lignesComparaison.map(l => l.heure))).sort();
+  select.innerHTML = '<option value="">Heure — toutes</option>' +
+    heures.map(h => `<option value="${escapeHtml(h)}">${escapeHtml(h)}</option>`).join("");
+  if (heures.includes(valeurActuelle)) select.value = valeurActuelle;
+}
+
+function rendreTableauComparaison() {
+  const recherche = normaliser(document.getElementById("filtre-recherche-comparaison").value);
+  const filtreMarche = document.getElementById("filtre-marche-comparaison").value;
+  const filtreHeure = document.getElementById("filtre-heure-comparaison").value;
+
+  const lignesFiltrees = lignesComparaison.filter(l => {
+    if (recherche && !normaliser(l.match).includes(recherche)) return false;
+    if (filtreMarche && l.marche !== filtreMarche) return false;
+    if (filtreHeure && l.heure !== filtreHeure) return false;
+    return true;
+  });
+
+  document.getElementById("count-comparaison").textContent = `(${lignesFiltrees.length} / ${lignesComparaison.length})`;
+
+  const tbody = document.getElementById("tbody-comparaison");
+  tbody.innerHTML = "";
+  document.getElementById("empty-comparaison").style.display = lignesFiltrees.length ? "none" : "block";
+
+  lignesFiltrees
+    .sort((a, b) => a.match.localeCompare(b.match) || a.marche.localeCompare(b.marche) || a.seuil - b.seuil)
+    .forEach(l => {
+      const tr = document.createElement("tr");
+      let ecartTxt = '<span class="marche-na">—</span>';
+      if (l.ecart != null) {
+        const classe = l.ecart >= 0.02 ? "ecart-fort" : "ecart-nul";
+        ecartTxt = `<span class="${classe}">${(l.ecart * 100).toFixed(2)}%</span>`;
+      }
+      tr.innerHTML = `
+        <td>${escapeHtml(l.match)}</td>
+        <td>${escapeHtml(l.heure)}</td>
+        <td>${escapeHtml(l.marche)}</td>
+        <td>${l.seuil}</td>
+        <td>${formaterCote(l.pmu, "over")}</td>
+        <td>${formaterCote(l.pmu, "under")}</td>
+        <td>${formaterMargeSeule(l.pmu)}</td>
+        <td>${formaterCote(l.winamax, "over")}</td>
+        <td>${formaterCote(l.winamax, "under")}</td>
+        <td>${formaterMargeSeule(l.winamax)}</td>
+        <td>${ecartTxt}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+document.getElementById("filtre-recherche-analyse").addEventListener("input", rendreTableauAnalyse);
+document.getElementById("filtre-recherche-comparaison").addEventListener("input", rendreTableauComparaison);
+document.getElementById("filtre-marche-comparaison").addEventListener("change", rendreTableauComparaison);
+document.getElementById("filtre-heure-comparaison").addEventListener("change", rendreTableauComparaison);
+
+// ---------- Chargement des fichiers ----------
+function configurerZone(zoneId, inputId, filenameId, onLoaded) {
+  const zone = document.getElementById(zoneId);
+  const input = document.getElementById(inputId);
+  const filenameEl = document.getElementById(filenameId);
+
+  function traiterFichier(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const json = JSON.parse(e.target.result);
+        const nbMatchs = grouperParMatch(json).length;
+        filenameEl.textContent = "✔ " + file.name + " (" + json.length + " relevé(s) / " + nbMatchs + " match(s))";
+        onLoaded(json);
+        if (dataPMU && dataWinamax) lancerComparaison();
+      } catch (err) {
+        filenameEl.textContent = "⛔ Fichier JSON invalide : " + err.message;
+        filenameEl.style.color = "var(--danger)";
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  input.addEventListener("change", () => traiterFichier(input.files[0]));
+  zone.addEventListener("dragover", e => { e.preventDefault(); zone.classList.add("dragover"); });
+  zone.addEventListener("dragleave", () => zone.classList.remove("dragover"));
+  zone.addEventListener("drop", e => {
+    e.preventDefault();
+    zone.classList.remove("dragover");
+    if (e.dataTransfer.files.length) traiterFichier(e.dataTransfer.files[0]);
+  });
+}
+
+configurerZone("zone-pmu", "input-pmu", "filename-pmu", json => { dataPMU = json; });
+configurerZone("zone-winamax", "input-winamax", "filename-winamax", json => { dataWinamax = json; });
+</script>
+
+</body>
+</html>
