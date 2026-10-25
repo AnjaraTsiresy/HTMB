@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHOIX PARI - FIXED - Supporte JOUR_COMPLET + HISTORY</title>
+<style>
+:root{--bg:#08090c;--panel:#12151a;--panel2:#0f1217;--input:#1e242f;--border:#232830;--border2:#1c2028;--hi:#e7ecf3;--mid:#9aa5b1;--dim:#5c6773;--blue:#3fa9f5;--green:#3ecf6e;--red:#ff4757;--amber:#f5a623;--purple:#a855f7;--mono:Consolas,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--mono);background:var(--bg);color:var(--hi);min-height:100vh;display:flex;flex-direction:column}
+.top{padding:16px 20px;background:linear-gradient(180deg,var(--panel),#0c0e12);border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.brand{font-weight:900;font-size:14px}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.badge-stat{font-size:11px;color:var(--mid);background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:6px 12px}
+.badge-stat b{color:var(--hi)}
+.ctrl{padding:12px 20px;background:var(--panel);border-bottom:1px solid var(--border2);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.filt{padding:12px 20px;background:var(--panel2);border-bottom:1px solid var(--border2);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.filt input,.filt select{background:var(--input);border:1px solid var(--border);color:var(--hi);padding:8px 10px;border-radius:6px;font-family:var(--mono);font-size:11px;min-width:150px}
+.filt label{font-size:10px;color:var(--mid);display:flex;flex-direction:column;gap:4px}
+.up{position:relative}
+.up input{position:absolute;opacity:0;width:0;height:0}
+.btn{font-size:11px;font-weight:800;text-transform:uppercase;padding:8px 16px;border-radius:8px;cursor:pointer;border:1px solid;display:inline-flex;gap:6px;align-items:center}
+.btn-amber{color:var(--amber);background:rgba(245,166,35,.12);border-color:rgba(245,166,35,.4)}
+.btn-green{color:var(--green);background:rgba(62,207,110,.12);border-color:rgba(62,207,110,.4)}
+.btn-blue{color:var(--blue);background:rgba(63,169,245,.12);border-color:rgba(63,169,245,.4)}
+.btn-purple{color:var(--purple);background:rgba(168,85,247,.12);border-color:rgba(168,85,247,.4)}
+.btn-red{color:var(--red);background:rgba(255,71,87,.12);border-color:rgba(255,71,87,.4)}
+.rules{padding:14px 20px;background:rgba(63,169,245,.06);border-bottom:1px solid var(--border);font-size:11px;color:var(--mid);line-height:1.7}
+.wrap{overflow:auto;flex:1;min-height:600px}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--border);padding:10px 12px;text-align:left;font-size:10px;color:var(--mid);z-index:2;white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--border2);vertical-align:top;white-space:normal;min-width:200px}
+.match{font-weight:800;color:var(--hi);font-size:12px}
+.small{font-size:9px;color:var(--dim);margin-top:3px;line-height:1.4}
+.badge{display:inline-block;padding:3px 7px;border-radius:10px;font-size:9px;font-weight:800;margin-right:4px;margin-bottom:4px}
+.badge-red{background:rgba(255,71,87,.15);color:var(--red);border:1px solid rgba(255,71,87,.3)}
+.badge-green{background:rgba(62,207,110,.15);color:var(--green);border:1px solid rgba(62,207,110,.3)}
+.badge-amber{background:rgba(245,166,35,.15);color:var(--amber);border:1px solid rgba(245,166,35,.3)}
+.badge-blue{background:rgba(63,169,245,.15);color:var(--blue);border:1px solid rgba(63,169,245,.3)}
+.choix{font-size:13px;font-weight:900;line-height:1.4;padding:12px;background:linear-gradient(135deg,rgba(245,166,35,.15),rgba(255,71,87,.08));border:1px solid rgba(245,166,35,.3);border-radius:10px;margin-bottom:8px}
+.var{font-size:10px;line-height:1.6}
+.anal{font-size:11px;line-height:1.6;max-width:660px;color:var(--mid)}
+.anal b{color:var(--hi)}
+.debug{padding:10px 20px;background:rgba(255,71,87,.08);border-bottom:1px solid var(--border);font-size:10px;color:var(--red);display:none}
+</style>
+</head>
+<body>
+<div class="top">
+<div class="brand">✅ FIXED - Supporte WINAMAX_JOUR_COMPLET.json + HISTORY + STATS_COMPLET</div>
+<div class="stats">
+<span class="badge-stat">Matchs: <b id="stat-n">0</b> | Snapshots: <b id="stat-snap">0</b> | Fichiers: <b id="stat-files">0</b></span>
+<span class="badge-stat">Moy Δc1 <b id="stat-dc1">-</b> | Complet E1+E2+H2H: <b id="stat-complete">0</b></span>
+</div>
+</div>
+
+<div class="debug" id="debug"></div>
+
+<div class="ctrl">
+<label class="up">
+<input type="file" id="fileInput" multiple accept=".jsonl,.json,.txt">
+<span class="btn btn-amber">📂 UPLOAD JSONL (JOUR_COMPLET ou STATS_COMPLET)</span>
+</label>
+<button class="btn btn-green" id="btn-all">Tous (162 matchs)</button>
+<button class="btn btn-blue" id="btn-demo">Demo 3 matchs</button>
+<button class="btn btn-purple" id="btn-complete">Uniquement COMPLET</button>
+<button class="btn btn-red" id="btn-clear">Clear</button>
+</div>
+
+<div class="filt">
+<label>Filtre nom
+<input type="text" id="filter-nom" placeholder="Palmeiras, Bodø...">
+</label>
+<label>Heure min
+<input type="time" id="filter-heure-min">
+</label>
+<label>Heure max
+<input type="time" id="filter-heure-max">
+</label>
+<label>Compétition
+<input type="text" id="filter-comp" placeholder="MLS, Serie A...">
+</label>
+<label>Tri
+<select id="filter-tri">
+<option value="heure">Heure kickoff</option>
+<option value="confiance">Confiance</option>
+<option value="delta">Δc1 gros</option>
+<option value="complete">Complet d'abord</option>
+</select>
+</label>
+</div>
+
+<div class="rules">
+<b>🔧 FIX APPLIQUÉ :</b><br>
+- Ancien bug: <code>first.nom_match</code> → maintenant <code>first.nom || first.nom_match || competitor1+' - '+competitor2</code><br>
+- Ancien bug: <code>timestamp_scrape</code> → maintenant <code>timestamp_scrape || timestamp</code><br>
+- Supporte 2 formats: <code>WINAMAX_JOUR_COMPLET.json</code> (162 matchs, 1 snapshot) et <code>WINAMAX_JOUR_COMPLET_HISTORY.json</code> (205 matchs, 6534 snapshots avec évolution 06:58→15:51) et <code>WINAMAX_STATS_COMPLET.json</code> (181 matchs avec historiques)<br>
+- Si tu upload JOUR_COMPLET seul, Δc1 = 0 (pas d'historique). Upload HISTORY pour voir Δc1 réel depuis 06h00.
+</div>
+
+<div class="wrap">
+<table>
+<thead>
+<tr>
+<th style="min-width:300px">Match / Heure / Compétition</th>
+<th style="min-width:260px">Cotes / Stats</th>
+<th style="min-width:380px">Analyse / Deltas</th>
+<th style="min-width:400px">🎯 Prédiction</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+
+<script>
+let grouped={};
+let statsMap={};
+
+function getNom(o){
+  return o.nom || o.nom_match || `${o.competitor1||o.equipe1||'?'} - ${o.competitor2||o.equipe2||'?'}`;
+}
+function getTime(o){
+  return o.timestamp_scrape || o.timestamp || o.date+' '+o.heure || '';
+}
+function buildGrouped(lines){
+  grouped={};
+  lines.forEach(o=>{
+    if(!o.matchId) return;
+    if(!grouped[o.matchId]) grouped[o.matchId]=[];
+    grouped[o.matchId].push(o);
+  });
+  Object.keys(grouped).forEach(id=>{
+    grouped[id].sort((a,b)=> new Date(getTime(a)) - new Date(getTime(b)));
+  });
+  console.log('grouped', Object.keys(grouped).length, 'matchs');
+}
+
+function computeDeltasFirstToH10(list){
+  if(list.length<1) return null;
+  let first=list[0], last=list[list.length-1];
+  let d={};
+  ['c1','cx','c2','cote_over_25','bo','lambda_total','lambda1','lambda2','marge_1x2','p1','p_over'].forEach(k=>{
+    if(first[k]!=null && last[k]!=null) d['d_'+k]= +(last[k]-first[k]).toFixed(4);
+  });
+  let max_c1 = Math.max(...list.map(o=>o.c1||0).filter(v=>v>0));
+  let min_c1 = Math.min(...list.map(o=>o.c1||999).filter(v=>v>0 && v<999));
+  if(isFinite(max_c1) && isFinite(min_c1)) d['range_c1']= +(max_c1-min_c1).toFixed(4);
+  let max_over = Math.max(...list.map(o=>o.cote_over_25||o.over_2_5||0).filter(v=>v>0));
+  let min_over = Math.min(...list.map(o=>o.cote_over_25||o.over_2_5||999).filter(v=>v>0 && v<999));
+  if(isFinite(max_over) && isFinite(min_over)) d['range_over']= +(max_over-min_over).toFixed(4);
+  d['first_time']= getTime(first);
+  d['last_time']= getTime(last);
+  d['first_snap']= first.snapshot||'';
+  d['last_snap']= last.snapshot||'';
+  d['first_c1']= first.c1;
+  d['last_c1']= last.c1;
+  return d;
+}
+
+function analyseFirstToH10(list,deltas){
+  let first=list[0], last=list[list.length-1];
+  let nom=getNom(first);
+  let dc1=deltas?.d_c1||0, dover=deltas?.d_cote_over_25||0, range_c1=deltas?.range_c1||0;
+  let c1=last.c1, c2=last.c2, over=last.cote_over_25||last.over_2_5, bo=last.bo||last.btts_yes;
+  let timeline = list.map(o=> `${o.snapshot||''} ${(getTime(o).split(' ')[1]||'').slice(0,5)} c1${o.c1||'-'}`).join(' → ');
+  if(list.length===1) timeline = `1 snapshot à ${getTime(first)} - pas d'historique, upload HISTORY pour voir évolution 06h→H-10`;
+  let analyse=[]; let choix=''; let conf=0; let type='';
+  
+  if(!deltas || list.length===1){
+    analyse.push(`<b>1 seul snapshot</b> pour ${nom}. Upload <b>WINAMAX_JOUR_COMPLET_HISTORY.json</b> pour voir Δ depuis 06h00. Actuel: c1 ${c1} c2 ${c2} over ${over}. Timeline: ${timeline}`);
+    choix=`🎯 <b>Pas d'historique - 1 snapshot</b> ${nom} à ${first.heure} - c1 ${c1} c2 ${c2} - charge HISTORY pour décision 6h→H-10`;
+    conf=30; type='single-snapshot';
+  } else if(Math.abs(dc1)<0.05 && range_c1<0.08){
+    analyse.push(`<b style="color:#3ecf6e">STABLE depuis 06:00→H-10</b> Δc1 ${dc1.toFixed(3)} range ${range_c1.toFixed(3)} Timeline: ${timeline}`);
+    choix=`🎯 <b>Tu places à H-10 (${first.heure} -10min) <span style="color:#3ecf6e">favori stable c1 ${c1}</span></b> - ${nom}`;
+    conf=65; type='stable';
+  } else if(dc1<-0.20 || range_c1>0.30){
+    analyse.push(`<b style="color:#ff4757">SHIFT depuis 06:00</b> Δc1 ${dc1.toFixed(3)} range ${range_c1.toFixed(3)} → piège potentiel 75% Timeline: ${timeline}`);
+    choix=`🎯 <b>Tu places à H-10 <span style="color:#f5a623">contrarian X2 ou UNDER</span></b> car shift ${dc1.toFixed(2)} depuis 06h - ${nom}`;
+    conf=60; type='piege';
+  } else {
+    analyse.push(`<b>Mouvement modéré</b> Δc1 ${dc1.toFixed(3)} range ${range_c1.toFixed(3)} Timeline: ${timeline}`);
+    choix=`🎯 <b>Mouvement modéré - favori ou OVER selon λT</b> - ${nom}`;
+    conf=50; type='modere';
+  }
+  return {analyse:analyse.join('<br>'), choix, confiance:conf, type, timeline, deltas};
+}
+
+function render(mode='all'){
+  const tbody=document.getElementById('tbody'); tbody.innerHTML='';
+  let entries=Object.values(grouped);
+  entries.sort((a,b)=> (a[0].matchStart||0)-(b[0].matchStart||0));
+  
+  let totalSnaps=0, sumDc1=0, cnt=0, completeCount=0;
+  entries.forEach(list=>{
+    totalSnaps+=list.length;
+    let d=computeDeltasFirstToH10(list);
+    if(d && d.d_c1!=null){ sumDc1+=d.d_c1; cnt++; }
+    // check if stats complet
+    let hasStats = list[0].e1_matches_all && list[0].e2_matches_all;
+    if(hasStats) completeCount++;
+  });
+  
+  document.getElementById('stat-n').textContent=entries.length;
+  document.getElementById('stat-snap').textContent=totalSnaps;
+  document.getElementById('stat-files').textContent=Object.keys(grouped).length;
+  document.getElementById('stat-dc1').textContent=cnt>0?(sumDc1/cnt).toFixed(4):'-';
+  document.getElementById('stat-complete').textContent=completeCount;
+  
+  // Filtres
+  let nomF=document.getElementById('filter-nom').value.toLowerCase().trim();
+  let hMin=document.getElementById('filter-heure-min').value;
+  let hMax=document.getElementById('filter-heure-max').value;
+  let compF=document.getElementById('filter-comp').value.toLowerCase().trim();
+  
+  let filtered=entries.filter(list=>{
+    let f=list[0];
+    let nom=getNom(f).toLowerCase();
+    if(nomF && !nom.includes(nomF)) return false;
+    if(compF && !((f.competition||'')+' '+(f.pays||'')).toLowerCase().includes(compF)) return false;
+    let heure=f.heure||'00:00';
+    if(hMin && heure < hMin) return false;
+    if(hMax && heure > hMax) return false;
+    return true;
+  });
+  
+  if(mode==='complete'){
+    filtered=filtered.filter(l=> l[0].e1_matches_all && l[0].e1_matches_all.length>0 && l[0].e2_matches_all && l[0].e2_matches_all.length>0);
+  }
+  
+  let tri=document.getElementById('filter-tri').value;
+  let withChoix=filtered.map(list=>{ let d=computeDeltasFirstToH10(list); return {list, deltas:d, res:analyseFirstToH10(list,d)}; });
+  
+  if(tri==='confiance') withChoix.sort((a,b)=> b.res.confiance - a.res.confiance);
+  else if(tri==='delta') withChoix.sort((a,b)=> Math.abs(b.deltas?.d_c1||0) - Math.abs(a.deltas?.d_c1||0));
+  else if(tri==='complete') withChoix.sort((a,b)=> (b.list[0].e1_matches_all?1:0) - (a.list[0].e1_matches_all?1:0));
+  
+  withChoix.forEach(({list,deltas,res})=>{
+    let first=list[0], last=list[list.length-1];
+    let nom=getNom(first);
+    let tr=document.createElement('tr');
+    let hasStats = first.e1_matches_all || first.e1_nb_matchs_dispo!=null;
+    let statsBadge = hasStats ? `<span class="badge badge-green">STATS ${first.e1_nb_matchs_dispo||first.e1_matches_all?.length||0}+${first.e2_nb_matchs_dispo||first.e2_matches_all?.length||0} H2H ${first.h2h_all?.length||0}</span>` : `<span class="badge badge-blue">COTES ${list.length} snaps</span>`;
+    
+    let matchHtml=`<div class="match">${nom}</div><div class="small">${first.heure||''} ${first.date||''} • ${first.competition||''} ${first.pays||''} • ID ${first.matchId} • ${list.length} snaps ${statsBadge}</div><div class="small">Premier: ${deltas?.first_snap||''} ${deltas?.first_time||getTime(first)} → Dernier: ${deltas?.last_snap||''} ${deltas?.last_time||getTime(last)}</div><div class="small">Timeline: ${res.timeline.slice(0,200)}</div>`;
+    
+    let coteHtml='';
+    if(hasStats){
+      coteHtml=`${first.equipe1||first.competitor1} #${first.rang_e1||'?'} ${first.e1_V_all||0}V<br>${first.equipe2||first.competitor2} #${first.rang_e2||'?'} ${first.e2_V_all||0}V<br>Buts: ${first.e1_buts_marques_all||0}/${first.e1_buts_encaisses_all||0} vs ${first.e2_buts_marques_all||0}/${first.e2_buts_encaisses_all||0}<br>Moy: ${first.e1_moy_marques||'-'}/${first.e1_moy_encaisses||'-'} vs ${first.e2_moy_marques||'-'}/${first.e2_moy_encaisses||'-'}`;
+    } else {
+      coteHtml=`06:00 ${first.c1||'-'} → H-10 ${last.c1||'-'}<br>c2 ${first.c2||'-'}→${last.c2||'-'}<br>over ${first.cote_over_25||first.over_2_5||'-'}→${last.cote_over_25||last.over_2_5||'-'}<br>bo ${last.bo||last.btts_yes||'-'} bn ${last.bn||last.btts_no||'-'}<br>λT ${first.lambda_total||''}→${last.lambda_total||''}<br>marge ${first.marge_1x2||''}%→${last.marge_1x2||''}%<br>p1 ${last.p1||''}% p2 ${last.p2||''}%`;
+    }
+    
+    let varHtml=deltas? `Δc1 ${deltas.d_c1?.toFixed(4)||'0'} range ${deltas.range_c1?.toFixed(4)||'0'}<br>Δover ${deltas.d_cote_over_25?.toFixed(4)||'0'}<br>${list.length>1? (Math.abs(deltas.d_c1||0)<0.05?'<span class="badge badge-green">STABLE</span>':'<span class="badge badge-red">SHIFT</span>') : '<span class="badge badge-amber">1 SNAP</span>'}` : 'baseline';
+    let analHtml=`<div class="anal">${res.analyse}</div>`;
+    let choixHtml=`<div class="choix">${res.choix}<br><span class="small">Confiance ${res.confiance}% - ${res.type}</span></div>`;
+    
+    tr.innerHTML=`<td>${matchHtml}</td><td><div class="var">${coteHtml}</div></td><td><div class="var">${varHtml}</div><div class="anal" style="margin-top:8px">${analHtml}</div></td><td>${choixHtml}</td>`;
+    tbody.appendChild(tr);
+  });
+  
+  if(withChoix.length===0){
+    tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--mid)">Aucun match - vérifie tes filtres ou upload un fichier<br>Supporte: WINAMAX_JOUR_COMPLET.json (162 matchs) + HISTORY (205 matchs, 6534 lignes)</td></tr>';
+  }
+}
+
+function parseFiles(files){
+  let all=[]; let promises=[];
+  let debug=document.getElementById('debug');
+  debug.style.display='block';
+  debug.textContent=`Chargement ${files.length} fichier(s)...`;
+  
+  for(let file of files){
+    promises.push(new Promise(res=>{
+      let reader=new FileReader();
+      reader.onload=e=>{
+        let txt=e.target.result;
+        let count=0;
+        // Essaie JSONL ligne par ligne
+        txt.split('\n').filter(l=>l.trim()).forEach(l=>{
+          try{
+            let obj=JSON.parse(l);
+            if(obj.matchId){ all.push(obj); count++; }
+          }catch{}
+        });
+        // Si rien, essaie JSON array complet
+        if(count===0){
+          try{
+            let arr=JSON.parse(txt);
+            if(Array.isArray(arr)){
+              arr.forEach(o=>{ if(o.matchId){ all.push(o); count++; } });
+            } else if(arr.matchId){
+              all.push(arr); count++;
+            }
+          }catch{}
+        }
+        console.log(`File ${file.name}: ${count} matchs`);
+        res();
+      };
+      reader.readAsText(file);
+    }));
+  }
+  Promise.all(promises).then(()=>{
+    debug.textContent=`${all.length} lignes chargées, ${new Set(all.map(o=>o.matchId)).size} matchs uniques`;
+    buildGrouped(all);
+    render();
+    setTimeout(()=>{ debug.style.display='none'; }, 4000);
+  });
+}
+
+// Events
+document.getElementById('fileInput').addEventListener('change', e=>{ parseFiles(e.target.files); });
+document.getElementById('btn-all').addEventListener('click',()=>render('all'));
+document.getElementById('btn-demo').addEventListener('click',()=>{
+  // Demo avec tes 3 fichiers si dispo
+  let demo=[
+    {nom:"Aston Villa - Manchester City", matchId:72221334, heure:"13:30", date:"2026-10-24", competition:"Premier League", c1:2.7, c2:2.5, cote_over_25:1.9, timestamp:"2026-10-24 06:58:00", snapshot:"H-6"},
+    {nom:"Aston Villa - Manchester City", matchId:72221334, heure:"13:30", date:"2026-10-24", competition:"Premier League", c1:2.55, c2:2.6, cote_over_25:1.95, timestamp:"2026-10-24 15:40:12", snapshot:"LIVE"}
+  ];
+  buildGrouped(demo);
+  render();
+});
+document.getElementById('btn-complete').addEventListener('click',()=>render('complete'));
+document.getElementById('btn-clear').addEventListener('click',()=>{ grouped={}; render(); });
+document.getElementById('filter-nom').addEventListener('input',()=>render());
+document.getElementById('filter-heure-min').addEventListener('change',()=>render());
+document.getElementById('filter-heure-max').addEventListener('change',()=>render());
+document.getElementById('filter-comp').addEventListener('input',()=>render());
+document.getElementById('filter-tri').addEventListener('change',()=>render());
+
+// Load embedded if any
+render();
+</script>
+</body>
+</html>
