@@ -1,0 +1,345 @@
+<html lang="fr"><head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WD SuperIA Light - Verdicts Only</title>
+<style>
+:root{--bg:#08090c;--panel:#12151a;--input:#1e242f;--border:#232830;--hi:#e7ecf3;--mid:#9aa5b1;--dim:#5c6773;--blue:#3fa9f5;--green:#3ecf6e;--amber:#f5a623;--red:#ff4757;--mono:Consolas,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--mono);background:var(--bg);color:var(--hi);min-height:100vh;display:flex;flex-direction:column}
+.top{padding:16px 20px;background:linear-gradient(180deg,var(--panel),#0c0e12);border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.brand{font-weight:900;font-size:14px} .brand span{color:var(--amber)}
+.ctrl{padding:12px 20px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{font-size:11px;font-weight:800;text-transform:uppercase;padding:10px 16px;border-radius:8px;cursor:pointer;border:1px solid;display:inline-flex;gap:6px;align-items:center}
+.btn-amber{color:var(--amber);background:rgba(245,166,35,.12);border-color:rgba(245,166,35,.4)}
+.btn-green{color:var(--green);background:rgba(62,207,110,.15);border-color:rgba(62,207,110,.4)}
+.btn-blue{color:var(--blue);background:rgba(63,169,245,.12);border-color:rgba(63,169,245,.4)}
+.filt{padding:12px 20px;background:linear-gradient(90deg,rgba(245,166,35,.06),rgba(62,207,110,.06));border-bottom:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.filt label{font-size:10px;color:var(--mid);display:flex;flex-direction:column;gap:4px}
+.filt input,.filt select{background:var(--input);border:1px solid var(--border);color:var(--hi);padding:9px 11px;border-radius:7px;font-family:var(--mono);font-size:11px;min-width:150px}
+.badge-stat{font-size:11px;color:var(--mid);background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:6px 12px} .badge-stat b{color:var(--hi)}
+.wrap{overflow:auto;flex:1}
+.table{width:100%;border-collapse:collapse;font-size:12px}
+.table th{position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--border);padding:12px 14px;text-align:left;font-size:11px;color:var(--amber);z-index:2;white-space:nowrap;font-weight:900;text-transform:uppercase}
+.table td{padding:12px 14px;border-bottom:1px solid #1c2028;vertical-align:middle}
+.table tr:hover{background:rgba(245,166,35,.05)}
+.table tr:nth-child(even){background:rgba(255,255,255,.02)}
+.match{font-weight:900;color:#7eff9e;font-size:12px} .small{font-size:9px;color:var(--dim);margin-top:3px}
+.heure{font-weight:800;color:var(--blue);background:rgba(63,169,245,.12);padding:4px 8px;border-radius:6px;border:1px solid rgba(63,169,245,.3);display:inline-block;min-width:52px;text-align:center}
+.verdict{font-weight:900;padding:6px 12px;border-radius:8px;display:inline-block;min-width:130px;text-align:center;font-size:11px;text-transform:uppercase}
+.v-e1under{background:linear-gradient(135deg,rgba(62,207,110,.2),rgba(52,211,153,.15));color:var(--green);border:1px solid rgba(62,207,110,.4)}
+.v-e2under{background:linear-gradient(135deg,rgba(63,169,245,.2),rgba(52,152,219,.15));color:var(--blue);border:1px solid rgba(63,169,245,.4)}
+.v-mover{background:linear-gradient(135deg,rgba(245,166,35,.2),rgba(255,215,0,.15));color:var(--amber);border:1px solid rgba(245,166,35,.4)}
+.debug{padding:10px 20px;background:rgba(255,71,87,.08);border-bottom:1px solid var(--border);font-size:11px;color:var(--red);display:none;white-space:pre-wrap}
+@media(max-width:768px){
+.table{display:block} thead{display:none} tbody{display:block}
+.table tr{display:grid;grid-template-columns:1fr 80px 1fr;gap:8px;background:#0f1217;border:1px solid #232830;border-radius:12px;margin:0 8px 10px 8px;padding:10px}
+.table td{display:block;background:#12151a;border:1px solid #1c2028;border-radius:8px;padding:10px}
+.table td:nth-child(1){grid-column:1/4;border-left:3px solid var(--green)}
+.table td:nth-child(2){grid-column:1/2;border-left:3px solid var(--blue)}
+.table td:nth-child(3){grid-column:2/4;border-left:3px solid var(--amber)}
+}
+</style>
+</head>
+<body>
+<div class="top">
+<div class="brand">WD <span>SuperIA Light</span> - Verdicts Only (Q0 + Valid Under)</div>
+<div><span class="badge-stat" id="stat-global">0 matchs chargés</span></div>
+</div>
+<div class="debug" id="debug"></div>
+<div class="ctrl">
+<input type="file" id="fileInput" multiple="" accept=".jsonl,.json,.txt,application/json" style="display:none">
+<button class="btn btn-amber" onclick="document.getElementById('fileInput').click()">📂 UPLOAD WD_*.JSONL</button>
+<button class="btn btn-blue" id="btn-clear">Clear</button>
+<span class="badge-stat">Moteur SuperIA seul - pas d'onglet lourd</span>
+</div>
+<div class="filt">
+<label>Filtre Match<input type="text" id="f-nom" placeholder="Celta, La Calera..."></label>
+<label>Heure<select id="f-heure"><option value="">Toutes heures</option><option value="00">00</option><option value="07">07h</option><option value="08">08h</option><option value="09">09h</option><option value="10">10h</option><option value="11">11h</option><option value="12">12h</option><option value="13">13h</option><option value="14">14h</option><option value="15">15h</option><option value="16">16h</option><option value="17">17h</option><option value="18">18h</option><option value="19">19h</option><option value="20">20h</option><option value="21">21h</option><option value="22">22h</option><option value="23">23h</option></select></label>
+<label>Verdict<select id="f-verdict"><option value="">Tous</option><option value="e1under">E1 Under</option><option value="e2under">E2 Under</option><option value="mover">M Over 0.5</option></select></label>
+<button class="btn btn-green" id="btn-export" style="border:2px solid var(--green);font-weight:900">📥 Export TXT filtrés</button>
+<button class="btn btn-amber" id="btn-reset">Reset filtres</button>
+<span class="badge-stat" id="stat-filtre">0 matchs | 0 E1 Under | 0 E2 Under | 0 M Over</span>
+</div>
+<div class="wrap"><table class="table"><thead><tr><th>Nom Match</th><th>Heure Match</th><th>Verdict (SuperIA)</th></tr></thead><tbody id="tbody"><tr><td colspan="3" style="text-align:center;padding:40px;color:var(--mid)">Aucun match - upload ou change filtres</td></tr></tbody></table></div>
+
+<script>
+let grouped={};
+let allFilteredCache=[];
+function getNom(o){ return o.nom_match || ((o.equipe1||'E1')+' - '+(o.equipe2||'E2')); }
+function fmt2(v){ if(v==null||isNaN(v)) return '-'; let n=parseFloat(v); if(isNaN(n)) return '-'; return n.toFixed(2); }
+function buildGrouped(all){ grouped={}; all.forEach(function(o){ let k=o.matchId||o.nom_match; if(!grouped[k]) grouped[k]=[]; grouped[k].push(o); }); }
+
+// ===== MOTEUR SUPERIA - Q0 PRIORITAIRE + VALID UNDER + ANTI 0-0 =====
+function getVerdictForMatch(first){
+  try{
+    let e1=(first.nom_match||'').split(' - ')[0]||first.equipe1||'E1';
+    let e2=(first.nom_match||'').split(' - ')[1]||first.equipe2||'E2';
+    let r1=first.rang_equipe_1, r2=first.rang_equipe_2;
+    let pureX1=first.pure_xE1!=null?first.pure_xE1:(first.prediction_pure_stat?first.prediction_pure_stat.xE1:null);
+    let pureX2=first.pure_xE2!=null?first.pure_xE2:(first.prediction_pure_stat?first.prediction_pure_stat.xE2:null);
+    let pois1=first.poisson_but_equipe_1, pois2=first.poisson_but_equipe_2;
+    let cote1=first.cote_c1, cote2=first.cote_c2;
+    let moyMarq1=first.e1_moy_marques!=null?first.e1_moy_marques:first.but_global_marque_e1_moy;
+    let moyMarq2=first.e2_moy_marques!=null?first.e2_moy_marques:first.but_global_marque_e2_moy;
+    let moyEnc1=first.e1_moy_encaisses!=null?first.e1_moy_encaisses:first.but_global_encaisse_e1_moy;
+    let moyEnc2=first.e2_moy_encaisses!=null?first.e2_moy_encaisses:first.but_global_encaisse_e2_moy;
+    let f1=first.forme_equipe_1||'', f2=first.forme_equipe_2||'';
+    function countV(s){ let m=s.match(/V/g); return m?m.length:0; }
+    let v1=countV(f1), v2=countV(f2);
+    function strength(r,pureX,pois,cote,moyMarq,moyEnc,vForm){
+      let s=0;
+      if(r!=null) s+=(30-r)*1.2;
+      if(pureX!=null) s+=pureX*3.5;
+      if(pois!=null) s+=pois*2.2;
+      if(moyMarq!=null) s+=moyMarq*2.5;
+      if(moyEnc!=null) s-=moyEnc*1.8;
+      if(cote!=null){ if(cote<1.4) s+=6; else if(cote<1.8) s+=4; else if(cote<2.2) s+=2; else if(cote>3.5) s-=4; else if(cote>5) s-=6; }
+      if(vForm!=null) s+=vForm*1.2;
+      return s;
+    }
+    let str1=strength(r1,pureX1,pois1,cote1,moyMarq1,moyEnc1,v1);
+    let str2=strength(r2,pureX2,pois2,cote2,moyMarq2,moyEnc2,v2);
+    let weakTeam = str1<str2 ? 'e1' : 'e2';
+    let strongTeam = weakTeam==='e1' ? 'e2' : 'e1';
+    let weakName = weakTeam==='e1'?e1:e2;
+    let weakMoy = weakTeam==='e1'?moyMarq1:moyMarq2;
+    let weakPois = weakTeam==='e1'?pois1:pois2;
+    let strongPois = weakTeam==='e1'?pois2:pois1;
+    let weakPureX = weakTeam==='e1'?pureX1:pureX2;
+    let weakCote = weakTeam==='e1'?cote1:cote2;
+    let weakForme = weakTeam==='e1'?f1:f2;
+    let weakRank = weakTeam==='e1'?r1:r2;
+    let fdWeak = weakTeam==='e1'?(first.forme_detail_e1||[]):(first.forme_detail_e2||[]);
+    let allWeak = weakTeam==='e1'?(first.e1_matches_all||[]):(first.e2_matches_all||[]);
+    let maxButHistorique = 0;
+    fdWeak.forEach(function(m){ if((m.buts_pour||0)>maxButHistorique) maxButHistorique=m.buts_pour; });
+    allWeak.forEach(function(m){ if((m.buts_pour||0)>maxButHistorique) maxButHistorique=m.buts_pour; });
+    if(maxButHistorique===0 && weakMoy!=null && weakMoy>1.5) maxButHistorique=Math.ceil(weakMoy*1.8);
+    let marchesWeak = weakTeam==='e1'?first.marches_buts_equipe_1:first.marches_buts_equipe_2;
+    let validUnderThresholds = [];
+    let bookMaxOver = 0;
+    if(marchesWeak){
+      Object.keys(marchesWeak).forEach(function(seuil){
+        let data=marchesWeak[seuil];
+        let underCote=data?data.under:null;
+        let hasValidUnder = underCote!=null && underCote!=='' && underCote!=='-' && !isNaN(parseFloat(underCote));
+        if(hasValidUnder){
+          let s=parseFloat(seuil);
+          if(!isNaN(s)){
+            validUnderThresholds.push(s);
+            if(s>bookMaxOver) bookMaxOver=s;
+          }
+        }
+      });
+      validUnderThresholds.sort(function(a,b){ return a-b; });
+    }
+    let poissonMatch = first.poisson_but_match||0;
+    let bttsProb = first.btts_p_oui_pct||0;
+    let pureTotal = first.pure_total!=null?first.pure_total:(first.prediction_pure_stat?first.prediction_pure_stat.total:null);
+    let bookMaxUnder = bookMaxOver;
+    let canExceedBookMax = false;
+    if(maxButHistorique > bookMaxUnder) canExceedBookMax=true;
+    if(weakMoy!=null && weakMoy > bookMaxUnder) canExceedBookMax=true;
+    if(weakPois!=null && weakPois > bookMaxUnder) canExceedBookMax=true;
+    if(weakPureX!=null && weakPureX > bookMaxUnder) canExceedBookMax=true;
+    if(fdWeak.some(function(m){ return (m.buts_pour||0) > bookMaxUnder; })) canExceedBookMax=true;
+    let canScoreReasons=[];
+    if(weakPois!=null && weakPois>=0.7) canScoreReasons.push('Poisson');
+    if(weakMoy!=null && weakMoy>=0.8) canScoreReasons.push('Moy');
+    if(fdWeak.filter(function(m){ return (m.buts_pour||0)>=1; }).length>=2) canScoreReasons.push('2/3');
+    if(bttsProb>=45) canScoreReasons.push('BTTS');
+    if(weakPureX!=null && weakPureX>=0.8) canScoreReasons.push('xG');
+    let weakCanScore = canScoreReasons.length>0;
+    let prob0_0 = 0;
+    if(weakPois!=null && strongPois!=null && weakPois>0 && strongPois>0){ prob0_0 = Math.exp(-weakPois)*Math.exp(-strongPois); }
+    else if(poissonMatch>0){ prob0_0 = Math.exp(-poissonMatch); }
+    let positiveCount = canScoreReasons.length;
+    let negativeCount = 0;
+    if(weakMoy!=null && weakMoy<0.6) negativeCount++;
+    if(weakPois!=null && weakPois<0.6) negativeCount++;
+    if(weakMoy!=null && weakMoy<0.8 && weakPois!=null && weakPois<0.8) negativeCount++;
+    let strongEnc = strongTeam==='e1'?moyEnc1:moyEnc2;
+    if(strongEnc!=null && strongEnc<=0.6) negativeCount++;
+    if(fdWeak.filter(function(m){return (m.buts_pour||0)===0;}).slice(0,2).length>=2) negativeCount++;
+    if(fdWeak.filter(function(m){return (m.buts_pour||0)===0;}).length>=3) negativeCount++;
+    if(weakForme && (weakForme.match(/D/g)||[]).length>=3) negativeCount++;
+    if(weakCote!=null && weakCote>3.5) negativeCount++;
+    if(prob0_0>0.08) negativeCount++;
+    let weakCanScoreHighConf = (positiveCount>=3 && negativeCount<=1 && prob0_0<0.06 && weakMoy!=null && weakMoy>=0.9 && weakPois!=null && weakPois>=0.9);
+    let openScore = (poissonMatch>=3?2:0) + (pureTotal!=null&&pureTotal>3?1:0);
+    let isOpenMatch = poissonMatch>=3 || openScore>=2 || pureTotal>3.2;
+    let isFermeMatch = poissonMatch<2.5 || pureTotal<2.0;
+    let fdWeakNonZero = fdWeak.filter(function(m){ return !(m.buts_pour===0 && m.buts_contre===0); });
+    let weakScoreInNonZero = fdWeakNonZero.filter(function(m){ return (m.buts_pour||0)>=1; }).length;
+    let weakScoreRateNonZero = fdWeakNonZero.length>0 ? (weakScoreInNonZero/fdWeakNonZero.length*100) : 0;
+    if(weakScoreRateNonZero<50) negativeCount++;
+    let desiredThreshold = maxButHistorique>0 ? (maxButHistorique+0.5) : 1.5;
+    let underThreshold;
+    if(validUnderThresholds.length>0){
+      let candidate = validUnderThresholds.find(function(t){ return t >= desiredThreshold; });
+      if(candidate!=null){ underThreshold = candidate; }
+      else { underThreshold = validUnderThresholds[validUnderThresholds.length-1]; }
+    } else {
+      underThreshold = desiredThreshold;
+      if(underThreshold%1===0) underThreshold+=0.5;
+      if(underThreshold<0.5) underThreshold=0.5;
+      if(underThreshold>4.5) underThreshold=4.5;
+    }
+    if(bookMaxOver>0 && validUnderThresholds.includes(bookMaxOver) && bookMaxOver>underThreshold && bookMaxOver >= desiredThreshold){
+      underThreshold = bookMaxOver;
+    }
+    let shouldUnderDirect = !canExceedBookMax;
+    let shouldOver05 = false;
+    if(!shouldUnderDirect){
+      if(weakCanScoreHighConf && prob0_0<0.05 && (isOpenMatch || (bttsProb>60 && poissonMatch>2.6)) && weakScoreRateNonZero>=60){
+        shouldOver05=true;
+      } else if(weakCanScore && positiveCount>=3 && prob0_0<0.06 && !isFermeMatch && bttsProb>=60 && weakMoy>=1.0 && weakScoreRateNonZero>=65){
+        shouldOver05=true;
+      }
+    }
+    let verdict='', type='';
+    if(shouldUnderDirect){
+      if(weakTeam==='e1'){ verdict='E1 Under '+underThreshold; type='e1under'; } else { verdict='E2 Under '+underThreshold; type='e2under'; }
+    } else if(shouldOver05){
+      verdict='M Over 0.5'; type='mover';
+    } else {
+      if(weakTeam==='e1'){ verdict='E1 Under '+underThreshold; type='e1under'; } else { verdict='E2 Under '+underThreshold; type='e2under'; }
+    }
+    return {verdict:verdict, type:type, nomMatch:getNom(first), heure:first.heure||'00:00', weakName:weakName, prob0_0:prob0_0, maxHist:maxButHistorique, bookMax:bookMaxOver};
+  }catch(e){
+    return {verdict:'?', type:'unknown', nomMatch:getNom(first), heure:first.heure||'00:00', weakName:'?', prob0_0:0, maxHist:0, bookMax:0};
+  }
+}
+
+function render(){
+  try{
+    let tbody=document.getElementById('tbody');
+    let fNom=document.getElementById('f-nom').value.toLowerCase();
+    let fHeure=document.getElementById('f-heure').value;
+    let fVerdict=document.getElementById('f-verdict').value;
+    let allLists = allFilteredCache.length>0 ? allFilteredCache : Object.values(grouped);
+    let rows=[];
+    for(let i=0;i<allLists.length;i++){
+      let list=allLists[i];
+      if(!list||!list[0]) continue;
+      try{ let vd=getVerdictForMatch(list[0]); rows.push({first:list[0], vd:vd}); }catch(e){}
+    }
+    let filtered=rows.filter(function(r){
+      if(fNom && r.vd.nomMatch.toLowerCase().indexOf(fNom)===-1) return false;
+      if(fHeure){ let h=(r.vd.heure||'00:00').split(':')[0]; if(h!==fHeure) return false; }
+      if(fVerdict && fVerdict!==r.vd.type) return false;
+      return true;
+    });
+    filtered.sort(function(a,b){ return (a.vd.heure||'00:00').localeCompare(b.vd.heure||'00:00'); });
+    tbody.innerHTML='';
+    if(filtered.length===0){
+      tbody.innerHTML='<tr><td colspan="3" style="text-align:center;padding:40px;color:var(--mid)">Aucun match - upload ou change filtres</td></tr>';
+    }else{
+      filtered.forEach(function(r){
+        let vd=r.vd;
+        let cls='v-mover'; if(vd.type==='e1under') cls='v-e1under'; else if(vd.type==='e2under') cls='v-e2under';
+        let tr=document.createElement('tr');
+        tr.innerHTML='<td><span class="match">'+vd.nomMatch+'</span><div class="small">Faible: '+vd.weakName+' | MaxHist '+vd.maxHist+' | BookMax '+vd.bookMax+' | P0-0 '+(vd.prob0_0*100).toFixed(1)+'%</div></td><td><span class="heure">'+vd.heure+'</span></td><td><span class="verdict '+cls+'">'+vd.verdict+'</span></td>';
+        tbody.appendChild(tr);
+      });
+    }
+    document.getElementById('stat-filtre').textContent=filtered.length+' matchs | '+filtered.filter(function(r){return r.vd.type==='e1under';}).length+' E1 Under | '+filtered.filter(function(r){return r.vd.type==='e2under';}).length+' E2 Under | '+filtered.filter(function(r){return r.vd.type==='mover';}).length+' M Over';
+    document.getElementById('stat-global').textContent=rows.length+' matchs chargés';
+  }catch(e){ console.error(e); }
+}
+
+function exportTxt(){
+  try{
+    let fNom=document.getElementById('f-nom').value.toLowerCase();
+    let fHeure=document.getElementById('f-heure').value;
+    let fVerdict=document.getElementById('f-verdict').value;
+    let allLists = allFilteredCache.length>0 ? allFilteredCache : Object.values(grouped);
+    if(!allLists||allLists.length===0){ alert('Upload d\'abord un fichier'); return; }
+    let rows=[];
+    for(let i=0;i<allLists.length;i++){ let list=allLists[i]; if(!list||!list[0]) continue; try{ rows.push({vd:getVerdictForMatch(list[0])}); }catch(e){} }
+    let filtered=rows.filter(function(r){
+      if(fNom && r.vd.nomMatch.toLowerCase().indexOf(fNom)===-1) return false;
+      if(fHeure){ let h=(r.vd.heure||'00:00').split(':')[0]; if(h!==fHeure) return false; }
+      if(fVerdict && fVerdict!==r.vd.type) return false;
+      return true;
+    });
+    filtered.sort(function(a,b){ return (a.vd.heure||'00:00').localeCompare(b.vd.heure||'00:00'); });
+    if(filtered.length===0){ alert('Aucun match filtré'); return; }
+    let lines=['Nom match; marcher',''];
+    filtered.forEach(function(r){
+      let nom=r.vd.nomMatch;
+      let raw=r.vd.verdict;
+      let fmt='';
+      if(raw.toLowerCase().indexOf('e1 under')!==-1){ let m=raw.match(/([0-9.]+)/); fmt='E1 under ('+(m?m[0]:'')+')'; }
+      else if(raw.toLowerCase().indexOf('e2 under')!==-1){ let m=raw.match(/([0-9.]+)/); fmt='E2 under ('+(m?m[0]:'')+')'; }
+      else if(raw.toLowerCase().indexOf('over')!==-1){ let m=raw.match(/([0-9.]+)/); fmt='M over('+(m?m[0]:'0.5')+')'; }
+      else fmt=raw;
+      lines.push(nom+'; '+fmt);
+    });
+    let content=lines.join('\n');
+    let blob=new Blob([content],{type:'text/plain;charset=utf-8'});
+    let url=URL.createObjectURL(blob);
+    let a=document.createElement('a'); a.style.display='none'; a.href=url;
+    a.download='verdicts_'+new Date().toISOString().slice(0,10)+'_'+filtered.length+'matchs.txt';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ try{document.body.removeChild(a); URL.revokeObjectURL(url);}catch(e){} },1500);
+    let stat=document.getElementById('stat-filtre');
+    let old=stat.textContent; stat.textContent='✅ Exporté '+filtered.length+' matchs'; setTimeout(function(){stat.textContent=old;},3000);
+  }catch(e){ alert('Erreur export: '+e.message); console.error(e); }
+}
+
+async function parseFiles(files){
+  let debug=document.getElementById('debug'); debug.style.display='block'; debug.textContent='Lecture '+files.length+' fichier(s)...';
+  let all=[]; let total=0;
+  try{
+    for(let file of files){
+      debug.textContent='Lecture '+file.name+'...';
+      let text=await file.text();
+      let c=0;
+      text.split(/\r?\n/).forEach(function(line){ line=line.trim(); if(!line) return; try{ let obj=JSON.parse(line); if(obj.matchId||obj.nom_match){ all.push(obj); c++; } }catch(e){} });
+      if(c===0){ try{ let arr=JSON.parse(text); if(Array.isArray(arr)) arr.forEach(function(o){ if(o.matchId||o.nom_match){ all.push(o); c++; } }); else if(arr.matchId||arr.nom_match){ all.push(arr); c++; } }catch(e){} }
+      total+=c;
+    }
+    if(all.length>0){
+      buildGrouped(all);
+      allFilteredCache=Object.values(grouped);
+      debug.textContent=total+' lignes, '+Object.keys(grouped).length+' matchs uniques - OK';
+      render();
+      setTimeout(function(){debug.style.display='none';},3000);
+    }else{ debug.textContent='Aucun match trouvé'; }
+  }catch(err){ debug.textContent='Erreur: '+err.message; }
+}
+
+document.getElementById('fileInput').addEventListener('change',async function(e){ if(e.target.files.length>0) await parseFiles(e.target.files); setTimeout(function(){e.target.value='';},800); });
+document.getElementById('btn-clear').addEventListener('click',function(){ grouped={}; allFilteredCache=[]; render(); });
+document.getElementById('f-nom').addEventListener('input',function(){ render(); });
+document.getElementById('f-heure').addEventListener('change',function(){ render(); });
+document.getElementById('f-verdict').addEventListener('change',function(){ render(); });
+document.getElementById('btn-reset').addEventListener('click',function(){ document.getElementById('f-nom').value=''; document.getElementById('f-heure').value=''; document.getElementById('f-verdict').value=''; render(); });
+document.getElementById('btn-export').addEventListener('click',function(){ exportTxt(); });
+render();
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script>
+
+</body></html>
