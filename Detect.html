@@ -1,0 +1,180 @@
+<html lang="fr"><head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Block Auto - BTTS x Over/Under</title>
+<style>
+body{background:#0a0e14;color:#e6edf5;font-family:system-ui;padding:12px;margin:0}
+h1{font-size:15px;margin:4px 0}
+.box{background:#121a28;border:1px solid #1e2e45;border-radius:12px;padding:10px;margin:8px 0}
+.btn{padding:12px;background:#2563eb;color:#fff;border:0;border-radius:10px;font-weight:700;width:100%}
+table{width:100%;border-collapse:collapse;font-size:10px;min-width:900px}
+th{background:#162032;color:#8aa0bd;padding:6px;position:sticky;top:0;font-size:9px;text-align:left}
+td{padding:5px;border-bottom:1px solid #1a2a3f}
+.wrap{overflow:auto;border:1px solid #1e2e45;border-radius:10px;max-height:70vh}
+.red{background:#ef444422;color:#ff6b6b;font-weight:700}
+.green{background:#10b98122;color:#10b981}
+.orange{background:#f59e0b22;color:#fbbf24}
+.badge{padding:2px 6px;border-radius:10px;font-size:9px;font-weight:700}
+</style>
+</head>
+<body>
+<h1>🛡️ BLOCAGE AUTO - BTTS x Over/Under</h1>
+<div class="box" style="font-size:11px;color:#8aa0bd">
+Produit BTTS Oui x Over 2.5 &lt;1.9 → Over 0.5 auto | BTTS Non x Under 2.5 &lt;2.41 → Under 4.5 auto<br>
+Upload BASE.json / 29.json - Tableau anticipation blocage
+</div>
+<div class="box">
+<input type="file" id="f" accept=".json" style="display:none">
+<button class="btn" onclick="document.getElementById('f').click()">📂 Choisir JSON</button>
+<div id="log" style="font-size:11px;margin-top:6px;color:#8aa0bd">En attente...</div>
+</div>
+
+<div class="box" id="stats" style="display:none">
+<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px">
+<div>Matchs: <b id="total"></b></div>
+<div>Over0.5 auto: <b id="cOver05" style="color:#10b981"></b></div>
+<div>Under4.5 auto: <b id="cUnder45" style="color:#ef4444"></b></div>
+<div>Contradictions: <b id="cContra" style="color:#f59e0b"></b></div>
+</div>
+</div>
+
+<div class="wrap">
+<table>
+<thead>
+<tr>
+<th>Match</th>
+<th>λ1/λ2</th>
+<th>BTTS_O*O25</th>
+<th>BTTS_N*U25</th>
+<th>Auto Over0.5?</th>
+<th>Auto Over1.5?</th>
+<th>Auto Under2.5?</th>
+<th>Auto Under4.5?</th>
+<th>À BLOQUER / Corriger</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+
+<script>
+function parseFile(file, cb){
+  let r=new FileReader();
+  r.onload=e=>{
+    let txt=e.target.result;
+    let objs=[];
+    try{
+      let j=JSON.parse(txt);
+      if(Array.isArray(j)) objs=j; else objs=[j];
+    }catch(err){
+      let d=0,s=-1,ins=false,esc=false;
+      for(let i=0;i<txt.length;i++){
+        let ch=txt[i];
+        if(ins){ if(esc) esc=false; else if(ch=='\\') esc=true; else if(ch=='"') ins=false; continue; }
+        if(ch=='"'){ins=true;continue;}
+        if(ch=='{'){ if(d===0) s=i; d++; }
+        else if(ch=='}'){ d--; if(d===0&&s!==-1){ try{ objs.push(JSON.parse(txt.slice(s,i+1))); }catch(e){} s=-1; } }
+      }
+    }
+    cb(objs);
+  };
+  r.readAsText(file);
+}
+
+document.getElementById('f').addEventListener('change', e=>{
+  let file=e.target.files[0];
+  if(!file) return;
+  document.getElementById('log').textContent='Lecture '+file.name+'...';
+  parseFile(file, objs=>{
+    document.getElementById('log').textContent=objs.length+' matchs - analyse...';
+    let tbody=document.getElementById('tbody'); tbody.innerHTML='';
+    let cOver05=0,cUnder45=0,cContra=0;
+    for(let o of objs){
+      try{
+        let lam1=parseFloat(o.poisson_but_equipe_1||o.pure_xE1||0);
+        let lam2=parseFloat(o.poisson_but_equipe_2||o.pure_xE2||0);
+        let btts_oui=parseFloat(o.btts_oui||0);
+        let btts_non=parseFloat(o.btts_non||0);
+        let over25=parseFloat(o.cote_over_25||0);
+        let under25=parseFloat(o.cote_under_25||0);
+        let over15=null, under15=null;
+        if(o.marches_buts_match){
+          for(let k in o.marches_buts_match){
+            let v=o.marches_buts_match[k];
+            if(k=='1.5'){ over15=parseFloat(v.over); under15=parseFloat(v.under); }
+          }
+        }
+        if(!btts_oui||!btts_non||!over25||!under25) continue;
+        let prod_oui_over=btts_oui*over25;
+        let prod_non_under=btts_non*under25;
+        let prod_non_over=btts_non*over25;
+        let prod_oui_under=btts_oui*under25;
+        let prod_oui_over15=over15?btts_oui*over15:null;
+
+        let autoOver05=false, autoOver15=false, autoUnder25=false, autoUnder45=false;
+        let toBlock=[];
+
+        if(prod_oui_over<1.904){ autoOver05=true; cOver05++; toBlock.push("BLOQUE Under0.5"); }
+        if(prod_oui_over<1.796){ autoOver15=true; toBlock.push("BLOQUE Under1.5"); }
+        if(prod_non_under<2.141){ autoUnder25=true; toBlock.push("BLOQUE Over2.5"); }
+        if(prod_non_under<2.411){ autoUnder45=true; cUnder45++; toBlock.push("BLOQUE Over4.5<3.0"); }
+        if(prod_non_over<2.686){ autoOver05=true; cOver05++; toBlock.push("BLOQUE Under0.5"); }
+        if(prod_non_over<2.439){ autoOver15=true; toBlock.push("BLOQUE Under1.5"); }
+        if(prod_oui_under && prod_oui_under<2.675){ autoUnder45=true; toBlock.push("BLOQUE Over3.5"); }
+        if(prod_oui_over15 && prod_oui_over15<1.534){ autoOver05=true; toBlock.push("BLOQUE Under0.5"); }
+
+        // Contradiction: si tu donnes Under0.5 bas alors que Over0.5 auto
+        let contra=false;
+        if(autoOver05 && under25<5){ contra=true; cContra++; }
+
+        if(toBlock.length===0) continue; // seulement afficher ceux à bloquer
+
+        let tr=document.createElement('tr');
+        if(contra) tr.className='red';
+        else if(autoOver05||autoUnder45) tr.className='orange';
+
+        tr.innerHTML=`<td>${o.nom_match||''}</td>
+<td>${lam1.toFixed(2)}/${lam2.toFixed(2)}</td>
+<td class="${prod_oui_over<1.9?'red':''}">${prod_oui_over.toFixed(2)}</td>
+<td class="${prod_non_under<2.41?'red':''}">${prod_non_under.toFixed(2)}</td>
+<td>${autoOver05?'<span class="badge green">AUTO 100%</span>':''}</td>
+<td>${autoOver15?'<span class="badge green">AUTO 100%</span>':''}</td>
+<td>${autoUnder25?'<span class="badge red">AUTO 100%</span>':''}</td>
+<td>${autoUnder45?'<span class="badge red">AUTO 100%</span>':''}</td>
+<td style="color:#fbbf24;font-weight:700">${toBlock.join(' | ')}</td>`;
+        tbody.appendChild(tr);
+      }catch(err){ console.log(err); }
+    }
+    document.getElementById('stats').style.display='block';
+    document.getElementById('total').textContent=objs.length;
+    document.getElementById('cOver05').textContent=cOver05;
+    document.getElementById('cUnder45').textContent=cUnder45;
+    document.getElementById('cContra').textContent=cContra;
+    document.getElementById('log').textContent='OK: '+tbody.children.length+' matchs à bloquer sur '+objs.length;
+  });
+});
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script>
+
+</body></html>
