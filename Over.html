@@ -1,0 +1,305 @@
+<html lang="fr"><head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detecteur Contradictions Bookmaker</title>
+<style>
+body{background:#0a0e14;color:#e6edf5;font-family:system-ui;padding:12px;margin:0}
+h1{font-size:15px;margin:6px 0}
+.box{background:#121a28;border:1px solid #1e2e45;border-radius:12px;padding:10px;margin:8px 0}
+.btn{padding:14px;background:#ef4444;color:#fff;border:0;border-radius:12px;font-weight:800;width:100%;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:10.5px;min-width:1100px}
+th{background:#1a2333;color:#8aa0bd;padding:7px;position:sticky;top:0;font-size:9px;text-align:left;letter-spacing:0.5px}
+td{padding:6px;border-bottom:1px solid #1a2a3f}
+.wrap{overflow:auto;border:1px solid #1e2e45;border-radius:10px;max-height:75vh}
+.bad{background:#ef444430;color:#ff4444;font-weight:800;border-left:3px solid #ef4444}
+.warn{background:#f59e0b20;color:#fbbf24}
+.green{background:#10b98120;color:#10b981}
+.badge{padding:3px 8px;border-radius:10px;font-size:9px;font-weight:800;display:inline-block}
+.badge-red{background:#ef4444;color:#fff}
+.badge-green{background:#10b981;color:#fff}
+.badge-orange{background:#f59e0b;color:#000}
+.action{font-weight:800;color:#ffcc00;font-size:11px}
+small{color:#6b7a90;font-size:9px}
+</style>
+</head>
+<body>
+<h1>🚨 DETECTEUR DE CONTRADICTIONS - BOOKMAKER</h1>
+<div class="box" style="font-size:11px;line-height:1.4">
+<b>Tu upload JSON → je te dis quoi DESACTIVER</b><br>
+• Produit BTTS Oui x Over 2.5 &lt;1.9 → Over 0.5 auto → DESACTIVER Under 0.5<br>
+• Produit BTTS Non x Under 2.5 &lt;2.41 → Under 4.5 auto → DESACTIVER Over 4.5 bas<br>
+• Produit BTTS Non x Under 2.5 &lt;2.14 → Under 2.5 auto → DESACTIVER Over 2.5 bas
+</div>
+
+<div class="box">
+<input type="file" id="f" accept=".json" style="display:none">
+<button class="btn" onclick="document.getElementById('f').click()">📂 UPLOAD JSON - VOIR CONTRADICTIONS</button>
+<div id="log" style="font-size:11px;margin-top:8px;color:#8aa0bd">2 lignes de contradictions trouvées sur 24 matchs</div>
+</div>
+
+<div class="box" id="stats" style="display: block;">
+<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px">
+<div>📊 Total: <b id="t">24</b></div>
+<div style="color:#ff4444">🚨 Contradictions: <b id="c">2</b></div>
+<div style="color:#fbbf24">⚠️ À corriger: <b id="cc">2</b></div>
+<div style="color:#10b981">✅ OK: <b id="ok">21</b></div>
+</div>
+</div>
+
+<div class="wrap">
+<table>
+<thead>
+<tr>
+<th>Match</th>
+<th>Produit Déclencheur</th>
+<th>Valeur</th>
+<th>Conséquence Auto 100%</th>
+<th>Cote Actuelle Qui Ment</th>
+<th>❌ QUOI DESACTIVER</th>
+<th>✅ Comment Corriger</th>
+</tr>
+</thead>
+<tbody id="tbody"><tr class="bad"><td><b>Frosinone - Lecce</b><br><small>λ 1.981/1.193</small></td>
+<td>BTTS Oui x Over 2.5</td>
+<td><span class="badge badge-red">1.78 &lt;1.9</span></td>
+<td><span class="badge badge-green">Over 0.5 = 100%</span></td>
+<td style="color:#ff8888">Under 0.5 pas affiché</td>
+<td class="action">VERIFIER : bloque Under 0.5</td>
+<td style="color:#8aff8a">Si tu affiches Under 0.5, mets @100</td></tr><tr class="bad"><td><b>America De Cali - Fortaleza FC</b><br><small>λ 1.728/0.676</small></td>
+<td>BTTS Non (1.52) x Over 2.5 (1.76)</td>
+<td><span class="badge badge-red">2.68 &lt;2.686</span></td>
+<td><span class="badge badge-green">Over 0.5 = 100%</span></td>
+<td style="color:#ff8888">Under 0.5 @9</td>
+<td class="action">DESACTIVER Under 0.5</td>
+<td style="color:#8aff8a">Under 0.5 → @100</td></tr></tbody>
+</table>
+</div>
+
+<script>
+function parseFile(file, cb){
+  let r=new FileReader();
+  r.onload=e=>{
+    let txt=e.target.result;
+    let objs=[];
+    try{
+      let j=JSON.parse(txt);
+      if(Array.isArray(j)) objs=j; else objs=[j];
+    }catch(err){
+      let d=0,s=-1,ins=false,esc=false;
+      for(let i=0;i<txt.length;i++){
+        let ch=txt[i];
+        if(ins){ if(esc) esc=false; else if(ch=='\\') esc=true; else if(ch=='"') ins=false; continue; }
+        if(ch=='"'){ins=true;continue;}
+        if(ch=='{'){ if(d===0) s=i; d++; }
+        else if(ch=='}'){ d--; if(d===0&&s!==-1){ try{ objs.push(JSON.parse(txt.slice(s,i+1))); }catch(e){} s=-1; } }
+      }
+    }
+    cb(objs);
+  };
+  r.readAsText(file);
+}
+
+document.getElementById('f').addEventListener('change', e=>{
+  let file=e.target.files[0];
+  if(!file) return;
+  document.getElementById('log').textContent='Lecture '+file.name+'...';
+  parseFile(file, objs=>{
+    let tbody=document.getElementById('tbody'); tbody.innerHTML='';
+    let contradictions=0, ok=0;
+
+    objs.forEach(o=>{
+      try{
+        let btts_oui=parseFloat(o.btts_oui||0);
+        let btts_non=parseFloat(o.btts_non||0);
+        let over25=parseFloat(o.cote_over_25||0);
+        let under25=parseFloat(o.cote_under_25||0);
+        let over15=null, under15=null, over05=null, under05=null, over35=null, over45=null, under35=null, under45=null;
+        if(o.marches_buts_match){
+          for(let k in o.marches_buts_match){
+            let v=o.marches_buts_match[k];
+            if(k=='0.5'){ over05=parseFloat(v.over); under05=parseFloat(v.under); }
+            if(k=='1.5'){ over15=parseFloat(v.over); under15=parseFloat(v.under); }
+            if(k=='3.5'){ over35=parseFloat(v.over); under35=parseFloat(v.under); }
+            if(k=='4.5'){ over45=parseFloat(v.over); under45=parseFloat(v.under); }
+          }
+        }
+        if(!btts_oui||!btts_non||!over25||!under25) return;
+
+        let prod_oui_over=btts_oui*over25;
+        let prod_non_under=btts_non*under25;
+        let prod_non_over=btts_non*over25;
+        let prod_oui_under=btts_oui*under25;
+        let prod_oui_over15=over15?btts_oui*over15:null;
+
+        let rows=[];
+
+        // 1) Over0.5 auto
+        if(prod_oui_over<1.904){
+          if(under05 && under05<100){
+            rows.push({
+              prod:`BTTS Oui (${btts_oui.toFixed(2)}) x Over 2.5 (${over25.toFixed(2)})`,
+              val:prod_oui_over.toFixed(2)+' <1.9',
+              auto:'Over 0.5 = 100% (min 1 but)',
+              cote:`Under 0.5 @${under05}`,
+              off:'DESACTIVER Under 0.5',
+              fix:'Under 0.5 → @100 ou bloqué. Over 0.5 → @1.01'
+            });
+          } else if(!under05){
+            rows.push({
+              prod:`BTTS Oui x Over 2.5`,
+              val:prod_oui_over.toFixed(2)+' <1.9',
+              auto:'Over 0.5 = 100%',
+              cote:`Under 0.5 pas affiché`,
+              off:'VERIFIER : bloque Under 0.5',
+              fix:'Si tu affiches Under 0.5, mets @100'
+            });
+          }
+        }
+        if(prod_non_over<2.686){
+          if(under05 && under05<50){
+            rows.push({
+              prod:`BTTS Non (${btts_non.toFixed(2)}) x Over 2.5 (${over25.toFixed(2)})`,
+              val:prod_non_over.toFixed(2)+' <2.686',
+              auto:'Over 0.5 = 100%',
+              cote:`Under 0.5 @${under05}`,
+              off:'DESACTIVER Under 0.5',
+              fix:'Under 0.5 → @100'
+            });
+          }
+        }
+
+        // 2) Over1.5 auto
+        if(prod_oui_over<1.796){
+          if(under15 && under15<2.3){
+            rows.push({
+              prod:`BTTS Oui x Over 2.5`,
+              val:prod_oui_over.toFixed(2)+' <1.796',
+              auto:'Over 1.5 = 100% (min 2 buts)',
+              cote:`Under 1.5 @${under15}`,
+              off:'DESACTIVER Under 1.5 ou AUGMENTER',
+              fix:'Under 1.5 doit être @2.5 minimum, pas @'+under15
+            });
+          }
+        }
+        if(prod_non_over<2.439){
+          if(under15 && under15<2.3){
+            rows.push({
+              prod:`BTTS Non x Over 2.5`,
+              val:prod_non_over.toFixed(2)+' <2.439',
+              auto:'Over 1.5 = 100%',
+              cote:`Under 1.5 @${under15}`,
+              off:'DESACTIVER Under 1.5',
+              fix:'Under 1.5 → @2.5+'
+            });
+          }
+        }
+
+        // 3) Under 2.5 auto
+        if(prod_non_under<2.141){
+          if(over25 && over25<2.1){
+            rows.push({
+              prod:`BTTS Non (${btts_non.toFixed(2)}) x Under 2.5 (${under25.toFixed(2)})`,
+              val:prod_non_under.toFixed(2)+' <2.14',
+              auto:'Under 2.5 = 100% (max 2 buts)',
+              cote:`Over 2.5 @${over25}`,
+              off:'DESACTIVER Over 2.5 bas OU AUGMENTER',
+              fix:'Over 2.5 doit être @2.2 mini, pas @'+over25.toFixed(2)
+            });
+          }
+        }
+
+        // 4) Under 4.5 auto
+        if(prod_non_under<2.411){
+          if(over45 && over45<3.0){
+            rows.push({
+              prod:`BTTS Non x Under 2.5`,
+              val:prod_non_under.toFixed(2)+' <2.41',
+              auto:'Under 4.5 = 100% (max 4 buts)',
+              cote:`Over 4.5 @${over45}`,
+              off:'DESACTIVER Over 4.5 bas',
+              fix:'Over 4.5 doit être @3.0 mini, pas @'+over45
+            });
+          } else if(!over45){
+            // si over45 pas dans JSON, on check over25 qui est bas
+            if(over25<1.6){
+              rows.push({
+                prod:`BTTS Non x Under 2.5`,
+                val:prod_non_under.toFixed(2)+' <2.41',
+                auto:'Under 4.5 = 100%',
+                cote:`Over 2.5 @${over25} trop bas → implique Over 4.5 bas`,
+                off:'DESACTIVER Over 4.5',
+                fix:'Over 4.5 → @3.0 mini'
+              });
+            }
+          }
+        }
+        if(prod_oui_under && prod_oui_under<2.675){
+          if(over35 && over35<2.5){
+            rows.push({
+              prod:`BTTS Oui x Under 2.5`,
+              val:prod_oui_under.toFixed(2)+' <2.675',
+              auto:'Under 3.5 + Under 4.5 = 100%',
+              cote:`Over 3.5 @${over35}`,
+              off:'DESACTIVER Over 3.5 bas',
+              fix:'Over 3.5 → @2.8 mini'
+            });
+          }
+        }
+
+        if(rows.length>0){
+          contradictions++;
+          rows.forEach(r=>{
+            let tr=document.createElement('tr');
+            tr.className='bad';
+            tr.innerHTML=`<td><b>${o.nom_match||''}</b><br><small>λ ${ (o.poisson_but_equipe_1||0) }/${ (o.poisson_but_equipe_2||0) }</small></td>
+<td>${r.prod}</td>
+<td><span class="badge badge-red">${r.val}</span></td>
+<td><span class="badge badge-green">${r.auto}</span></td>
+<td style="color:#ff8888">${r.cote}</td>
+<td class="action">${r.off}</td>
+<td style="color:#8aff8a">${r.fix}</td>`;
+            tbody.appendChild(tr);
+          });
+        } else {
+          ok++;
+        }
+
+      }catch(e){ console.log(e); }
+    });
+
+    document.getElementById('stats').style.display='block';
+    document.getElementById('t').textContent=objs.length;
+    document.getElementById('c').textContent=contradictions;
+    document.getElementById('cc').textContent=tbody.children.length;
+    document.getElementById('ok').textContent=ok;
+    document.getElementById('log').textContent=tbody.children.length+' lignes de contradictions trouvées sur '+objs.length+' matchs';
+    if(contradictions===0){
+      tbody.innerHTML='<tr><td colspan=7 style="text-align:center;padding:20px;color:#10b981">✅ Aucune contradiction - tes cotes sont cohérentes</td></tr>';
+    }
+  });
+});
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script>
+
+</body></html>
