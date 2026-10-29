@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>12 • 1X • X2 — iPhone</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{
+ --bg:#0a0e14; --card:#121a28; --card2:#162032; --border:#1e2e45;
+ --text:#eef2f9; --muted:#8aa0bd;
+ --blue:#38bdf8; --green:#10b981; --yellow:#f59e0b;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);display:flex;justify-content:center;min-height:100vh}
+.app{width:100%;max-width:430px;min-height:100vh;background:var(--bg);padding:0 14px 100px;overflow-x:hidden}
+.header{padding:18px 4px 10px;position:sticky;top:0;background:rgba(10,14,20,0.92);backdrop-filter:blur(16px);z-index:10;border-bottom:1px solid var(--border)}
+.header h1{font-size:18px;font-weight:700;letter-spacing:-0.02em}
+.header p{font-size:11px;color:var(--muted);margin-top:3px}
+.drop{margin:14px 0;background:var(--card);border:1.5px dashed var(--border);border-radius:16px;padding:18px 14px;text-align:center}
+.drop:active{transform:scale(0.99)}
+.drop b{font-size:14px}
+.btn{width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary{background:#2563eb;border-color:#2563eb;color:white}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.s-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px}
+.s-card .k{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em}
+.s-card .v{font-size:20px;font-weight:700;margin-top:4px;font-family:JetBrains Mono,monospace}
+.filter-row{display:flex;gap:8px;overflow-x:auto;padding:6px 0 8px;scrollbar-width:none}
+.filter-row::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;font-weight:700;white-space:nowrap}
+.chip.active{background:var(--text);color:#0a0e14;border-color:var(--text)}
+.chip.f12.active{background:var(--blue);color:#001018;border-color:var(--blue)}
+.chip.f1x.active{background:var(--green);color:#001a12;border-color:var(--green)}
+.chip.fx2.active{background:var(--yellow);color:#1a1200;border-color:var(--yellow)}
+.search{width:100%;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;color:var(--text);font-size:14px;outline:none;margin:8px 0}
+.search::placeholder{color:var(--muted)}
+.range-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin:8px 0;display:flex;align-items:center;gap:10px}
+input[type=range]{flex:1;accent-color:#3b82f6}
+.mono{font-family:JetBrains Mono,monospace}
+.list{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.match-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:14px;position:relative;overflow:hidden}
+.match-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
+.match-card.t-12::before{background:var(--blue)}
+.match-card.t-1X::before{background:var(--green)}
+.match-card.t-X2::before{background:var(--yellow)}
+.m-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.m-name{font-weight:700;font-size:14px;line-height:1.25;flex:1}
+.badge{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:800;flex:0 0 auto}
+.b-12{background:rgba(56,189,248,0.15);color:var(--blue);border:1px solid rgba(56,189,248,0.3)}
+.b-1X{background:rgba(16,185,129,0.15);color:var(--green);border:1px solid rgba(16,185,129,0.3)}
+.b-X2{background:rgba(245,158,11,0.15);color:var(--yellow);border:1px solid rgba(245,158,11,0.3)}
+.m-meta{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.meta{font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);padding:4px 8px;border-radius:999px}
+.prob-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
+.pbox{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center}
+.pbox .pk{font-size:10px;color:var(--muted);text-transform:uppercase}
+.pbox .pv{font-size:14px;font-weight:700;margin-top:2px}
+.pbox .pc{font-size:11px;color:var(--muted);margin-top:2px}
+.pbox.best{border-color:currentColor;background:rgba(255,255,255,0.04)}
+.best-line{margin-top:12px;display:flex;justify-content:space-between;align-items:center;background:#0e1a2b;border:1px solid var(--border);border-radius:12px;padding:10px 12px}
+.best-line b{font-size:13px}
+.export-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:430px;background:rgba(18,26,40,0.96);backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:10px 14px;display:flex;gap:8px;z-index:20}
+.export-bar .btn{flex:1;padding:12px;font-size:13px}
+small{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="header">
+<h1>⚡ BOOKMAKER STUDIO</h1>
+<p class="mono">12 • 1X • X2 • iPhone • Poisson lam1/lam2 • Marge 12%</p>
+</div>
+
+<div class="drop" id="drop">
+<b>📂 Importer ton JSON</b><br>
+<small>Glisse ou touche pour choisir BASE.json / 29.json</small><br>
+<input type="file" id="fileInput" accept=".json,application/json" style="display:none">
+<div style="margin-top:10px"><button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">Choisir fichier</button></div>
+</div>
+
+<div class="stats">
+<div class="s-card"><div class="k">Total</div><div class="v" id="sTotal">0</div></div>
+<div class="s-card"><div class="k">12 Pas de nul</div><div class="v" id="s12">0</div></div>
+<div class="s-card"><div class="k">1X E1 ou nul</div><div class="v" id="s1x">0</div></div>
+<div class="s-card"><div class="k">X2 E2 ou nul</div><div class="v" id="sx2">0</div></div>
+</div>
+
+<div class="filter-row" id="filterRow">
+<button class="chip active" data-f="all">Tous</button>
+<button class="chip f12" data-f="12">12 • Vainqueur</button>
+<button class="chip f1x" data-f="1X">1X • E1</button>
+<button class="chip fx2" data-f="X2">X2 • E2</button>
+</div>
+
+<input class="search" id="search" placeholder="🔍 Rechercher match...">
+
+<div class="range-box">
+<small>Proba min</small>
+<input type="range" id="probRange" min="0" max="100" value="0">
+<small class="mono" id="probVal">0%</small>
+</div>
+
+<div class="list" id="list"></div>
+
+<div style="height:20px"></div>
+
+<div class="export-bar">
+<button class="btn" id="exportTxt">TXT</button>
+<button class="btn" id="exportCsv">CSV</button>
+<button class="btn btn-primary" id="exportJson">JSON</button>
+</div>
+</div>
+
+<script>
+let allData=[], filtered=[], active="all";
+function poisson_pmf(lam,k){ if(lam<=0) return k===0?1:0; let f=1; for(let i=2;i<=k;i++) f*=i; return Math.pow(lam,k)/f*Math.exp(-lam); }
+function prob(lam1,lam2){ let p1=0,pd=0,p2=0,tot=0; for(let i=0;i<=8;i++) for(let j=0;j<=8;j++){ let pi=poisson_pmf(lam1,i)*poisson_pmf(lam2,j); tot+=pi; if(i>j) p1+=pi; else if(i===j) pd+=pi; else p2+=pi; } if(tot>0){ p1/=tot; pd/=tot; p2/=tot; } return {p1,pd,p2}; }
+function cote(p){ if(p<=0.001) return 99; if(p>=0.999) return 1.01; return 1/(p*1.12); }
+function parseRobust(t){ t=t.trim(); try{ let j=JSON.parse(t); if(Array.isArray(j)) return j; return [j]; }catch(e){} let objs=[],d=0,s=-1,ins=false,esc=false; for(let i=0;i<t.length;i++){ let ch=t[i]; if(ins){ if(esc) esc=false; else if(ch==='\\') esc=true; else if(ch==='"') ins=false; continue; }else{ if(ch==='"'){ ins=true; continue; } if(ch==='{'){ if(d===0) s=i; d++; }else if(ch==='}'){ d--; if(d===0&&s!==-1){ try{ objs.push(JSON.parse(t.substring(s,i+1))); }catch(e){} s=-1; } } } } if(objs.length) return objs; throw new Error("JSON invalide"); }
+
+function process(objs){
+ allData=objs.map(o=>{
+  let name=o.nom_match||o.nom||"Match";
+  let lam1=parseFloat(o.poisson_but_equipe_1??o.pure_xE1??1.2); let lam2=parseFloat(o.poisson_but_equipe_2??o.pure_xE2??1.0);
+  if(isNaN(lam1)) lam1=1.2; if(isNaN(lam2)) lam2=1.0;
+  let {p1,pd,p2}=prob(lam1,lam2);
+  let p12=p1+p2, p1x=p1+pd, px2=p2+pd;
+  let best,bp;
+  if(p12>=p1x&&p12>=px2){ best="12"; bp=p12; } else if(p1x>=px2){ best="1X"; bp=p1x; } else { best="X2"; bp=px2; }
+  return {nom:name,lam1,lam2,p1,pd,p2,p12,p1x,px2,best,bp,c12:cote(p12),c1x:cote(p1x),cx2:cote(px2),bc:cote(bp),c1:o.cote_c1,cx:o.cote_cx,c2:o.cote_c2};
+ });
+ apply();
+}
+function apply(){
+ let q=document.getElementById('search').value.toLowerCase();
+ let minP=parseInt(document.getElementById('probRange').value)/100;
+ filtered=allData.filter(r=>{
+  if(active!=="all"&&r.best!==active) return false;
+  if(r.bp<minP) return false;
+  if(q&&!r.nom.toLowerCase().includes(q)) return false;
+  return true;
+ });
+ filtered.sort((a,b)=>b.bp-a.bp);
+ render();
+}
+function render(){
+ let list=document.getElementById('list'); list.innerHTML="";
+ for(let r of filtered){
+  let div=document.createElement('div');
+  div.className=`match-card t-${r.best}`;
+  div.innerHTML=`
+   <div class="m-top">
+    <div class="m-name">${r.nom}</div>
+    <span class="badge b-${r.best}">${r.best} • ${(r.bp*100).toFixed(1)}%</span>
+   </div>
+   <div class="m-meta">
+    <span class="meta mono">lam1 ${r.lam1.toFixed(2)}</span>
+    <span class="meta mono">lam2 ${r.lam2.toFixed(2)}</span>
+    <span class="meta mono">${r.c1||'-'}/${r.cx||'-'}/${r.c2||'-'}</span>
+   </div>
+   <div class="prob-grid">
+    <div class="pbox ${r.best==='12'?'best':''}" style="${r.best==='12'?'color:#38bdf8':''}">
+     <div class="pk">P(12) Pas de nul</div><div class="pv mono">${(r.p12*100).toFixed(1)}%</div><div class="pc mono">${r.c12.toFixed(2)}</div>
+    </div>
+    <div class="pbox ${r.best==='1X'?'best':''}" style="${r.best==='1X'?'color:#10b981':''}">
+     <div class="pk">P(1X) E1 ou Nul</div><div class="pv mono">${(r.p1x*100).toFixed(1)}%</div><div class="pc mono">${r.c1x.toFixed(2)}</div>
+    </div>
+    <div class="pbox ${r.best==='X2'?'best':''}" style="${r.best==='X2'?'color:#f59e0b':''}">
+     <div class="pk">P(X2) E2 ou Nul</div><div class="pv mono">${(r.px2*100).toFixed(1)}%</div><div class="pc mono">${r.cx2.toFixed(2)}</div>
+    </div>
+   </div>
+   <div class="best-line">
+    <b>👉 ${r.best} à ${(r.bp*100).toFixed(1)}% — Cote ${r.bc.toFixed(2)}</b>
+    <small class="mono">P1 ${(r.p1*100).toFixed(0)}% • Nul ${(r.pd*100).toFixed(0)}% • P2 ${(r.p2*100).toFixed(0)}%</small>
+   </div>
+  `;
+  list.appendChild(div);
+ }
+ document.getElementById('sTotal').textContent=allData.length;
+ document.getElementById('s12').textContent=allData.filter(r=>r.best==='12').length;
+ document.getElementById('s1x').textContent=allData.filter(r=>r.best==='1X').length;
+ document.getElementById('sx2').textContent=allData.filter(r=>r.best==='X2').length;
+}
+
+document.getElementById('fileInput').addEventListener('change',e=>{
+ let f=e.target.files[0]; if(!f) return;
+ let rd=new FileReader(); rd.onload=()=>{ try{ process(parseRobust(rd.result)); }catch(err){ alert(err.message); } }; rd.readAsText(f);
+});
+let drop=document.getElementById('drop');
+drop.addEventListener('dragover',e=>{ e.preventDefault(); });
+drop.addEventListener('drop',e=>{
+ e.preventDefault();
+ let f=e.dataTransfer.files[0]; if(!f) return;
+ let rd=new FileReader(); rd.onload=()=>{ try{ process(parseRobust(rd.result)); }catch(err){ alert(err.message); } }; rd.readAsText(f);
+});
+document.querySelectorAll('.chip').forEach(ch=>{
+ ch.addEventListener('click',()=>{
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  ch.classList.add('active'); active=ch.dataset.f; apply();
+ });
+});
+document.getElementById('search').addEventListener('input',apply);
+document.getElementById('probRange').addEventListener('input',e=>{ document.getElementById('probVal').textContent=e.target.value+"%"; apply(); });
+function dl(name,text){ let b=new Blob([text],{type:"text/plain"}); let u=URL.createObjectURL(b); let a=document.createElement('a'); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u); }
+document.getElementById('exportTxt').addEventListener('click',()=>{
+ if(!allData.length) return alert("Charge un JSON");
+ let t=`12 1X X2 - ${new Date().toLocaleString()}\n`; for(let r of (filtered.length?filtered:allData)){ t+=`\n${r.nom} | lam1 ${r.lam1.toFixed(2)} lam2 ${r.lam2.toFixed(2)} | P12 ${(r.p12*100).toFixed(1)}% (${r.c12.toFixed(2)}) P1X ${(r.p1x*100).toFixed(1)}% (${r.c1x.toFixed(2)}) PX2 ${(r.px2*100).toFixed(1)}% (${r.cx2.toFixed(2)}) => ${r.best} ${(r.bp*100).toFixed(1)}% cote ${r.bc.toFixed(2)}\n`; } dl("12_1X_X2.txt",t);
+});
+document.getElementById('exportCsv').addEventListener('click',()=>{
+ if(!allData.length) return alert("Charge un JSON");
+ let rows=filtered.length?filtered:allData; let csv="nom_match,lam1,lam2,p1,p_nul,p2,p12,p1x,px2,meilleur,proba,cote_12,cote_1x,cote_x2\n";
+ for(let r of rows){ let n=r.nom.replace(/"/g,'""'); csv+=`"${n}",${r.lam1.toFixed(2)},${r.lam2.toFixed(2)},${r.p1.toFixed(4)},${r.pd.toFixed(4)},${r.p2.toFixed(4)},${r.p12.toFixed(4)},${r.p1x.toFixed(4)},${r.px2.toFixed(4)},${r.best},${r.bp.toFixed(4)},${r.c12.toFixed(2)},${r.c1x.toFixed(2)},${r.cx2.toFixed(2)}\n`; } dl("12_1X_X2.csv",csv);
+});
+document.getElementById('exportJson').addEventListener('click',()=>{
+ if(!allData.length) return alert("Charge un JSON");
+ dl("12_1X_X2.json",JSON.stringify(filtered.length?filtered:allData,null,2));
+});
+</script>
+</body>
+</html>
