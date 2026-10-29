@@ -1,0 +1,134 @@
+<html lang="fr"><head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Combo le plus dangereux</title>
+<style>
+body{background:#0a0e14;color:#eef2f9;font-family:system-ui;padding:12px;margin:0}
+h1{font-size:16px}
+.box{background:#121a28;border:1px solid #1e2e45;border-radius:12px;padding:12px;margin:10px 0}
+.btn{padding:12px 16px;background:#2563eb;color:white;border:0;border-radius:10px;font-weight:700;width:100%}
+input[type=file]{display:none}
+.stat{font-size:20px;font-weight:800;color:#ef4444}
+table{width:100%;border-collapse:collapse;font-size:10px;margin-top:10px;min-width:600px}
+th{background:#162032;color:#8aa0bd;font-size:9px;padding:6px;text-align:left;position:sticky;top:0}
+td{padding:6px;border-bottom:1px solid #1e2e45}
+.wrap{overflow:auto;border:1px solid #1e2e45;border-radius:10px}
+</style>
+</head>
+<body>
+<h1>⚡ Combo le plus dangereux (1 seul)</h1>
+<div class="box">
+<input type="file" id="f" accept=".json,application/json">
+<button class="btn" onclick="document.getElementById('f').click()">📂 Choisir BASE.json ou 29.json</button>
+<div id="log" style="margin-top:8px;font-size:11px;color:#8aa0bd">OK: 23 matchs affichés sur 24</div>
+</div>
+
+<div class="box" id="roiBox" style="display: block;">
+<div style="font-size:11px;color:#8aa0bd">ROI si 1€ sur chaque combo dangereux</div>
+<div class="stat" id="roi">37.1% (8.52€ perte)</div>
+<div id="detail" style="font-size:11px;color:#8aa0bd">Mise 23€ (1€ x 23)</div>
+<div style="margin-top:8px">Total Cote: <b id="totalCote">167.30</b> | Matchs: <b id="totalMatch">23</b></div>
+</div>
+
+<div class="wrap">
+<table>
+<thead><tr><th>Match</th><th>λ1/λ2</th><th>Combo dangereux</th><th>Vraie%</th><th>Cote actuelle</th><th>Cote fair</th><th>Edge</th><th>Diviser par</th></tr></thead>
+<tbody id="tbody"><tr><td>Al Khaleej - Al Hazem</td><td>2.13/1.40</td><td><b style="color:#ef4444">Over+BTTS</b></td><td>57.5%</td><td>2.62</td><td style="color:#10b981">1.55</td><td style="color:#ef4444">50.8%</td><td>1.69x</td></tr><tr><td>Inter Turku - HJK Helsinki</td><td>1.33/1.20</td><td><b style="color:#ef4444">X+Under</b></td><td>20.7%</td><td>5.70</td><td style="color:#10b981">4.31</td><td style="color:#ef4444">17.9%</td><td>1.32x</td></tr><tr><td>Brinje Grosuplje - Bravo</td><td>1.20/1.31</td><td><b style="color:#ef4444">X+Under</b></td><td>20.9%</td><td>5.96</td><td style="color:#10b981">4.27</td><td style="color:#ef4444">24.6%</td><td>1.40x</td></tr><tr><td>KuPS - IF Gnistan</td><td>1.90/0.90</td><td><b style="color:#ef4444">X+Under</b></td><td>16.5%</td><td>8.40</td><td style="color:#10b981">5.42</td><td style="color:#ef4444">38.4%</td><td>1.55x</td></tr><tr><td>Hammarby IF - IK Sirius</td><td>1.95/0.97</td><td><b style="color:#ef4444">X+Under</b></td><td>15.7%</td><td>9.46</td><td style="color:#10b981">5.70</td><td style="color:#ef4444">48.1%</td><td>1.66x</td></tr><tr><td>Frosinone - Lecce</td><td>1.98/1.19</td><td><b style="color:#ef4444">X+Under</b></td><td>14.1%</td><td>9.68</td><td style="color:#10b981">6.34</td><td style="color:#ef4444">36.3%</td><td>1.53x</td></tr><tr><td>Austria Vienne (F) - FC Juventus (F)</td><td>1.05/1.46</td><td><b style="color:#ef4444">X+Under</b></td><td>20.6%</td><td>5.96</td><td style="color:#10b981">4.34</td><td style="color:#ef4444">22.6%</td><td>1.37x</td></tr><tr><td>Paris FC (F) - BK Häcken (F)</td><td>1.52/1.16</td><td><b style="color:#ef4444">X+Under</b></td><td>19.0%</td><td>6.96</td><td style="color:#10b981">4.71</td><td style="color:#ef4444">32.0%</td><td>1.48x</td></tr><tr><td>Örgryte IS - Mjallby</td><td>1.22/1.40</td><td><b style="color:#ef4444">X+Under</b></td><td>19.7%</td><td>6.14</td><td style="color:#10b981">4.53</td><td style="color:#ef4444">21.1%</td><td>1.36x</td></tr><tr><td>Kalmar - GAIS Göteborg</td><td>1.28/1.15</td><td><b style="color:#ef4444">X+Under</b></td><td>21.9%</td><td>5.35</td><td style="color:#10b981">4.08</td><td style="color:#ef4444">17.1%</td><td>1.31x</td></tr><tr><td>Al-Nassr - Al-Kholood</td><td>2.33/0.73</td><td><b style="color:#ef4444">X+Under</b></td><td>12.7%</td><td>15.28</td><td style="color:#10b981">7.05</td><td style="color:#ef4444">93.5%</td><td>2.17x</td></tr><tr><td>Al Riyadh - Al-Qadsiah</td><td>0.85/2.23</td><td><b style="color:#ef4444">X+Under</b></td><td>13.3%</td><td>13.48</td><td style="color:#10b981">6.72</td><td style="color:#ef4444">79.2%</td><td>2.01x</td></tr><tr><td>Braga - Famalicao</td><td>1.61/0.98</td><td><b style="color:#ef4444">X+Under</b></td><td>19.4%</td><td>6.72</td><td style="color:#10b981">4.61</td><td style="color:#ef4444">30.2%</td><td>1.46x</td></tr><tr><td>Fiorentina - Atalanta Bergame</td><td>1.52/1.36</td><td><b style="color:#ef4444">X+Under</b></td><td>17.2%</td><td>7.35</td><td style="color:#10b981">5.18</td><td style="color:#ef4444">26.7%</td><td>1.42x</td></tr><tr><td>Everton - Newcastle</td><td>1.43/1.17</td><td><b style="color:#ef4444">X+Under</b></td><td>19.9%</td><td>6.26</td><td style="color:#10b981">4.48</td><td style="color:#ef4444">24.6%</td><td>1.40x</td></tr><tr><td>Manchester City (F) - Paris SG (F)</td><td>1.89/1.68</td><td><b style="color:#ef4444">Over+BTTS</b></td><td>60.1%</td><td>2.41</td><td style="color:#10b981">1.49</td><td style="color:#ef4444">45.1%</td><td>1.62x</td></tr><tr><td>MAS Fès - RSB Berkane</td><td>1.01/0.89</td><td><b style="color:#ef4444">Over+BTTS</b></td><td>24.1%</td><td>4.70</td><td style="color:#10b981">3.70</td><td style="color:#ef4444">13.3%</td><td>1.27x</td></tr><tr><td>Benfica - Gil Vicente</td><td>2.23/0.82</td><td><b style="color:#ef4444">X+Under</b></td><td>13.4%</td><td>13.16</td><td style="color:#10b981">6.67</td><td style="color:#ef4444">76.1%</td><td>1.97x</td></tr><tr><td>Atlético Mineiro - Cruzeiro</td><td>1.00/1.28</td><td><b style="color:#ef4444">X+Under</b></td><td>23.4%</td><td>6.04</td><td style="color:#10b981">3.82</td><td style="color:#ef4444">41.3%</td><td>1.58x</td></tr><tr><td>Vasco da Gama - Flamengo</td><td>1.01/1.52</td><td><b style="color:#ef4444">X+Under</b></td><td>20.2%</td><td>6.19</td><td style="color:#10b981">4.43</td><td style="color:#ef4444">24.8%</td><td>1.40x</td></tr><tr><td>America De Cali - Fortaleza FC</td><td>1.73/0.68</td><td><b style="color:#ef4444">X+Under</b></td><td>19.6%</td><td>6.97</td><td style="color:#10b981">4.56</td><td style="color:#ef4444">36.6%</td><td>1.53x</td></tr><tr><td>Grêmio - Athletico Paranaense</td><td>1.28/1.16</td><td><b style="color:#ef4444">X+Under</b></td><td>21.7%</td><td>5.42</td><td style="color:#10b981">4.12</td><td style="color:#ef4444">17.4%</td><td>1.32x</td></tr><tr><td>Atletico Nacional - Santa Fe</td><td>1.71/0.85</td><td><b style="color:#ef4444">X+Under</b></td><td>19.0%</td><td>7.10</td><td style="color:#10b981">4.70</td><td style="color:#ef4444">34.7%</td><td>1.51x</td></tr></tbody>
+</table>
+</div>
+
+<script>
+function pmf(lam,k){return lam<=0?(k===0?1:0):Math.pow(lam,k)/fact(k)*Math.exp(-lam)}
+function fact(n){let r=1;for(let i=2;i<=n;i++)r*=i;return r}
+function prob(lam1,lam2,fn){let p=0,t=0;for(let i=0;i<=7;i++)for(let j=0;j<=7;j++){let q=pmf(lam1,i)*pmf(lam2,j);t+=q;if(fn(i,j))p+=q}return t?p/t:0}
+
+document.getElementById('f').addEventListener('change', function(e){
+  let file=e.target.files[0];
+  if(!file){ document.getElementById('log').textContent='Pas de fichier'; return; }
+  document.getElementById('log').textContent='Lecture '+file.name+' '+(file.size/1024).toFixed(0)+'Ko...';
+  let r=new FileReader();
+  r.onload=function(ev){
+    try{
+      let txt=ev.target.result;
+      document.getElementById('log').textContent='Parsing... '+txt.length+' chars';
+      let objs=[];
+      // try JSON array first
+      try{ let j=JSON.parse(txt); if(Array.isArray(j)) objs=j; else objs=[j]; }catch(e){
+        // fallback extract {}
+        let d=0,s=-1,ins=false,esc=false;
+        for(let i=0;i<txt.length;i++){
+          let ch=txt[i];
+          if(ins){ if(esc)esc=false; else if(ch=='\\')esc=true; else if(ch=='"')ins=false; continue; }
+          if(ch=='"'){ins=true;continue;}
+          if(ch=='{'){ if(d===0)s=i; d++; }
+          else if(ch=='}'){ d--; if(d===0&&s!==-1){ try{ objs.push(JSON.parse(txt.slice(s,i+1))); }catch(e){} s=-1; } }
+        }
+      }
+      document.getElementById('log').textContent='Trouvé '+objs.length+' matchs - calcul...';
+      if(objs.length===0){ document.getElementById('log').textContent='ERREUR: 0 matchs - fichier invalide'; return; }
+      
+      let totalCote=0,totalEdge=0,count=0;
+      let tbody=document.getElementById('tbody'); tbody.innerHTML='';
+      for(let o of objs){
+        let lam1=parseFloat(o.poisson_but_equipe_1||o.pure_xE1||0);
+        let lam2=parseFloat(o.poisson_but_equipe_2||o.pure_xE2||0);
+        let c1=parseFloat(o.cote_c1||0), cx=parseFloat(o.cote_cx||0), c2=parseFloat(o.cote_c2||0);
+        let co=parseFloat(o.cote_over_25||0), cu=parseFloat(o.cote_under_25||0), b=parseFloat(o.btts_oui||0);
+        if(!lam1||!lam2||!c1||!cx||!c2||!co||!cu||!b) continue;
+        // only 2 combos that cover 99%: X+Under and Over+BTTS
+        let p1=prob(lam1,lam2,(i,j)=>i==j&&i+j<=2.5);
+        let c1combo=cx*cu;
+        let e1=p1*c1combo-1;
+        let p2=prob(lam1,lam2,(i,j)=>i+j>2.5&&i>=1&&j>=1);
+        let c2combo=co*b;
+        let e2=p2*c2combo-1;
+        let best, pname;
+        if(e1>e2){ best={p:p1,c:c1combo,e:e1,name:'X+Under'}; }
+        else{ best={p:p2,c:c2combo,e:e2,name:'Over+BTTS'}; }
+        if(best.e<=0) continue;
+        let fair=1/(best.p*1.12);
+        totalCote+=best.c;
+        totalEdge+=best.e;
+        count++;
+        let tr=document.createElement('tr');
+        tr.innerHTML=`<td>${o.nom_match||''}</td><td>${lam1.toFixed(2)}/${lam2.toFixed(2)}</td><td><b style="color:#ef4444">${best.name}</b></td><td>${(best.p*100).toFixed(1)}%</td><td>${best.c.toFixed(2)}</td><td style="color:#10b981">${fair.toFixed(2)}</td><td style="color:#ef4444">${(best.e*100).toFixed(1)}%</td><td>${(best.c/fair).toFixed(2)}x</td>`;
+        tbody.appendChild(tr);
+      }
+      document.getElementById('roiBox').style.display='block';
+      document.getElementById('totalMatch').textContent=count;
+      document.getElementById('totalCote').textContent=totalCote.toFixed(2);
+      document.getElementById('roi').textContent=(count?totalEdge/count*100:0).toFixed(1)+'% ('+totalEdge.toFixed(2)+'€ perte)';
+      document.getElementById('detail').textContent='Mise '+count+'€ (1€ x '+count+')';
+      document.getElementById('log').textContent='OK: '+count+' matchs affichés sur '+objs.length;
+    }catch(err){
+      document.getElementById('log').textContent='ERREUR JS: '+err.message;
+      alert(err.message);
+    }
+  };
+  r.readAsText(file);
+});
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script>
+
+</body></html>
