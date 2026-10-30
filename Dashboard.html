@@ -1,0 +1,211 @@
+<html lang="fr"><head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blocking FINAL V2 Pliable</title>
+<style>
+body{background:#0a0e14;color:#e6edf5;font-family:system-ui;padding:12px;margin:0}
+h1{font-size:14px;margin:6px 0}
+.box{background:#121a28;border:1px solid #1e2e45;border-radius:12px;padding:10px;margin:8px 0}
+.btn{padding:14px;background:#10b981;color:#fff;border:0;border-radius:12px;font-weight:800;width:100%;font-size:13px}
+.btn2{padding:10px;background:#1e2e45;color:#8aa0bd;border:1px solid #2a3f5f;border-radius:10px;font-weight:700;width:100%;margin-top:6px;font-size:11px}
+table{width:100%;border-collapse:collapse;font-size:10px;min-width:1100px}
+th{background:#162032;color:#8aa0bd;padding:8px;position:sticky;top:0;font-size:9px;text-align:left;letter-spacing:0.3px}
+td{padding:6px;border-bottom:1px solid #1a2a3f;vertical-align:top}
+.wrap{overflow:auto;border:1px solid #1e2e45;border-radius:10px;max-height:78vh}
+.red{background:#ef444422}
+.orange{background:#f59e0b22}
+.green{background:#10b98122}
+.badge{padding:3px 7px;border-radius:8px;font-size:9px;font-weight:800;display:inline-block;margin:2px}
+.badge-red{background:#ef4444;color:#fff}
+.badge-green{background:#10b981;color:#fff}
+.badge-blue{background:#2563eb;color:#fff}
+.badge-orange{background:#f59e0b;color:#000}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<h1>🛡️ BLOCAGE FINAL V2 - Nom / Implication / Action</h1>
+
+<div class="box">
+<button class="btn2" onclick="toggleRules()">📋 Voir / Cacher les Règles 100% (tu avais barré)</button>
+<div id="rulesBox" class="hidden" style="margin-top:10px">
+<table style="width:100%;font-size:10px;min-width:0;border-collapse:collapse">
+<tbody><tr><th>Règle</th><th>Seuil</th><th>% Validé</th><th>Action</th></tr>
+<tr><td>BTTS Oui x Over 2.5 → Over 0.5</td><td>&lt;1.904</td><td>100% (34/34)</td><td>Over0.5 @1.01 lim 5€</td></tr>
+<tr><td>BTTS Oui x Over 2.5 → Over 1.5</td><td>&lt;1.796</td><td>95.7% (22/23)</td><td>Under1.5 @2.5 mini</td></tr>
+<tr><td>BTTS Non x Under 2.5 → Under 2.5</td><td>&lt;2.141</td><td>100% (7/7)</td><td>Over2.5 @2.40 mini</td></tr>
+<tr><td>BTTS Non x Under 2.5 → Under 4.5</td><td>&lt;2.411</td><td>100% (12/12)</td><td>Over4.5 @3.0 mini</td></tr>
+<tr><td>BTTS Non x Over 2.5 → Over 0.5</td><td>&lt;2.686</td><td>100% (40/40)</td><td>Under0.5 @100</td></tr>
+<tr style="background:#10b98122"><td><b>E1 Over 0.5 λ1&gt;=2.2</b></td><td>λ1&gt;=2.2</td><td>100% (20/20)</td><td>E1&gt;0.5 @1.20 max</td></tr>
+<tr><td>E1 Over 0.5 λ1&gt;=2.0</td><td>λ1&gt;=2.0</td><td>97.3% (36/37)</td><td>E1&gt;0.5 @1.25 max</td></tr>
+<tr style="background:#10b98122"><td><b>E2 Over 0.5 λ2&gt;=2.0</b></td><td>λ2&gt;=2.0</td><td>100% (19/19)</td><td>E2&gt;0.5 @1.20 max</td></tr>
+<tr><td>E2 Over 0.5 λ2&gt;=1.8</td><td>λ2&gt;=1.8</td><td>91.2% (31/34)</td><td>E2&gt;0.5 @1.35 max</td></tr>
+</tbody></table>
+</div>
+</div>
+
+<div class="box">
+<input type="file" id="f" accept=".json" style="display:none">
+<button class="btn" onclick="document.getElementById('f').click()">📂 UPLOAD BASE_2.json - VOIR TOUT</button>
+<button class="btn2" onclick="toggleDetails()">👁️ Plier / Déplier les détails λ et produits</button>
+<div id="log" style="font-size:11px;margin-top:8px;color:#8aa0bd">En attente...</div>
+</div>
+
+<div class="box" id="stats" style="display:none;font-size:11px">
+<div style="display:flex;gap:12px;flex-wrap:wrap">
+<div>Matchs: <b id="t"></b></div>
+<div style="color:#10b981">Over0.5 auto: <b id="cOver05"></b></div>
+<div style="color:#ef4444">Under2.5 auto: <b id="cUnder25"></b></div>
+<div style="color:#f59e0b">Under4.5 auto: <b id="cUnder45"></b></div>
+<div style="color:#2563eb">E1&gt;0.5 100%: <b id="cE1"></b></div>
+<div style="color:#8b5cf6">E2&gt;0.5 100%: <b id="cE2"></b></div>
+<div style="color:#ff4444">X+Under: <b id="cXU"></b></div>
+</div>
+</div>
+
+<div class="wrap">
+<table>
+<thead>
+<tr>
+<th style="min-width:180px">Nom</th>
+<th style="min-width:220px">Implication 100%</th>
+<th class="col-detail" style="min-width:80px">λ1/λ2</th>
+<th class="col-detail" style="min-width:90px">Produits</th>
+<th>À BLOQUER SIMPLE</th>
+<th>À BLOQUER COMBINÉ</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+
+<script>
+let detailsVisible=true;
+function toggleRules(){
+  let el=document.getElementById('rulesBox');
+  el.classList.toggle('hidden');
+}
+function toggleDetails(){
+  detailsVisible=!detailsVisible;
+  document.querySelectorAll('.col-detail').forEach(el=>{
+    el.style.display=detailsVisible?'table-cell':'none';
+  });
+  // also hide cells with class
+  document.querySelectorAll('td.col-detail').forEach(el=>{
+    el.style.display=detailsVisible?'table-cell':'none';
+  });
+}
+
+function parseFile(file, cb){
+  let r=new FileReader();
+  r.onload=e=>{
+    let txt=e.target.result;
+    let objs=[];
+    try{
+      let j=JSON.parse(txt);
+      if(Array.isArray(j)) objs=j; else objs=[j];
+    }catch(err){
+      let d=0,s=-1,ins=false,esc=false;
+      for(let i=0;i<txt.length;i++){
+        let ch=txt[i];
+        if(ins){ if(esc) esc=false; else if(ch=='\\') esc=true; else if(ch=='"') ins=false; continue; }
+        if(ch=='"'){ins=true;continue;}
+        if(ch=='{'){ if(d===0) s=i; d++; }
+        else if(ch=='}'){ d--; if(d===0&&s!==-1){ try{ objs.push(JSON.parse(txt.slice(s,i+1))); }catch(e){} s=-1; } }
+      }
+    }
+    cb(objs);
+  };
+  r.readAsText(file);
+}
+function pmf(lam,k){if(lam<=0)return k===0?1:0;let f=1;for(let i=2;i<=k;i++)f*=i;return Math.pow(lam,k)/f*Math.exp(-lam)}
+function prob(lam1,lam2,fn){let p=0,t=0;for(let i=0;i<=7;i++)for(let j=0;j<=7;j++){let q=pmf(lam1,i)*pmf(lam2,j);t+=q;if(fn(i,j))p+=q}return t?p/t:0}
+
+document.getElementById('f').addEventListener('change', e=>{
+  let file=e.target.files[0];
+  if(!file) return;
+  document.getElementById('log').textContent='Lecture '+file.name+'...';
+  parseFile(file, objs=>{
+    let tbody=document.getElementById('tbody'); tbody.innerHTML='';
+    let cOver05=0,cUnder25=0,cUnder45=0,cE1=0,cE2=0,cXU=0;
+    objs.forEach(o=>{
+      try{
+        let lam1=parseFloat(o.poisson_but_equipe_1||0);
+        let lam2=parseFloat(o.poisson_but_equipe_2||0);
+        let bo=parseFloat(o.btts_oui||0);
+        let bn=parseFloat(o.btts_non||0);
+        let over25=parseFloat(o.cote_over_25||0);
+        let under25=parseFloat(o.cote_under_25||0);
+        let cx=parseFloat(o.cote_cx||0);
+        if(!bo||!bn||!over25||!under25) return;
+
+        let prod_oui_over=bo*over25;
+        let prod_non_under=bn*under25;
+
+        let implications=[];
+        let simple=[], combine=[];
+
+        if(prod_oui_over<1.904){ implications.push('<span class="badge badge-green">Over0.5 100% (34/34)</span>'); cOver05++; simple.push("Over0.5 @1.01 lim 5€"); }
+        if(prod_oui_over<1.796){ implications.push('<span class="badge badge-orange">Over1.5 95.7%</span>'); simple.push("Under1.5 @2.5 mini"); }
+        if(prod_non_under<2.141){ implications.push('<span class="badge badge-red">Under2.5 100% (7/7)</span>'); cUnder25++; simple.push("Over2.5 @2.40 mini"); }
+        if(prod_non_under<2.411){ implications.push('<span class="badge badge-red">Under4.5 100% (12/12)</span>'); cUnder45++; simple.push("Over4.5 @3.0 mini"); }
+        if(lam1>=2.2){ implications.push('<span class="badge badge-blue">E1>0.5 100% (20/20)</span>'); cE1++; simple.push("E1>0.5 @1.20 max"); }
+        else if(lam1>=2.0){ implications.push('<span class="badge badge-orange">E1>0.5 97.3%</span>'); simple.push("E1>0.5 @1.25"); }
+        if(lam2>=2.0){ implications.push('<span class="badge badge-blue">E2>0.5 100% (19/19)</span>'); cE2++; simple.push("E2>0.5 @1.20 max"); }
+        else if(lam2>=1.8){ implications.push('<span class="badge badge-orange">E2>0.5 91.2%</span>'); simple.push("E2>0.5 @1.35"); }
+
+        let p_x_under=prob(lam1,lam2,(i,j)=>i==j&&i+j<=2);
+        let cote_comb=cx*under25;
+        let fair=p_x_under>0?1/(p_x_under*1.12):999;
+        if(cote_comb>fair*1.2){ cXU++; combine.push(`<span class="badge badge-red">X+Under PERDANT ${cote_comb.toFixed(1)} vs ${fair.toFixed(1)}</span>`); }
+
+        if(implications.length===0 && combine.length===0) return;
+
+        let tr=document.createElement('tr');
+        if(implications.some(x=>x.includes('100%'))) tr.className='green';
+        tr.innerHTML=`
+<td><b>${o.nom_match||''}</b></td>
+<td>${implications.join(' ')}</td>
+<td class="col-detail">${lam1.toFixed(2)}/${lam2.toFixed(2)}</td>
+<td class="col-detail" style="font-size:8px">O*O ${prod_oui_over.toFixed(2)}<br>N*U ${prod_non_under.toFixed(2)}</td>
+<td style="color:#fbbf24;font-size:8px">${simple.join('<br>')}</td>
+<td style="color:#ff6b6b;font-size:8px">${combine.join('<br>')}</td>`;
+        tbody.appendChild(tr);
+      }catch(e){}
+    });
+    document.getElementById('stats').style.display='block';
+    document.getElementById('t').textContent=objs.length;
+    document.getElementById('cOver05').textContent=cOver05;
+    document.getElementById('cUnder25').textContent=cUnder25;
+    document.getElementById('cUnder45').textContent=cUnder45;
+    document.getElementById('cE1').textContent=cE1;
+    document.getElementById('cE2').textContent=cE2;
+    document.getElementById('cXU').textContent=cXU;
+    document.getElementById('log').textContent=cOver05+cUnder25+cE1+cE2+cXU+' blocages';
+  });
+});
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script>
+
+</body></html>
