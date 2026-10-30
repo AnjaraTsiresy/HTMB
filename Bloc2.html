@@ -1,0 +1,859 @@
+<html lang="fr"><head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Block Final BASE_2 Fiable</title>
+<style>
+body{background:#0a0e14;color:#e6edf5;font-family:system-ui;padding:12px;margin:0}
+h1{font-size:14px;margin:4px 0}
+.box{background:#121a28;border:1px solid #1e2e45;border-radius:12px;padding:10px;margin:8px 0}
+.btn{padding:14px;background:#10b981;color:#fff;border:0;border-radius:12px;font-weight:800;width:100%;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:10px;min-width:1400px}
+th{background:#162032;color:#8aa0bd;padding:6px;position:sticky;top:0;font-size:8px;text-align:left}
+td{padding:5px;border-bottom:1px solid #1a2a3f}
+.wrap{overflow:auto;border:1px solid #1e2e45;border-radius:10px;max-height:75vh}
+.red{background:#ef444422;color:#ff6b6b}
+.green{background:#10b98122;color:#10b981}
+.orange{background:#f59e0b22;color:#fbbf24}
+.badge{padding:2px 6px;border-radius:8px;font-size:9px;font-weight:800;display:inline-block}
+.badge-red{background:#ef4444;color:#fff}
+.badge-green{background:#10b981;color:#fff}
+.badge-orange{background:#f59e0b;color:#000}
+</style>
+</head>
+<body>
+<h1>🛡️ BLOCAGE FINAL - BASE_2 FIABLE (100%)</h1>
+<div class="box" style="font-size:11px;line-height:1.4">
+<b>Règles validées 100% sur BASE_2 (304 matchs)</b><br>
+• BTTS Oui x Over 2.5 &lt;1.904 → Over 0.5 auto 100% (34 matchs)<br>
+• BTTS Non x Under 2.5 &lt;2.141 → Under 2.5 auto 100% (7 matchs)<br>
+• BTTS Non x Under 2.5 &lt;2.411 → Under 4.5 auto 100% (12 matchs)<br>
+• BTTS Non x Over 2.5 &lt;2.686 → Over 0.5 auto 100% (40 matchs)<br>
+• X+Under combiné → 267 matchs perdants si tu laisses le combiné
+</div>
+
+<div class="box">
+<input type="file" id="f" accept=".json" style="display:none">
+<button class="btn" onclick="document.getElementById('f').click()">📂 UPLOAD BASE_2.json - VOIR BLOCAGES</button>
+<div id="log" style="font-size:11px;margin-top:6px;color:#8aa0bd">91 blocages sur 67 matchs</div>
+</div>
+
+<div class="box" id="stats" style="display: block; font-size: 11px;">
+<div style="display:flex;gap:14px;flex-wrap:wrap">
+<div>Matchs: <b id="t">67</b></div>
+<div style="color:#10b981">Over0.5 auto: <b id="cOver05">16</b></div>
+<div style="color:#ef4444">Under2.5 auto: <b id="cUnder25">4</b></div>
+<div style="color:#f59e0b">Under4.5 auto: <b id="cUnder45">7</b></div>
+<div style="color:#ff4444">X+Under perdant: <b id="cXU">64</b></div>
+</div>
+</div>
+
+<div class="wrap">
+<table>
+<thead>
+<tr>
+<th>Match</th>
+<th>λ1/λ2</th>
+<th>BTTS_O*O25</th>
+<th>BTTS_N*U25</th>
+<th>BTTS_N*O25</th>
+<th>Auto Over0.5?</th>
+<th>Auto Under2.5?</th>
+<th>Auto Under4.5?</th>
+<th>X+Under ?</th>
+<th>À BLOQUER SIMPLE</th>
+<th>À BLOQUER COMBINÉ</th>
+</tr>
+</thead>
+<tbody id="tbody"><tr><td><b>Brisbane Roar FC - Auckland FC</b></td>
+<td>1.23/1.25</td>
+<td class="">2.65</td>
+<td class="">3.38</td>
+<td>3.26</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 5.63 vs fair 4.19 edge +19.93603246115012%</td></tr><tr><td><b>Abha - Al-Ittihad FC</b></td>
+<td>0.97/1.90</td>
+<td class="">2.17</td>
+<td class="">4.12</td>
+<td>2.80</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 9.03 vs fair 5.55 edge +45.19762428590155%</td></tr><tr><td><b>PFK Turan Tovuz - Sabah</b></td>
+<td>1.07/1.43</td>
+<td class="">2.69</td>
+<td class="">3.27</td>
+<td>3.16</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 5.81 vs fair 4.29 edge +20.829120318281745%</td></tr><tr><td><b>Diriyah Club - Neom</b></td>
+<td>1.24/1.24</td>
+<td class="">2.72</td>
+<td class="">3.31</td>
+<td>3.27</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 5.83 vs fair 4.21 edge +23.75514391725386%</td></tr><tr class="orange"><td><b>FC CSKA 1948 - Spartak Varna</b></td>
+<td>1.89/0.77</td>
+<td class="">2.81</td>
+<td class="">3.15</td>
+<td>2.62</td>
+<td><span class="badge badge-green">AUTO 100%</span></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 7.98 vs fair 5.20 edge +37.12544480655784%</td></tr><tr><td><b>FK Arsenal Dzerzhinsk - BATE Borisov</b></td>
+<td>1.01/1.22</td>
+<td class="">3.34</td>
+<td class="">2.68</td>
+<td>3.30</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 4.76 vs fair 3.73 edge +13.86747221773561%</td></tr><tr class="orange"><td><b>Shakhtar Donetsk - Obolon Kiev</b></td>
+<td>2.33/0.42</td>
+<td class="">4.05</td>
+<td class="">2.54</td>
+<td>1.91</td>
+<td><span class="badge badge-green">AUTO 100%</span></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 13.50 vs fair 7.05 edge +70.86737750823325%</td></tr><tr class="red"><td><b>ASO Chlef - ES Sétif</b></td>
+<td>1.00/0.85</td>
+<td class="">5.00</td>
+<td class="red">1.93</td>
+<td>3.67</td>
+<td></td>
+<td><span class="badge badge-red">AUTO 100%</span></td>
+<td><span class="badge badge-red">AUTO 100%</span></td>
+<td></td>
+<td style="color:#fbbf24;font-size:9px">Under2.5 @1.27 + Over2.5 @2.40 mini<br>Under4.5 auto → Over4.5 @3.0 mini</td>
+<td style="color:#ff6b6b;font-size:9px"></td></tr><tr class="orange"><td><b>JS Kabylie - JS El Biar</b></td>
+<td>0.10/1.61</td>
+<td class="">3.72</td>
+<td class="red">2.40</td>
+<td>2.79</td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">AUTO 100%</span></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px">Under4.5 auto → Over4.5 @3.0 mini</td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 6.08 vs fair 4.25 edge +27.822265859094152%</td></tr><tr><td><b>Slaven Belupo - Istra 1961</b></td>
+<td>1.51/1.33</td>
+<td class="">2.06</td>
+<td class="">4.40</td>
+<td>3.23</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 6.80 vs fair 5.08 edge +19.60778262098708%</td></tr><tr><td><b>KS Cracovie - Motor Lublin</b></td>
+<td>1.45/1.25</td>
+<td class="">2.25</td>
+<td class="">3.84</td>
+<td>3.08</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 6.34 vs fair 4.72 edge +19.756469949284906%</td></tr><tr><td><b>Konyaspor - Galatasaray</b></td>
+<td>0.91/1.85</td>
+<td class="">2.40</td>
+<td class="">3.72</td>
+<td>2.79</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 8.40 vs fair 5.26 edge +42.57124003824742%</td></tr><tr><td><b>Karmiotissa - Olympiakos Nicosia</b></td>
+<td>1.11/1.36</td>
+<td class="">2.69</td>
+<td class="">3.27</td>
+<td>3.16</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 5.90 vs fair 4.21 edge +25.080235139626716%</td></tr><tr><td><b>Lokomotiv Sofia - Botev Plovdiv</b></td>
+<td>1.20/1.37</td>
+<td class="">2.49</td>
+<td class="">3.57</td>
+<td>3.21</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 5.92 vs fair 4.41 edge +19.83439985919704%</td></tr><tr><td><b>Arminia Bielefeld - Eintracht Brunswick</b></td>
+<td>1.56/1.07</td>
+<td class="">2.37</td>
+<td class="">3.72</td>
+<td>3.06</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 6.55 vs fair 4.65 edge +25.870021512588504%</td></tr><tr class="orange"><td><b>Energie Cottbus - Bochum</b></td>
+<td>1.44/1.56</td>
+<td class="red">1.88</td>
+<td class="">5.29</td>
+<td>3.27</td>
+<td><span class="badge badge-green">AUTO 100%</span></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px">Over0.5 @1.01 limite 5€ + Under0.5 @100 ouvert</td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 7.88 vs fair 5.52 edge +27.302790492790628%</td></tr><tr class="red"><td><b>Marumo Gallants - Siwelele</b></td>
+<td>1.01/0.86</td>
+<td class="">4.70</td>
+<td class="red">1.97</td>
+<td>3.48</td>
+<td></td>
+<td><span class="badge badge-red">AUTO 100%</span></td>
+<td><span class="badge badge-red">AUTO 100%</span></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px">Under2.5 @1.27 + Over2.5 @2.40 mini<br>Under4.5 auto → Over4.5 @3.0 mini</td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 3.86 vs fair 3.10 edge +10.952510021920038%</td></tr><tr class="orange"><td><b>Bodø/Glimt - Viking</b></td>
+<td>2.15/1.25</td>
+<td class="red">1.61</td>
+<td class="">7.13</td>
+<td>3.08</td>
+<td><span class="badge badge-green">AUTO 100%</span></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px">Over0.5 @1.01 limite 5€ + Under0.5 @100 ouvert</td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 12.25 vs fair 7.24 edge +51.17128854350741%</td></tr><tr><td><b>Lyngby - Randers</b></td>
+<td>1.52/1.28</td>
+<td class="">2.10</td>
+<td class="">4.20</td>
+<td>3.11</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 6.90 vs fair 4.97 edge +23.863447105888945%</td></tr><tr class="orange"><td><b>Le Havre - Paris SG</b></td>
+<td>0.85/0.10</td>
+<td class="">2.02</td>
+<td class="">4.84</td>
+<td>2.38</td>
+<td><span class="badge badge-green">AUTO 100%</span></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 16.25 vs fair 2.13 edge +581.2562070329326%</td></tr><tr><td><b>Nice - Rennes</b></td>
+<td>1.40/1.50</td>
+<td class="">2.00</td>
+<td class="">4.73</td>
+<td>3.24</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 7.77 vs fair 5.22 edge +32.776118451856306%</td></tr><tr><td><b>Al Shabab - Al Ahli SC</b></td>
+<td>0.10/1.16</td>
+<td class="">2.00</td>
+<td class="">4.62</td>
+<td>2.96</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 8.58 vs fair 2.82 edge +172.10950764558154%</td></tr><tr><td><b>Grazer AK - TSV Hartberg</b></td>
+<td>1.36/1.10</td>
+<td class="">2.78</td>
+<td class="">3.20</td>
+<td>3.24</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 5.50 vs fair 4.19 edge +17.300151545123633%</td></tr><tr class="orange"><td><b>Rapid Bucarest - Csíkszereda Miercurea Ciuc</b></td>
+<td>2.12/0.70</td>
+<td class="">2.69</td>
+<td class="">3.24</td>
+<td>2.37</td>
+<td><span class="badge badge-green">AUTO 100%</span></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 10.40 vs fair 6.04 edge +53.78312791368991%</td></tr><tr><td><b>Grenoble - Dijon</b></td>
+<td>1.08/1.28</td>
+<td class="">2.95</td>
+<td class="">2.98</td>
+<td>3.28</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 5.17 vs fair 3.96 edge +16.5782373164012%</td></tr><tr><td><b>Laval - US Boulogne</b></td>
+<td>1.19/1.05</td>
+<td class="">3.34</td>
+<td class="">2.65</td>
+<td>3.30</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 4.85 vs fair 3.73 edge +16.04551886899501%</td></tr><tr><td><b>Metz - Pau</b></td>
+<td>1.44/1.11</td>
+<td class="">2.59</td>
+<td class="">3.46</td>
+<td>3.19</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 6.12 vs fair 4.39 edge +24.59688050818094%</td></tr><tr><td><b>Nantes - Clermont</b></td>
+<td>1.74/0.76</td>
+<td class="">3.09</td>
+<td class="">2.88</td>
+<td>2.72</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 7.48 vs fair 4.67 edge +43.001691795017024%</td></tr><tr><td><b>Rodez - Dunkerque</b></td>
+<td>1.56/1.25</td>
+<td class="">2.09</td>
+<td class="">4.20</td>
+<td>3.09</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 7.20 vs fair 5.03 edge +27.722074068543833%</td></tr><tr class="red"><td><b>MC Oran - Olympique Akbou</b></td>
+<td>1.23/0.71</td>
+<td class="">4.94</td>
+<td class="red">1.94</td>
+<td>3.38</td>
+<td></td>
+<td><span class="badge badge-red">AUTO 100%</span></td>
+<td><span class="badge badge-red">AUTO 100%</span></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px">Under2.5 @1.27 + Over2.5 @2.40 mini<br>Under4.5 auto → Over4.5 @3.0 mini</td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 3.98 vs fair 3.32 edge +7.243617716774753%</td></tr><tr><td><b>Górnik Zabrze - Legia Varsovie</b></td>
+<td>1.40/1.01</td>
+<td class="">2.95</td>
+<td class="">3.02</td>
+<td>3.20</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 5.46 vs fair 4.11 edge +18.70061148199944%</td></tr><tr class="orange"><td><b>SV Elversberg - Mayence</b></td>
+<td>1.39/1.67</td>
+<td class="red">1.84</td>
+<td class="">5.29</td>
+<td>3.22</td>
+<td><span class="badge badge-green">AUTO 100%</span></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px">Over0.5 @1.01 limite 5€ + Under0.5 @100 ouvert</td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 8.33 vs fair 5.72 edge +29.959251480543724%</td></tr><tr><td><b>Drogheda - Galway United</b></td>
+<td>1.40/1.20</td>
+<td class="">2.40</td>
+<td class="">3.72</td>
+<td>3.20</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 6.23 vs fair 4.48 edge +24.31259276078992%</td></tr><tr><td><b>Dundalk - Shamrock Rovers</b></td>
+<td>1.20/1.56</td>
+<td class="">2.16</td>
+<td class="">4.20</td>
+<td>3.15</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 6.90 vs fair 4.92 edge +25.1490003493436%</td></tr><tr><td><b>Shelbourne - Waterford</b></td>
+<td>1.64/1.28</td>
+<td class="">1.96</td>
+<td class="">4.73</td>
+<td>3.17</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 7.46 vs fair 5.31 edge +25.257559916581563%</td></tr><tr><td><b>Sligo Rovers - Derry City</b></td>
+<td>0.94/1.77</td>
+<td class="">2.43</td>
+<td class="">3.65</td>
+<td>2.83</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 7.84 vs fair 5.03 edge +39.20721447543691%</td></tr><tr><td><b>St Patrick's - Bohemians</b></td>
+<td>1.43/1.10</td>
+<td class="">2.65</td>
+<td class="">3.38</td>
+<td>3.19</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 5.96 vs fair 4.35 edge +22.368246480011543%</td></tr><tr><td><b>Coleraine - Glentoran</b></td>
+<td>1.67/0.97</td>
+<td class="">2.50</td>
+<td class="">3.53</td>
+<td>2.90</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 7.13 vs fair 4.77 edge +33.400411959433974%</td></tr><tr class="orange"><td><b>Larne - Portadown</b></td>
+<td>2.18/0.70</td>
+<td class="">2.63</td>
+<td class="">3.40</td>
+<td>2.32</td>
+<td><span class="badge badge-green">AUTO 100%</span></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 11.13 vs fair 6.28 edge +58.136841659185244%</td></tr><tr class="orange"><td><b>Zulte Waregem - Club Bruges</b></td>
+<td>0.97/2.12</td>
+<td class="">1.98</td>
+<td class="">4.70</td>
+<td>2.66</td>
+<td><span class="badge badge-green">AUTO 100%</span></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 10.81 vs fair 6.43 edge +50.17739050929144%</td></tr><tr><td><b>Airbus UK Broughton - Caernarfon Town</b></td>
+<td>1.25/1.61</td>
+<td class="">2.06</td>
+<td class="">4.62</td>
+<td>3.21</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 7.14 vs fair 5.16 edge +23.464358990311652%</td></tr><tr class="orange"><td><b>Ammanford - Haverfordwest County</b></td>
+<td>0.67/1.90</td>
+<td class="">3.21</td>
+<td class="">2.80</td>
+<td>2.46</td>
+<td><span class="badge badge-green">AUTO 100%</span></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 8.65 vs fair 5.14 edge +50.26343856422359%</td></tr><tr class="orange"><td><b>Barry Town United - Trefelin</b></td>
+<td>2.05/0.90</td>
+<td class="">2.23</td>
+<td class="">4.09</td>
+<td>2.62</td>
+<td><span class="badge badge-green">AUTO 100%</span></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 9.68 vs fair 6.00 edge +44.13475582733666%</td></tr><tr><td><b>Briton Ferry Llansawel - Llandudno</b></td>
+<td>1.46/1.24</td>
+<td class="">2.26</td>
+<td class="">3.88</td>
+<td>3.08</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 6.50 vs fair 4.74 edge +22.50819771441939%</td></tr><tr class="orange"><td><b>Colwyn Bay - Cambrian United</b></td>
+<td>1.95/0.90</td>
+<td class="">2.28</td>
+<td class="">3.91</td>
+<td>2.68</td>
+<td><span class="badge badge-green">AUTO 100%</span></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 9.03 vs fair 5.59 edge +44.15898636473816%</td></tr><tr class="orange"><td><b>Flint Town United - Holywell Town</b></td>
+<td>2.15/0.97</td>
+<td class="">1.98</td>
+<td class="">4.70</td>
+<td>2.66</td>
+<td><span class="badge badge-green">AUTO 100%</span></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 10.81 vs fair 6.55 edge +47.347749632907934%</td></tr><tr><td><b>Sheffield United - Wrexham</b></td>
+<td>1.25/1.16</td>
+<td class="">2.78</td>
+<td class="">3.16</td>
+<td>3.24</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 5.61 vs fair 4.06 edge +23.469411526569715%</td></tr><tr class="orange"><td><b>Villarreal - Espanyol Barcelone</b></td>
+<td>2.08/0.86</td>
+<td class="">2.20</td>
+<td class="">4.19</td>
+<td>2.59</td>
+<td><span class="badge badge-green">AUTO 100%</span></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 11.03 vs fair 6.07 edge +62.20130341388024%</td></tr><tr><td><b>Les Marseillaises (F) - FC Nantes (F)</b></td>
+<td>1.77/1.04</td>
+<td class="">2.21</td>
+<td class="">4.00</td>
+<td>2.94</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 7.50 vs fair 5.22 edge +28.2587882659592%</td></tr><tr class="orange"><td><b>Difaa El Jadida - Union Touarga</b></td>
+<td>1.05/0.94</td>
+<td class="">4.32</td>
+<td class="red">2.15</td>
+<td>3.51</td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">AUTO 100%</span></td>
+<td></td>
+<td style="color:#fbbf24;font-size:9px">Under4.5 auto → Over4.5 @3.0 mini</td>
+<td style="color:#ff6b6b;font-size:9px"></td></tr><tr><td><b>Lille - Lens</b></td>
+<td>1.25/1.31</td>
+<td class="">2.49</td>
+<td class="">3.60</td>
+<td>3.25</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 6.19 vs fair 4.38 edge +26.24011004244411%</td></tr><tr class="orange"><td><b>Casa Pia AC - Sporting Portugal</b></td>
+<td>0.72/2.08</td>
+<td class="">2.68</td>
+<td class="">3.24</td>
+<td>2.38</td>
+<td><span class="badge badge-green">AUTO 100%</span></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 10.60 vs fair 5.88 edge +60.842026339613355%</td></tr><tr><td><b>Deportivo Pereira - Jaguares</b></td>
+<td>1.28/1.11</td>
+<td class="">2.85</td>
+<td class="">3.09</td>
+<td>3.24</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 5.29 vs fair 4.01 edge +17.70463120352803%</td></tr><tr class="orange"><td><b>Colo Colo - Universidad de Concepción</b></td>
+<td>2.29/0.83</td>
+<td class="">2.14</td>
+<td class="">4.46</td>
+<td>2.40</td>
+<td><span class="badge badge-green">AUTO 100%</span></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 12.99 vs fair 6.93 edge +67.18994880356428%</td></tr><tr><td><b>Coquimbo Unido - Unión La Calera</b></td>
+<td>1.61/0.85</td>
+<td class="">3.06</td>
+<td class="">2.92</td>
+<td>2.96</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 6.28 vs fair 4.40 edge +27.275260116062494%</td></tr><tr class="orange"><td><b>Estudiantes Río Cuarto - Gimnasia La Plata</b></td>
+<td>0.80/1.28</td>
+<td class="">4.07</td>
+<td class="red">2.22</td>
+<td>3.23</td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">AUTO 100%</span></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px">Under4.5 auto → Over4.5 @3.0 mini</td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 4.46 vs fair 3.52 edge +13.072543412501837%</td></tr><tr class="red"><td><b>Huracan - Tigre</b></td>
+<td>1.06/0.83</td>
+<td class="">4.90</td>
+<td class="red">1.94</td>
+<td>3.60</td>
+<td></td>
+<td><span class="badge badge-red">AUTO 100%</span></td>
+<td><span class="badge badge-red">AUTO 100%</span></td>
+<td></td>
+<td style="color:#fbbf24;font-size:9px">Under2.5 @1.27 + Over2.5 @2.40 mini<br>Under4.5 auto → Over4.5 @3.0 mini</td>
+<td style="color:#ff6b6b;font-size:9px"></td></tr><tr><td><b>Sportivo Trinidense - Club Rubio Ñu</b></td>
+<td>1.45/0.94</td>
+<td class="">3.06</td>
+<td class="">2.92</td>
+<td>3.17</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 5.39 vs fair 4.11 edge +17.110914757200813%</td></tr><tr><td><b>Guarani Asuncion - 2 de Mayo</b></td>
+<td>1.32/0.94</td>
+<td class="">3.34</td>
+<td class="">2.65</td>
+<td>3.23</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 4.91 vs fair 3.83 edge +14.523985067232047%</td></tr><tr><td><b>Corinthians - Mirassol</b></td>
+<td>1.46/0.90</td>
+<td class="">3.10</td>
+<td class="">2.89</td>
+<td>3.13</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 5.48 vs fair 4.10 edge +19.310010217674424%</td></tr><tr><td><b>Racing Club - Aldosivi</b></td>
+<td>1.52/0.80</td>
+<td class="">3.31</td>
+<td class="">2.69</td>
+<td>2.98</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 5.66 vs fair 4.10 edge +23.16226250184805%</td></tr><tr><td><b>Sarmiento - Rosario Central</b></td>
+<td>0.90/1.37</td>
+<td class="">3.34</td>
+<td class="">2.69</td>
+<td>3.23</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 4.90 vs fair 3.87 edge +12.898228335645934%</td></tr><tr><td><b>Atletico San Luis - Atlas</b></td>
+<td>1.31/1.33</td>
+<td class="">2.38</td>
+<td class="">3.72</td>
+<td>3.20</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 6.23 vs fair 4.56 edge +21.892396630052268%</td></tr><tr><td><b>FC Juarez - Querétaro</b></td>
+<td>1.16/1.35</td>
+<td class="">2.65</td>
+<td class="">3.34</td>
+<td>3.23</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 5.81 vs fair 4.28 edge +21.112271186944852%</td></tr><tr><td><b>Bucaramanga - Pasto</b></td>
+<td>1.52/0.82</td>
+<td class="">3.35</td>
+<td class="">2.66</td>
+<td>3.02</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 5.67 vs fair 4.13 edge +22.676695237149236%</td></tr><tr><td><b>Puebla - U.N.A.M.</b></td>
+<td>1.14/1.44</td>
+<td class="">2.53</td>
+<td class="">3.57</td>
+<td>3.21</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 6.01 vs fair 4.45 edge +20.579056765458393%</td></tr><tr><td><b>Newcastle Jets - Wellington Phoenix FC</b></td>
+<td>1.64/1.25</td>
+<td class="">1.99</td>
+<td class="">4.62</td>
+<td>3.12</td>
+<td></td>
+<td></td>
+<td></td>
+<td><span class="badge badge-red">PERDANT</span></td>
+<td style="color:#fbbf24;font-size:9px"></td>
+<td style="color:#ff6b6b;font-size:9px">X+Under 7.67 vs fair 5.24 edge +30.53754381042415%</td></tr></tbody>
+</table>
+</div>
+
+<script>
+function parseFile(file, cb){
+  let r=new FileReader();
+  r.onload=e=>{
+    let txt=e.target.result;
+    let objs=[];
+    try{
+      let j=JSON.parse(txt);
+      if(Array.isArray(j)) objs=j; else objs=[j];
+    }catch(err){
+      let d=0,s=-1,ins=false,esc=false;
+      for(let i=0;i<txt.length;i++){
+        let ch=txt[i];
+        if(ins){ if(esc) esc=false; else if(ch=='\\') esc=true; else if(ch=='"') ins=false; continue; }
+        if(ch=='"'){ins=true;continue;}
+        if(ch=='{'){ if(d===0) s=i; d++; }
+        else if(ch=='}'){ d--; if(d===0&&s!==-1){ try{ objs.push(JSON.parse(txt.slice(s,i+1))); }catch(e){} s=-1; } }
+      }
+    }
+    cb(objs);
+  };
+  r.readAsText(file);
+}
+
+function pmf(lam,k){if(lam<=0)return k===0?1:0;let f=1;for(let i=2;i<=k;i++)f*=i;return Math.pow(lam,k)/f*Math.exp(-lam)}
+function prob(lam1,lam2,fn){let p=0,t=0;for(let i=0;i<=7;i++)for(let j=0;j<=7;j++){let q=pmf(lam1,i)*pmf(lam2,j);t+=q;if(fn(i,j))p+=q}return t?p/t:0}
+
+document.getElementById('f').addEventListener('change', e=>{
+  let file=e.target.files[0];
+  if(!file) return;
+  document.getElementById('log').textContent='Lecture '+file.name+'...';
+  parseFile(file, objs=>{
+    let tbody=document.getElementById('tbody'); tbody.innerHTML='';
+    let cOver05=0,cUnder25=0,cUnder45=0,cXU=0;
+    objs.forEach(o=>{
+      try{
+        let lam1=parseFloat(o.poisson_but_equipe_1||o.pure_xE1||0);
+        let lam2=parseFloat(o.poisson_but_equipe_2||o.pure_xE2||0);
+        let btts_oui=parseFloat(o.btts_oui||o.bo||0);
+        let btts_non=parseFloat(o.btts_non||o.bn||0);
+        let over25=parseFloat(o.cote_over_25||o.over_2_5||0);
+        let under25=parseFloat(o.cote_under_25||o.under_2_5||0);
+        let cx=parseFloat(o.cote_cx||o.cx||0);
+        if(!btts_oui||!btts_non||!over25||!under25) return;
+
+        let prod_oui_over=btts_oui*over25;
+        let prod_non_under=btts_non*under25;
+        let prod_non_over=btts_non*over25;
+        let prod_oui_under=btts_oui*under25;
+
+        let autoOver05=false, autoUnder25=false, autoUnder45=false;
+        let simple=[], combine=[];
+
+        if(prod_oui_over<1.904){ autoOver05=true; cOver05++; simple.push("Over0.5 @1.01 limite 5€ + Under0.5 @100 ouvert"); }
+        if(prod_non_under<2.141){ autoUnder25=true; cUnder25++; simple.push("Under2.5 @1.27 + Over2.5 @2.40 mini"); }
+        if(prod_non_under<2.411){ autoUnder45=true; cUnder45++; simple.push("Under4.5 auto → Over4.5 @3.0 mini"); }
+        if(prod_non_over<2.686){ autoOver05=true; cOver05++; }
+        if(prod_oui_under<2.675){ autoUnder45=true; }
+
+        // X+Under
+        let p_x_under=prob(lam1,lam2,(i,j)=>i==j&&i+j<=2);
+        let cote_comb=cx*under25;
+        let fair=p_x_under>0?1/(p_x_under*1.12):999;
+        let isPerdant=cote_comb>fair*1.2;
+        if(isPerdant){ cXU++; combine.push(`X+Under ${cote_comb.toFixed(2)} vs fair ${fair.toFixed(2)} edge +${(p_x_under*cote_comb-1)*100>0?(p_x_under*cote_comb-1)*100:0|0}%`); }
+
+        if(simple.length===0 && combine.length===0) return;
+
+        let tr=document.createElement('tr');
+        if(autoOver05||autoUnder45) tr.className='orange';
+        if(autoUnder25) tr.className='red';
+        tr.innerHTML=`<td><b>${o.nom_match||o.nom||''}</b></td>
+<td>${lam1.toFixed(2)}/${lam2.toFixed(2)}</td>
+<td class="${prod_oui_over<1.904?'red':''}">${prod_oui_over.toFixed(2)}</td>
+<td class="${prod_non_under<2.411?'red':''}">${prod_non_under.toFixed(2)}</td>
+<td>${prod_non_over.toFixed(2)}</td>
+<td>${autoOver05?'<span class="badge badge-green">AUTO 100%</span>':''}</td>
+<td>${autoUnder25?'<span class="badge badge-red">AUTO 100%</span>':''}</td>
+<td>${autoUnder45?'<span class="badge badge-red">AUTO 100%</span>':''}</td>
+<td>${isPerdant?'<span class="badge badge-red">PERDANT</span>':''}</td>
+<td style="color:#fbbf24;font-size:9px">${simple.join('<br>')}</td>
+<td style="color:#ff6b6b;font-size:9px">${combine.join('<br>')}</td>`;
+        tbody.appendChild(tr);
+      }catch(err){}
+    });
+    document.getElementById('stats').style.display='block';
+    document.getElementById('t').textContent=objs.length;
+    document.getElementById('cOver05').textContent=cOver05;
+    document.getElementById('cUnder25').textContent=cUnder25;
+    document.getElementById('cUnder45').textContent=cUnder45;
+    document.getElementById('cXU').textContent=cXU;
+    document.getElementById('log').textContent=cOver05+cUnder25+cUnder45+cXU+' blocages sur '+objs.length+' matchs';
+  });
+});
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script>
+
+</body></html>
