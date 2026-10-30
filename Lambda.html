@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Règles Atao1 – Matchs impliqués</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--txt:#14181f;--mut:#6b7280;--line:#e3e6eb;--acc:#1f6feb;--ov:#0f7b4a;--ovbg:#e3f5ec;--un:#b4411b;--unbg:#fdeae1;--bt:#6a3fb5;--btbg:#efe8fb}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1217;--card:#181c24;--txt:#e8ebf0;--mut:#9aa3b2;--line:#2a303b;--acc:#58a6ff;--ov:#4cd08a;--ovbg:#14301f;--un:#ff9a73;--unbg:#3a2018;--bt:#c4a6ff;--btbg:#2a2040}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--txt);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:16px;padding-top:max(16px,env(safe-area-inset-top))}
+.wrap{max-width:820px;margin:0 auto}
+h1{font-size:19px;margin:0 0 12px}
+.drop{background:var(--card);border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center}
+.drop.over{border-color:var(--acc)}
+.drop label{display:inline-block;background:var(--acc);color:#fff;padding:9px 16px;border-radius:8px;cursor:pointer;font-weight:600}
+.drop input{display:none}
+.drop small{display:block;color:var(--mut);margin-top:8px}
+#info{margin:14px 0 8px;color:var(--mut);font-size:13px}
+#err{color:var(--un);margin-top:10px;font-size:14px}
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:420px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line)}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut);background:var(--card);position:sticky;top:0}
+tr:last-child td{border-bottom:0}
+td.h{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--mut)}
+td.n{font-weight:600}
+.tag{display:inline-block;padding:3px 9px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap}
+.tag.ov{color:var(--ov);background:var(--ovbg)}
+.tag.un{color:var(--un);background:var(--unbg)}
+.tag.bt{color:var(--bt);background:var(--btbg)}
+.flt{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.flt label{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:4px}
+.flt input[type=text],.flt input[type=time]{font:inherit;color:var(--txt);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}
+.flt input[type=text]{width:190px;max-width:100%}
+.flt input[type=time]{width:112px}
+.chk{flex-direction:row!important;align-items:center;gap:6px!important;font-size:14px!important;color:var(--txt)!important;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);cursor:pointer}
+.chk input{accent-color:var(--acc)}
+.rst{font:inherit;font-size:13px;color:var(--acc);background:none;border:1px solid var(--line);border-radius:8px;padding:7px 10px;cursor:pointer}
+.empty{padding:20px;text-align:center;color:var(--mut)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Règles Atao1 – matchs impliqués</h1>
+<div class="drop" id="drop">
+<label>Choisir le fichier JSON<input type="file" id="f" accept=".json,.jsonl,.txt,application/json"></label>
+<small>ou glisse-le ici (tableau JSON ou un objet par ligne)</small>
+<div id="err"></div>
+</div>
+<div id="info"></div>
+<div class="flt" id="flt" hidden>
+<label>Nom du match<input type="text" id="fn" placeholder="ex : Paris, Bochum…"></label>
+<label>Heure de<input type="time" id="fh1"></label>
+<label>à<input type="time" id="fh2"></label>
+<label class="chk"><input type="checkbox" id="fo" checked>Over</label>
+<label class="chk"><input type="checkbox" id="fu" checked>Under</label>
+<button class="rst" id="rst" type="button">Réinitialiser</button>
+</div>
+<div class="tw" id="tw" hidden>
+<table>
+<thead><tr><th>Match</th><th>Heure</th><th>Implication</th></tr></thead>
+<tbody id="tb"></tbody>
+</table>
+</div>
+</div>
+<script>
+// Règles : [id, BTTS, marché, côté, seuil produit, borne basse (buts min), borne haute (buts max)]
+var RULES=[
+ ['R1','oui','2.5','over',1.904,1,null],
+ ['R2','oui','2.5','over',1.796,2,null],
+ ['R3','oui','2.5','over',1.598,1,4],
+ ['R4','non','2.5','under',2.141,null,2],
+ ['R5','non','2.5','under',2.411,null,4],
+ ['R6','oui','2.5','under',2.675,null,3],
+ ['R7','non','2.5','over',2.686,1,null],
+ ['R8','non','2.5','over',2.439,2,null],
+ ['R9','oui','1.5','over',1.534,1,null]
+];
+
+function parseInput(txt){
+  txt=txt.replace(/^\uFEFF/,'').trim();
+  try{
+    var d=JSON.parse(txt);
+    if(Array.isArray(d))return d;
+    if(d&&typeof d==='object'){
+      for(var k in d){if(Array.isArray(d[k])&&d[k].length&&d[k][0].nom_match)return d[k];}
+      return [d];
+    }
+  }catch(e){}
+  var out=[];
+  txt.split(/\r?\n/).forEach(function(l){l=l.trim();if(!l)return;try{out.push(JSON.parse(l));}catch(e){}});
+  return out;
+}
+
+function evalMatch(r){
+  var brut=r.marches_buts_match_brut||{};
+  var lo=null,hi=null,n=0;
+  RULES.forEach(function(R){
+    var b=R[1]==='oui'?r.btts_oui:r.btts_non;
+    var m=brut[R[2]]&&brut[R[2]][R[3]];
+    if(b==null||m==null)return;
+    var p=Math.round(b*m*1000)/1000;
+    if(p<R[4]){
+      n++;
+      if(R[5]!=null)lo=lo==null?R[5]:Math.max(lo,R[5]);
+      if(R[6]!=null)hi=hi==null?R[6]:Math.min(hi,R[6]);
+    }
+  });
+  if(!n)return null;
+  return {lo:lo,hi:hi};
+}
+
+function label(x){
+  var s=function(n){return n>1?'buts':'but';};
+  if(x.lo!=null&&x.hi!=null){
+    if(x.lo>x.hi)return {t:'Conflit de règles',c:'bt'};
+    if(x.lo===x.hi)return {t:'Exactement '+x.lo+' '+s(x.lo),c:'bt'};
+    return {t:x.lo+' à '+x.hi+' buts',c:'bt'};
+  }
+  if(x.lo!=null)return {t:'≥ '+x.lo+' '+s(x.lo)+' (Over '+(x.lo-0.5)+')',c:'ov'};
+  return {t:'≤ '+x.hi+' buts (Under '+(x.hi+0.5)+')',c:'un'};
+}
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+var HITS=[],TOTAL=0;
+
+function norm(x){return String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
+
+function render(rows){
+  HITS=[];TOTAL=rows.length;
+  rows.forEach(function(r){
+    if(!r||!r.nom_match)return;
+    var e=evalMatch(r);
+    if(e)HITS.push({r:r,e:e});
+  });
+  HITS.sort(function(a,b){return String(a.r.date_heure||'').localeCompare(String(b.r.date_heure||''));});
+  document.getElementById('flt').hidden=false;
+  document.getElementById('tw').hidden=false;
+  draw();
+}
+
+function draw(){
+  var q=norm(document.getElementById('fn').value.trim());
+  var h1=document.getElementById('fh1').value,h2=document.getElementById('fh2').value;
+  var wo=document.getElementById('fo').checked,wu=document.getElementById('fu').checked;
+  var list=HITS.filter(function(h){
+    var r=h.r,e=h.e;
+    if(q&&norm(r.nom_match).indexOf(q)<0)return false;
+    var hr=String(r.heure||'');
+    if(h1&&hr<h1)return false;
+    if(h2&&hr>h2)return false;
+    var isO=e.lo!=null,isU=e.hi!=null;
+    if(!((wo&&isO)||(wu&&isU)))return false;
+    return true;
+  });
+  var tb=document.getElementById('tb');
+  tb.innerHTML='';
+  var multi=new Set(HITS.map(function(h){return h.r.date;})).size>1;
+  list.forEach(function(h){
+    var L=label(h.e);
+    var tr=document.createElement('tr');
+    var d=multi&&h.r.date?(h.r.date.slice(8,10)+'/'+h.r.date.slice(5,7)+' '):'';
+    tr.innerHTML='<td class="n">'+esc(h.r.nom_match)+'</td><td class="h">'+esc(d+(h.r.heure||''))+'</td><td><span class="tag '+L.c+'">'+esc(L.t)+'</span></td>';
+    tb.appendChild(tr);
+  });
+  if(!list.length){tb.innerHTML='<tr><td colspan="3" class="empty">Aucun match à afficher avec ces filtres.</td></tr>';}
+  document.getElementById('info').textContent=list.length+' affiché'+(list.length>1?'s':'')+' sur '+HITS.length+' impliqué'+(HITS.length>1?'s':'')+' ('+TOTAL+' matchs dans le fichier).';
+}
+
+function load(file){
+  var err=document.getElementById('err');err.textContent='';
+  if(!file)return;
+  var fr=new FileReader();
+  fr.onload=function(){
+    try{
+      var rows=parseInput(String(fr.result));
+      if(!rows.length){err.textContent='Aucun match lisible dans ce fichier.';return;}
+      render(rows);
+    }catch(e){err.textContent='Erreur de lecture : '+e.message;}
+  };
+  fr.onerror=function(){err.textContent='Impossible de lire le fichier.';};
+  fr.readAsText(file,'utf-8');
+}
+var inp=document.getElementById('f'),dz=document.getElementById('drop');
+inp.addEventListener('change',function(){load(inp.files[0]);});
+['dragenter','dragover'].forEach(function(ev){dz.addEventListener(ev,function(e){e.preventDefault();dz.classList.add('over');});});
+['dragleave','drop'].forEach(function(ev){dz.addEventListener(ev,function(e){e.preventDefault();dz.classList.remove('over');});});
+dz.addEventListener('drop',function(e){load(e.dataTransfer.files[0]);});
+['fn','fh1','fh2','fo','fu'].forEach(function(id){
+  var el=document.getElementById(id);
+  el.addEventListener('input',draw);el.addEventListener('change',draw);
+});
+document.getElementById('rst').addEventListener('click',function(){
+  document.getElementById('fn').value='';
+  document.getElementById('fh1').value='';
+  document.getElementById('fh2').value='';
+  document.getElementById('fo').checked=true;
+  document.getElementById('fu').checked=true;
+  draw();
+});
+</script>
+</body>
+</html>
