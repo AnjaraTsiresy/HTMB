@@ -202,19 +202,26 @@ document.querySelectorAll('.chip').forEach(ch=>{
 });
 document.getElementById('search').addEventListener('input',apply);
 document.getElementById('probRange').addEventListener('input',e=>{ document.getElementById('probVal').textContent=e.target.value+"%"; apply(); });
+function expRows(){
+ if(!allData.length){ alert("Charge un JSON"); return null; }
+ if(!filtered.length){ alert("Aucun match avec les filtres actuels : rien à exporter"); return null; }
+ return filtered;
+}
+function fTag(){ let t=[]; if(active!=="all") t.push(active); let q=document.getElementById('search').value.trim(); if(q) t.push('"'+q+'"'); let m=document.getElementById('probRange').value; if(m>0) t.push('P>='+m+'%'); return t.length?t.join(' '):'Tous'; }
+function fSuffix(){ return active!=="all"?"_"+active:""; }
 function dl(name,text){ let b=new Blob([text],{type:"text/plain"}); let u=URL.createObjectURL(b); let a=document.createElement('a'); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u); }
 document.getElementById('exportTxt').addEventListener('click',()=>{
- if(!allData.length) return alert("Charge un JSON");
- let t=`12 1X X2 - ${new Date().toLocaleString()}\n`; for(let r of (filtered.length?filtered:allData)){ t+=`\n${r.nom} | lam1 ${r.lam1.toFixed(2)} lam2 ${r.lam2.toFixed(2)} | P12 ${(r.p12*100).toFixed(1)}% (${r.c12.toFixed(2)}) P1X ${(r.p1x*100).toFixed(1)}% (${r.c1x.toFixed(2)}) PX2 ${(r.px2*100).toFixed(1)}% (${r.cx2.toFixed(2)}) => ${r.best} ${(r.bp*100).toFixed(1)}% cote ${r.bc.toFixed(2)}\n`; } dl("12_1X_X2.txt",t);
+ let rows=expRows(); if(!rows) return;
+ let t=`12 1X X2 [${fTag()}] (${rows.length}) - ${new Date().toLocaleString()}\n`; for(let r of rows){ t+=`\n${r.nom} | lam1 ${r.lam1.toFixed(2)} lam2 ${r.lam2.toFixed(2)} | P12 ${(r.p12*100).toFixed(1)}% (${r.c12.toFixed(2)}) P1X ${(r.p1x*100).toFixed(1)}% (${r.c1x.toFixed(2)}) PX2 ${(r.px2*100).toFixed(1)}% (${r.cx2.toFixed(2)}) => ${r.best} ${(r.bp*100).toFixed(1)}% cote ${r.bc.toFixed(2)}\n`; } dl("12_1X_X2"+fSuffix()+".txt",t);
 });
 document.getElementById('exportCsv').addEventListener('click',()=>{
- if(!allData.length) return alert("Charge un JSON");
- let rows=filtered.length?filtered:allData; let csv="nom_match,lam1,lam2,p1,p_nul,p2,p12,p1x,px2,meilleur,proba,cote_12,cote_1x,cote_x2\n";
- for(let r of rows){ let n=r.nom.replace(/"/g,'""'); csv+=`"${n}",${r.lam1.toFixed(2)},${r.lam2.toFixed(2)},${r.p1.toFixed(4)},${r.pd.toFixed(4)},${r.p2.toFixed(4)},${r.p12.toFixed(4)},${r.p1x.toFixed(4)},${r.px2.toFixed(4)},${r.best},${r.bp.toFixed(4)},${r.c12.toFixed(2)},${r.c1x.toFixed(2)},${r.cx2.toFixed(2)}\n`; } dl("12_1X_X2.csv",csv);
+ let rows=expRows(); if(!rows) return;
+ let csv="nom_match,lam1,lam2,p1,p_nul,p2,p12,p1x,px2,meilleur,proba,cote_12,cote_1x,cote_x2\n";
+ for(let r of rows){ let n=r.nom.replace(/"/g,'""'); csv+=`"${n}",${r.lam1.toFixed(2)},${r.lam2.toFixed(2)},${r.p1.toFixed(4)},${r.pd.toFixed(4)},${r.p2.toFixed(4)},${r.p12.toFixed(4)},${r.p1x.toFixed(4)},${r.px2.toFixed(4)},${r.best},${r.bp.toFixed(4)},${r.c12.toFixed(2)},${r.c1x.toFixed(2)},${r.cx2.toFixed(2)}\n`; } dl("12_1X_X2"+fSuffix()+".csv",csv);
 });
 document.getElementById('exportJson').addEventListener('click',()=>{
- if(!allData.length) return alert("Charge un JSON");
- dl("12_1X_X2.json",JSON.stringify(filtered.length?filtered:allData,null,2));
+ let rows=expRows(); if(!rows) return;
+ dl("12_1X_X2"+fSuffix()+".json",JSON.stringify(rows,null,2));
 });
 </script>
 </body>
