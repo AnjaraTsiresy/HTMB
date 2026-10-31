@@ -66,18 +66,28 @@ td.n{font-weight:600}
 </div>
 </div>
 <script>
-// Règles : [id, BTTS, marché, côté, seuil produit, borne basse (buts min), borne haute (buts max)]
+// Règles V2 (Regle-complet.csv, correction 30/10/2026)
+// [id, BTTS, marché, côté, seuil produit, borne basse (buts min), borne haute (buts max), filtre renforcé]
+// Retirées en V2 : R2 (Oui x Over2.5 <1.796 : 95,7 %), R3 et R9 (absentes du CSV)
 var RULES=[
  ['R1','oui','2.5','over',1.904,1,null],
- ['R2','oui','2.5','over',1.796,2,null],
- ['R3','oui','2.5','over',1.598,1,4],
- ['R4','non','2.5','under',2.141,null,2],
- ['R5','non','2.5','under',2.411,null,4],
- ['R6','oui','2.5','under',2.675,null,3],
+ ['R4','non','2.5','under',2.141,null,2,'okU25'],
+ ['R5','non','2.5','under',2.411,null,4,'okU45'],
+ ['R6','oui','2.5','under',2.675,null,4],
  ['R7','non','2.5','over',2.686,1,null],
- ['R8','non','2.5','over',2.439,2,null],
- ['R9','oui','1.5','over',1.534,1,null]
+ ['R8','non','2.5','over',2.439,2,null]
 ];
+
+function cdf(lam,k){var s=0,t=Math.exp(-lam);for(var i=0;i<=k;i++){s+=t;t*=lam/(i+1);}return s;}
+function v2(o,lam1,lam2){
+  var g=function(a,b){var x=parseFloat(o[a]!=null?o[a]:o[b]);return isNaN(x)?NaN:x;};
+  var e1=g('e1_moy_encaisses','but_global_encaisse_e1_moy'),e2=g('e2_moy_encaisses','but_global_encaisse_e2_moy');
+  var n1=g('e1_nb_matchs_dispo','nb_matchs_e1'),n2=g('e2_nb_matchs_dispo','nb_matchs_e2');
+  var ls=lam1+lam2,enc=Math.max(e1,e2),nb=Math.min(n1,n2),pU25=cdf(ls,2),pU45=cdf(ls,4);
+  // donnée manquante (NaN) => filtre refusé (prudent)
+  return {okU25:ls<2.2&&enc<1.7&&pU25>0.60&&nb>=5, okU45:ls<2.8&&enc<1.8&&pU45>0.92,
+          e1Over05:lam1>=2.2, e2Over05:lam2>=2.0};
+}
 
 function parseInput(txt){
   txt=txt.replace(/^\uFEFF/,'').trim();
@@ -97,7 +107,13 @@ function parseInput(txt){
 function evalMatch(r){
   var brut=r.marches_buts_match_brut||{};
   var lo=null,hi=null,n=0;
+  var l1=parseFloat(r.poisson_but_equipe_1!=null?r.poisson_but_equipe_1:r.pure_xE1),
+      l2=parseFloat(r.poisson_but_equipe_2!=null?r.poisson_but_equipe_2:r.pure_xE2);
+  var V=v2(r,isNaN(l1)?0:l1,isNaN(l2)?0:l2);
+  // E1 lam>=2.2 => E1>=1 ; E2 lam>=2.0 => E2>=1 (100 %) => total >= 1
+  if(V.e1Over05||V.e2Over05){n++;lo=1;}
   RULES.forEach(function(R){
+    if(R[7]&&!V[R[7]])return;
     var b=R[1]==='oui'?r.btts_oui:r.btts_non;
     var m=brut[R[2]]&&brut[R[2]][R[3]];
     if(b==null||m==null)return;

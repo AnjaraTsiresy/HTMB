@@ -47,9 +47,9 @@ small{color:#6b7a90;font-size:9px}
 <h1>🚨 DETECTEUR DE CONTRADICTIONS - BOOKMAKER</h1>
 <div class="box" style="font-size:11px;line-height:1.4">
 <b>Tu upload JSON → je te dis quoi DESACTIVER</b><br>
-• Produit BTTS Oui x Over 2.5 &lt;1.9 → Over 0.5 auto → DESACTIVER Under 0.5<br>
-• Produit BTTS Non x Under 2.5 &lt;2.41 → Under 4.5 auto → DESACTIVER Over 4.5 bas<br>
-• Produit BTTS Non x Under 2.5 &lt;2.14 → Under 2.5 auto → DESACTIVER Over 2.5 bas
+<b>Règles V2 (Regle-complet.csv, 30/10/2026)</b><br>• Produit BTTS Oui x Over 2.5 &lt;1.904 → Over 0.5 auto → DESACTIVER Under 0.5<br>
+• Produit BTTS Non x Under 2.5 &lt;2.411 ET λ1+λ2&lt;2.8, encaissé&lt;1.8, P(Under4.5)&gt;92% → Under 4.5 auto<br>
+• Produit BTTS Non x Under 2.5 &lt;2.141 ET λ1+λ2&lt;2.2, encaissé&lt;1.7, P(Under2.5)&gt;60%, nb≥5 → Under 2.5 auto<br>• BTTS Oui x Over 2.5 &lt;1.796 → Over 1.5 : <b>désactivé</b> (95.7%, non garanti)<br>• E1 λ≥2.2 / E2 λ≥2.0 → Over 0.5 équipe auto
 </div>
 
 <div class="box">
@@ -97,6 +97,19 @@ small{color:#6b7a90;font-size:9px}
 </div>
 
 <script>
+function cdf(lam,k){let s=0,t=Math.exp(-lam);for(let i=0;i<=k;i++){s+=t;t*=lam/(i+1);}return s;}
+// === REGLES V2 (Regle-complet.csv, correction 30/10/2026) ===
+function v2(o,lam1,lam2){
+  let g=(a,b)=>{let x=parseFloat(o[a]!=null?o[a]:o[b]);return isNaN(x)?NaN:x;};
+  let e1=g('e1_moy_encaisses','but_global_encaisse_e1_moy'), e2=g('e2_moy_encaisses','but_global_encaisse_e2_moy');
+  let n1=g('e1_nb_matchs_dispo','nb_matchs_e1'), n2=g('e2_nb_matchs_dispo','nb_matchs_e2');
+  let ls=lam1+lam2, enc=Math.max(e1,e2), nb=Math.min(n1,n2), pU25=cdf(ls,2), pU45=cdf(ls,4);
+  // donnees manquantes (NaN) => filtre non valide (prudent)
+  return {ls:ls, enc:enc, nb:nb, pU25:pU25, pU45:pU45,
+    okU25: ls<2.2 && enc<1.7 && pU25>0.60 && nb>=5,
+    okU45: ls<2.8 && enc<1.8 && pU45>0.92,
+    e1Over05: lam1>=2.2, e2Over05: lam2>=2.0};
+}
 function parseFile(file, cb){
   let r=new FileReader();
   r.onload=e=>{
@@ -151,6 +164,9 @@ document.getElementById('f').addEventListener('change', e=>{
         let prod_non_over=btts_non*over25;
         let prod_oui_under=btts_oui*under25;
         let prod_oui_over15=over15?btts_oui*over15:null;
+        let L1=parseFloat(o.poisson_but_equipe_1||o.pure_xE1||0), L2=parseFloat(o.poisson_but_equipe_2||o.pure_xE2||0);
+        let v=v2(o,L1,L2);
+        let tu=(k,n)=>{let m=o['marches_buts_equipe_'+k];return m&&m['0.5']?parseFloat(m['0.5'].under):null;};
 
         let rows=[];
 
@@ -190,7 +206,7 @@ document.getElementById('f').addEventListener('change', e=>{
         }
 
         // 2) Over1.5 auto
-        if(prod_oui_over<1.796){
+        if(false /* V2: 95.7% (Kosice-DAC 0-1) => plus auto */ && prod_oui_over<1.796){
           if(under15 && under15<2.3){
             rows.push({
               prod:`BTTS Oui x Over 2.5`,
@@ -216,7 +232,7 @@ document.getElementById('f').addEventListener('change', e=>{
         }
 
         // 3) Under 2.5 auto
-        if(prod_non_under<2.141){
+        if(prod_non_under<2.141 && v.okU25){
           if(over25 && over25<2.1){
             rows.push({
               prod:`BTTS Non (${btts_non.toFixed(2)}) x Under 2.5 (${under25.toFixed(2)})`,
@@ -230,7 +246,7 @@ document.getElementById('f').addEventListener('change', e=>{
         }
 
         // 4) Under 4.5 auto
-        if(prod_non_under<2.411){
+        if(prod_non_under<2.411 && v.okU45){
           if(over45 && over45<3.0){
             rows.push({
               prod:`BTTS Non x Under 2.5`,
@@ -267,6 +283,12 @@ document.getElementById('f').addEventListener('change', e=>{
           }
         }
 
+        [[1,L1,2.2,'E1'],[2,L2,2.0,'E2']].forEach(([k,L,seuil,nm])=>{
+          let u=tu(k);
+          if(L>=seuil && u && u<50){
+            rows.push({prod:`${nm} λ ${L.toFixed(2)} >= ${seuil}`,val:'λ>='+seuil,auto:`${nm} Over 0.5 = 100%`,cote:`Under ${nm} 0.5 @${u}`,off:`DESACTIVER Under ${nm} 0.5`,fix:`Under ${nm} 0.5 → @100`});
+          }
+        });
         if(rows.length>0){
           contradictions++;
           rows.forEach(r=>{
