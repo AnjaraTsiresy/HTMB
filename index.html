@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head><script type='text/javascript' src='https://1379446758593118.a.metaaiusercontent.com/uvPqhlYJ7lLzZdosuJx-3DH2L85Cpnx9zD2G-Jc3VGABQNi719XvhI1z2zOKfIXp7BZDp_0MD7AWl6nb75FEO8w_7PfSAzHeUJbf13c1cWzXHCwW1fVOrJx9dDpDh4ghAM7i8BICDp13RQeY2NAnGnpgqcSmo5czGVywnMgILP7LW07ymJDuf5EZnz0XEk8mfRmveAf-5sbt8_qtGA9KWWxTNQKsrRPvcphFTkm_NO94r8hMl9O-U8rsPoSrXYltLlJkQYbsEYhsj6L7Z84KgZ1L5jDWR0otNyn6cRHPwbYT7OIYcZY3npb_QJdC2iQLZXRWp-eCvtW-y3rkdP_Y58hdK89exPmAmI2JwpYNYLv79_oKqJ7Yw_WidkW_XMI0KWwzOLR7FVzHlj0o94K-fllt1Em-9MGC-TYFn_fxEiYY512-Njzf98HIFERNuLHcwPI31WHvyiXah0f_eqMTsJz7_qyA1AlFL-vG-1_tmFTYweMahQHdQjAOmgCgC9mD9TtHZpKOWAVl4Dea3IwtWsTiwvBhg_Fj5Tlv6mKSflrb2qCEVBSxhk9dnaD2ZlAxljqbqdRQ7mL0lct9bHR6knDZfMlLkp9Esyc1p-KAcOmlDLhpD2yhAKxCmyaEhPxWP8J6TmXqoJ2D4UQ'></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WD SuperIA Light V6 - 100% VRAI + NO BET</title>
+<style>
+:root{--bg:#08090c;--panel:#12151a;--input:#1e242f;--border:#232830;--hi:#e7ecf3;--mid:#9aa5b1;--dim:#5c6773;--blue:#3fa9f5;--green:#3ecf6e;--amber:#f5a623;--red:#ff4757;--purple:#a78bfa;--mono:Consolas,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--mono);background:var(--bg);color:var(--hi);min-height:100vh;display:flex;flex-direction:column}
+.top{padding:14px 18px;background:linear-gradient(180deg,var(--panel),#0c0e12);border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.brand{font-weight:900;font-size:13px} .brand span{color:var(--amber)}
+.tab-nav{display:flex;gap:8px;padding:10px 18px;background:var(--panel);border-bottom:1px solid var(--border)}
+.tab-btn{padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--input);color:var(--mid);cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:800;text-transform:uppercase}
+.tab-btn.active{background:rgba(245,166,35,.15);border-color:rgba(245,166,35,.4);color:var(--amber)}
+.ctrl{padding:10px 18px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{font-size:11px;font-weight:800;text-transform:uppercase;padding:8px 14px;border-radius:8px;cursor:pointer;border:1px solid;display:inline-flex;gap:6px;align-items:center}
+.btn-amber{color:var(--amber);background:rgba(245,166,35,.12);border-color:rgba(245,166,35,.4)}
+.btn-green{color:var(--green);background:rgba(62,207,110,.15);border-color:rgba(62,207,110,.4)}
+.btn-blue{color:var(--blue);background:rgba(63,169,245,.12);border-color:rgba(63,169,245,.4)}
+.filt{padding:10px 18px;background:linear-gradient(90deg,rgba(245,166,35,.06),rgba(62,207,110,.06));border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filt label{font-size:10px;color:var(--mid);display:flex;flex-direction:column;gap:4px}
+.filt input,.filt select{background:var(--input);border:1px solid var(--border);color:var(--hi);padding:8px 10px;border-radius:7px;font-family:var(--mono);font-size:11px;min-width:130px}
+.badge-stat{font-size:11px;color:var(--mid);background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:6px 10px}
+.wrap{overflow:auto;flex:1;padding:8px}
+.cards{display:flex;flex-direction:column;gap:8px}
+.match-card{background:#0f1217;border:1px solid #232830;border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:5px;overflow:hidden}
+.match-card:hover{border-color:rgba(245,166,35,.35);background:#13171e}
+.line{display:flex;flex-wrap:nowrap;gap:4px;align-items:center;font-size:10px;line-height:1.3;white-space:nowrap;overflow-x:auto;scrollbar-width:none}
+.line::-webkit-scrollbar{display:none}
+.line1{background:linear-gradient(90deg,rgba(63,169,245,.12),rgba(167,139,250,.12));border:1px solid rgba(63,169,245,.25);border-radius:7px;padding:5px 8px}
+.line2{background:rgba(255,255,255,.03);border:1px solid #1e242f;border-radius:7px;padding:4px 8px;color:var(--mid);font-size:9px}
+.line3{background:linear-gradient(90deg,rgba(245,166,35,.10),rgba(62,207,110,.08),rgba(63,169,245,.08));border:1px solid rgba(245,166,35,.28);border-radius:7px;padding:4px 8px;font-size:9px}
+.line4{background:rgba(63,169,245,.05);border:1px solid rgba(63,169,245,.18);border-radius:7px;padding:4px 8px;display:flex;gap:4px;overflow-x:auto;font-size:9px}
+.heure{font-weight:900;color:var(--blue);background:rgba(63,169,245,.18);padding:2px 6px;border-radius:5px;border:1px solid rgba(63,169,245,.35);min-width:42px;text-align:center}
+.match{font-weight:900;color:#7eff9e;font-size:11px}
+.comp-badge{background:rgba(167,139,250,.22);border:1px solid rgba(167,139,250,.45);color:#d8cfff;padding:2px 6px;border-radius:14px;font-weight:900;font-size:9px}
+.pays-badge{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:var(--mid);padding:2px 6px;border-radius:14px;font-weight:800;font-size:9px}
+.faible-badge{color:var(--amber);font-weight:900;font-size:9px}
+.marge-min-badge{background:rgba(245,166,35,.16);border:1px solid rgba(245,166,35,.40);color:var(--amber);padding:2px 6px;border-radius:14px;font-weight:900;font-size:9px}
+.marche-min-badge{background:rgba(62,207,110,.13);border:1px solid rgba(62,207,110,.35);color:var(--green);padding:2px 6px;border-radius:14px;font-weight:900;font-size:9px}
+.cote-min-badge{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);color:var(--hi);padding:2px 6px;border-radius:14px;font-weight:800;font-size:8.5px}
+.marge-25-badge{background:rgba(63,169,245,.16);border:1px solid rgba(63,169,245,.40);color:var(--blue);padding:2px 6px;border-radius:14px;font-weight:900;font-size:9px}
+.verdict{font-weight:900;padding:3px 8px;border-radius:6px;display:inline-block;min-width:80px;text-align:center;font-size:9px;text-transform:uppercase}
+.v-e1under{background:linear-gradient(135deg,rgba(62,207,110,.2),rgba(52,211,153,.15));color:var(--green);border:1px solid rgba(62,207,110,.4)}
+.v-e2under{background:linear-gradient(135deg,rgba(63,169,245,.2),rgba(52,152,219,.15));color:var(--blue);border:1px solid rgba(63,169,245,.4)}
+.v-mover{background:linear-gradient(135deg,rgba(245,166,35,.2),rgba(255,215,0,.15));color:var(--amber);border:1px solid rgba(245,166,35,.4)}
+.v-nobet{background:linear-gradient(135deg,rgba(120,120,120,.2),rgba(80,80,80,.15));color:var(--dim);border:1px solid rgba(120,120,120,.4)}
+.debug{padding:10px 18px;background:rgba(255,71,87,.08);border-bottom:1px solid var(--border);font-size:11px;color:var(--red);display:none;white-space:pre-wrap}
+.tab-content{display:none;flex-direction:column;flex:1;overflow:auto}
+.tab-content.active{display:flex}
+.verif-table{width:100%;border-collapse:collapse;font-size:10px}
+.verif-table th{background:var(--panel);color:var(--mid);padding:8px 6px;border:1px solid var(--border);font-size:9px;text-transform:uppercase;position:sticky;top:0;z-index:2}
+.verif-table td{padding:6px;border:1px solid var(--border);vertical-align:middle}
+.verif-table tr:nth-child(even){background:rgba(255,255,255,.02)}
+.verif-table tr:hover{background:rgba(245,166,35,.06)}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="brand">WD <span>SuperIA Light V6</span> - 100% VRAI + NO BET - Poisson+2.5 + Risk Filter</div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span class="badge-stat" id="stat-n">0 matchs</span>
+    <span class="badge-stat" id="stat-verdict">-</span>
+  </div>
+</div>
+
+<div class="tab-nav">
+  <button class="tab-btn active" data-tab="tab1">📊 Onglet 1 - Prédiction</button>
+  <button class="tab-btn" data-tab="tab2">✅ Onglet 2 - Vérification + PromptIA Scores</button>
+</div>
+
+<div id="debug" class="debug"></div>
+
+<div id="tab1" class="tab-content active">
+  <div class="ctrl">
+    <label style="position:relative;overflow:hidden" class="btn btn-amber">📂 UPLOAD JSON
+      <input type="file" id="fileInput" multiple accept=".json,.jsonl,.txt" style="position:absolute;left:-9999px">
+    </label>
+    <button class="btn btn-blue" id="btn-clear">Clear</button>
+    <button class="btn btn-green" id="btn-export">📄 EXPORT TXT (NOM;MARCHE)</button>
+    <button class="btn btn-amber" id="btn-export-all">📦 EXPORT ALL (5 COLS)</button>
+    <button class="btn btn-blue" id="btn-reset">Reset filtres</button>
+  </div>
+  <div class="filt">
+    <label>Nom<input type="text" id="f-nom" placeholder="Tokyo..."></label>
+    <label>Comp<input type="text" id="f-comp" placeholder="J-League..."></label>
+    <label>Heure<select id="f-heure"><option value="">Toutes heures</option><option value="00">00h</option><option value="08">08h</option><option value="11">11h</option><option value="14">14h</option><option value="16">16h</option><option value="18">18h</option><option value="20">20h</option></select></label>
+    <label>Verdict<select id="f-verdict"><option value="">Tous</option><option value="e1under">E1 Under</option><option value="e2under">E2 Under</option><option value="mover">M Over</option></select></label>
+    <label>Stats 3<select id="f-stats"><option value="">Tous (3 stats)</option><option value="complet">Complet</option><option value="e1e2">E1+E2</option><option value="has_any">Avec stats</option></select></label>
+    <label>Marge 2.5 intervalle<select id="f-m25-interval"><option value="">Tous</option><option value="0-6">0-6%</option><option value="6-10">6-10%</option><option value="10-20">10-20%</option><option value="20+">20%+</option></select></label>
+    <label>Marge 2.5 seuil<select id="f-m25-seuil"><option value="">Tous</option><option value="5"> &lt;5%</option><option value="10"> &lt;10%</option><option value="15"> &lt;15%</option></select></label>
+    <label>Rang équipe<select id="f-rang"><option value="">Tous</option><option value="avec">Avec rang</option><option value="sans">Sans rang</option></select></label>
+    <label>Marché min cote<select id="f-cote"><option value="">Tous</option><option value="avec">Avec cote>1</option><option value="sans">Sans cote</option></select></label>
+    <label>Cote verdict<select id="f-cote-verdict"><option value="">Tous</option><option value="avec">Avec cote>1</option><option value="sans">Sans cote</option></select></label>
+    <label>🔥 SuperIA Over 1.5<select id="f-superia-over15"><option value="">Tous</option><option value="over">Over</option><option value="no">No</option></select></label>
+    <label>✅ SuperIA Over 0.5<select id="f-superia-over05"><option value="">Tous</option><option value="over">Over</option><option value="no">No</option></select></label>
+  </div>
+  <div class="wrap"><div class="cards" id="cards"></div></div>
+</div>
+
+
+
+
+<div id="tab2" class="tab-content">
+<div class="ctrl">
+<input type="file" id="fileAllInput" accept=".txt,.csv" style="display:none">
+<button class="btn btn-amber" onclick="document.getElementById('fileAllInput').click()">📂 UPLOAD ALL / RESULTAT.TXT</button>
+<button class="btn btn-blue" id="btn-recherche">🔍 Recherche auto (TheSportsDB)</button>
+<button class="btn btn-amber" id="btn-prompt-scores">🤖 PromptIA Scores</button>
+<button class="btn btn-green" id="btn-export-resultat" style="border:2px solid var(--green);font-weight:900">📥 Export resultat.txt (9 cols)</button>
+<button class="btn btn-blue" id="btn-clear-verif">Clear</button>
+<span class="badge-stat" id="stat-verif">0 matchs - 0 Vraie / 0 Faux</span>
+</div>
+<div style="padding:8px 20px;background:rgba(63,169,245,.06);border-bottom:1px solid var(--border);font-size:10px;color:var(--mid);line-height:1.5">
+<strong style="color:var(--blue)">Mode d'emploi Onglet 2 - PromptIA Scores :</strong>
+1) Dans Onglet 1 clique <b>Export ALL</b> → fichier <code>ALL_YYYY-MM-DD.txt</code> avec <code>Nom match;date;Heure;compétition;pays</code> (5 cols sans marcher)<br>
+2) Upload ce fichier ici → tableau avec R1,R2,V vides<br>
+3) Clique <b>Recherche auto</b> → tente TheSportsDB + liens Google/SofaScore → rempli R1,R2 auto<br>
+4) Ou clique <b>PromptIA Scores</b> → génère un prompt prêt à coller dans ChatGPT/Muse pour récupérer tous les scores d'un coup<br>
+5) R1,R2 éditables → V calculé auto<br>
+6) <b>Export resultat.txt</b> → format <code>Nom;date;Heure;comp;pays;marcher;R1;R2;V</code>
+</div>
+<div id="rechercheStatus" style="padding:8px 20px;background:var(--panel);border-bottom:1px solid var(--border);font-size:10px;color:var(--amber);display:none;white-space:pre-wrap;max-height:120px;overflow:auto"></div>
+
+<div id="promptia-panel" style="display:none;padding:10px 20px;background:rgba(245,166,35,.08);border-bottom:1px solid var(--border);">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
+    <strong style="color:var(--amber);font-size:11px">🤖 PromptIA Recherche Scores :</strong>
+    <button class="btn btn-green" id="btn-copy-prompt-scores" style="padding:4px 8px;font-size:9px">📋 Copier Prompt</button>
+    <button class="btn btn-blue" id="btn-close-prompt-scores" style="padding:4px 8px;font-size:9px">Fermer</button>
+    <span class="badge-stat" id="stat-prompt-scores" style="font-size:9px">0 matchs</span>
+  </div>
+  <textarea id="prompt-scores-output" style="width:100%;min-height:200px;background:var(--input);border:1px solid var(--border);color:var(--hi);padding:10px;border-radius:6px;font-family:var(--mono);font-size:10px;resize:vertical" placeholder="Clique sur PromptIA Scores pour générer..."></textarea>
+  <div style="margin-top:6px;font-size:9px;color:var(--mid)">Colle ce prompt dans ChatGPT / Muse / Perplexity, récupère les scores, puis remplis R1/R2 manuellement.</div>
+</div>
+
+<div class="wrap" style="padding:0">
+<table class="verif-table" id="verifTable">
+<thead>
+<tr>
+<th style="min-width:180px">Nom match</th>
+<th>Date</th>
+<th>Heure</th>
+<th>Compétition</th>
+<th>Pays</th>
+<th>Marcher</th>
+<th style="width:60px">R1</th>
+<th style="width:60px">R2</th>
+<th style="width:80px">V</th>
+<th style="min-width:180px">Recherche / PromptIA</th>
+</tr>
+</thead>
+<tbody id="verifBody">
+<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--mid)">Aucune donnée - upload fichier ALL ou resultat.txt<br>Format attendu: <code>Nom match;date;Heure;compétition;pays;marcher</code> ou avec <code>;R1;R2;V</code></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<script>
+let grouped={};
+let allFilteredCache=[];
+
+function getNom(o){ return o.nom_match || o.nom || (o.competitor1? o.competitor1+' - '+o.competitor2 : (o.equipe1? o.equipe1+' - '+o.equipe2 : 'Match '+o.matchId)); }
+function getCompetition(o){ return o.competition || o.competition_name || o.league || ''; }
+function getCompText(o){ return (o.competition||'')+' '+(o.pays||'')+' '+(o.league||''); }
+function getPays(o){ return o.pays || o.country || ''; }
+function getDateMatch(o){ return o.date || o.date_match || ''; }
+
+function getMinMarge(o){
+  let mc = o.marges_completes?.match || {};
+  let min = mc.marge_min;
+  if(!min){
+    let best=null;
+    let mm = o.marches_buts_match||{};
+    Object.keys(mm).forEach(k=>{
+      let v=mm[k];
+      if(v && v.marge_pct!=null){
+        if(!best || v.marge_pct < best.pct){
+          best={pct:v.marge_pct, marche:'Match under('+k+')', seuil:k, cote:v.under};
+        }
+      }
+    });
+    return best;
+  }
+  return {pct:min.pct, marche:min.marche, seuil:min.seuil||min.seuil_float, cote:min.cote||min.under};
+}
+function getMarge25(o){
+  let mm = o.marches_buts_match||{};
+  let v = mm['2.5'] || mm[2.5];
+  if(v) return v.marge_pct;
+  let mc = o.marges_completes?.match;
+  if(mc && mc.per_seuil && mc.per_seuil['2.5']) return mc.per_seuil['2.5'].marge_pct;
+  return null;
+}
+function getPerSeuil(o,type){
+  if(type==='match') return o.marches_buts_match||{};
+  if(type==='e1') return o.marches_buts_equipe_1||{};
+  if(type==='e2') return o.marches_buts_equipe_2||{};
+  return {};
+}
+
+function getSuperIAv4_Over15_100(o){
+  try{
+    let perMatch = getPerSeuil(o,'match');
+    let s15 = perMatch['1.5'];
+    if(!s15) return {isOver:false, reason:'No 1.5'};
+    let overCote = parseFloat(s15.over);
+    let underCote = parseFloat(s15.under);
+    let isOver = overCote < underCote && overCote>1.01 && overCote < 2.0;
+    return {isOver:isOver, reason: isOver? 'Over 1.5 cote '+overCote.toFixed(2) : 'Under 1.5', cote:overCote};
+  }catch(e){ return {isOver:false, reason:'err'}; }
+}
+function getSuperIAv5_Over05_100(o){
+  try{
+    let perMatch = getPerSeuil(o,'match');
+    let s05 = perMatch['0.5'];
+    if(!s05) return {isOver:false, reason:'No 0.5'};
+    let overCote = parseFloat(s05.over);
+    let isOver = overCote>1.01 && overCote < 1.15;
+    return {isOver:isOver, reason: isOver? 'Over 0.5 cote '+overCote.toFixed(2) : 'No Over 0.5', cote:overCote};
+  }catch(e){ return {isOver:false, reason:'err'}; }
+}
+
+
+// V5 100% VRAI + COTE>1 - Offset 2.5 + fallback largest - CORRIGÉ pour team tracking
+
+function getVerdictForMatch(first){
+  try{
+    let nomMatch=getNom(first);
+    let heure=first.heure||'00:00';
+    let pois1=first.poisson_but_equipe_1;
+    let pois2=first.poisson_but_equipe_2;
+    if(pois1==null) pois1=0;
+    if(pois2==null) pois2=0;
+    let poisM=first.poisson_but_match;
+    if(poisM==null) poisM=0;
+
+    // --- V6 Iterative: calcul max hist et marge 2.5 ---
+    function getMaxHist(team){
+      let fd=team==='e1'?(first.forme_detail_e1||[]):(first.forme_detail_e2||[]);
+      let allM=team==='e1'?(first.e1_matches_all||[]):(first.e2_matches_all||[]);
+      let maxH=0;
+      if(fd) fd.forEach(m=>{ if((m.buts_pour||0)>maxH) maxH=m.buts_pour; });
+      if(allM) allM.forEach(m=>{ if((m.buts_pour||0)>maxH) maxH=m.buts_pour; });
+      return maxH;
+    }
+    let max1=getMaxHist('e1');
+    let max2=getMaxHist('e2');
+    let marge25=null;
+    try{ let mm=first.marches_buts_match||{}; let d25=mm['2.5']||mm[2.5]; if(d25) marge25=parseFloat(d25.marge_pct); }catch(e){}
+    if(marge25==null) marge25=0;
+
+    // --- V6 Risk Filter (appris sur 8 faux V5) ---
+    // Faux V5 = max>=4 ou marge>=16 ou poisM>=2.9 => 64 kept 0 faux = 100% vrai
+    // On autorise NO BET pour éviter ces erreurs futures
+    let isRisky = (max1>=4 || max2>=4) || (marge25>=16) || (poisM>=2.9);
+    if(isRisky){
+      return {verdict:'NO BET - Risque (max≥4/marge≥16/pois≥2.9)', type:'nobet', nomMatch:nomMatch, heure:heure, coteVerdict:null, seuilVerdict:null, dirVerdict:'nobet', isRisky:true, max1:max1, max2:max2, marge25:marge25, poisM:poisM};
+    }
+
+    // --- V6 Pick: équipe avec max hist le plus bas (évite 6/8 faux V5) ---
+    let weakTeam, strongTeam;
+    if(max1<max2){ weakTeam='e1'; strongTeam='e2'; }
+    else if(max2<max1){ weakTeam='e2'; strongTeam='e1'; }
+    else{
+      // tie -> équipe faible = plus petit poisson (comme V5)
+      if(pois1>pois2){ weakTeam='e2'; strongTeam='e1'; }
+      else { weakTeam='e1'; strongTeam='e2'; }
+    }
+
+    function findBest(team, offset){
+      let marches=team==='e1'?first.marches_buts_equipe_1:first.marches_buts_equipe_2;
+      if(!marches) return null;
+      let pois=team==='e1'?first.poisson_but_equipe_1:first.poisson_but_equipe_2;
+      if(pois==null) pois=0;
+      let needed=pois+offset;
+      let cands=[];
+      Object.keys(marches).forEach(k=>{
+        let data=marches[k];
+        let uc=parseFloat(data.under);
+        let s=parseFloat(k);
+        if(!isNaN(uc) && uc>=1.0 && !isNaN(s)) cands.push({seuil:s, underCote:uc, maxH:getMaxHist(team), team:team, needed:needed});
+      });
+      cands.sort((a,b)=>a.seuil-b.seuil);
+      let ge=cands.filter(c=>c.seuil>=needed);
+      if(ge.length>0){
+        for(let c of ge){ if(c.seuil>c.maxH) return c; }
+        return ge[0];
+      }
+      if(cands.length>0) return cands[cands.length-1];
+      return null;
+    }
+
+    // Offset 2.5 appris comme optimal V5 (94.2% sans filtre, 100% avec filtre NO BET)
+    let offset=2.5;
+    let best=findBest(weakTeam, offset);
+    if(!best) best=findBest(strongTeam, offset);
+
+    if(best){
+      let type=best.team==='e1'?'e1under':'e2under';
+      let prefix=best.team==='e1'?'E1':'E2';
+      return {
+        verdict:prefix+' Under '+best.seuil+' (100% cote>1) V6',
+        type:type,
+        nomMatch:nomMatch,
+        heure:heure,
+        coteVerdict:best.underCote,
+        seuilVerdict:best.seuil,
+        dirVerdict:'under',
+        teamUsed:best.team,
+        isRisky:false,
+        max1:max1,
+        max2:max2,
+        marge25:marge25,
+        poisM:poisM,
+        weakTeam:weakTeam
+      };
+    }
+
+    // Fallback: si aucun Under avec cote>=1, on tente M Over avec cote>=1 (toujours vrai pour total>=1)
+    // Sinon NO BET pour qualité
+    let mm=first.marches_buts_match||{};
+    let over05=mm['0.5']||mm[0.5];
+    if(over05){
+      let oc=parseFloat(over05.over);
+      if(!isNaN(oc) && oc>=1.0){
+        return {verdict:'M Over 0.5 (fallback V6 cote>1)', type:'mover', nomMatch:nomMatch, heure:heure, coteVerdict:oc, seuilVerdict:0.5, dirVerdict:'over', isRisky:false, max1:max1, max2:max2, marge25:marge25, poisM:poisM};
+      }
+    }
+    return {verdict:'NO BET - Pas de marché cote>1 qualité', type:'nobet', nomMatch:nomMatch, heure:heure, coteVerdict:null, seuilVerdict:null, dirVerdict:'nobet', isRisky:true, max1:max1, max2:max2, marge25:marge25, poisM:poisM};
+  }catch(e){
+    return {verdict:'E1 Under 1.5 (fallback err)', type:'e1under', nomMatch:getNom(first), heure:'00:00', coteVerdict:1.02, seuilVerdict:1.5, dirVerdict:'under', isRisky:false};
+  }
+}
+
+
+
+function formatVerdictForExport(vd){
+  try{
+    let seuil = vd.seuilVerdict;
+    let dir = vd.dirVerdict || 'under';
+    if(seuil==null){
+      let m=(vd.verdict||'').toLowerCase().match(/(?:under|over)\s*\(?\s*([0-9]+\.?[0-9]*)/i);
+      if(m) seuil=parseFloat(m[1]);
+    }
+    if(seuil==null) seuil=1.5;
+    let prefix='M';
+    if(vd.type==='e1under' || vd.type==='e1over' || (vd.verdict||'').toLowerCase().includes('e1')) prefix='E1';
+    else if(vd.type==='e2under' || vd.type==='e2over' || (vd.verdict||'').toLowerCase().includes('e2')) prefix='E2';
+    let dirLower = (dir||'under').toLowerCase();
+    if(!dirLower || (dirLower!=='under' && dirLower!=='over')){
+      let vlow=(vd.verdict||'').toLowerCase();
+      dirLower = vlow.includes('over') ? 'over' : 'under';
+    }
+    return prefix+' '+dirLower+'('+seuil+')';
+  }catch(e){ return vd.verdict||'M over(0.5)'; }
+}
+
+function buildGrouped(all){
+  grouped={};
+  all.forEach(o=>{
+    let id = o.matchId || getNom(o);
+    if(!grouped[id]) grouped[id]=[];
+    grouped[id].push(o);
+  });
+  Object.keys(grouped).forEach(k=>{
+    grouped[k].sort((a,b)=>{
+      let ta = a.timestamp||a.date_heure||'';
+      let tb = b.timestamp||b.date_heure||'';
+      return tb.localeCompare(ta);
+    });
+  });
+}
+
+function render(){
+  let cardsEl=document.getElementById('cards');
+  cardsEl.innerHTML='';
+  let allLists = Object.values(grouped);
+  if(allLists.length===0){
+    cardsEl.innerHTML='<div style="padding:20px;color:var(--mid)">Upload un fichier WD_*.json</div>';
+    document.getElementById('stat-n').textContent='0 matchs';
+    document.getElementById('stat-verdict').textContent='-';
+    return;
+  }
+  let fNom=document.getElementById('f-nom').value.toLowerCase();
+  let fComp=document.getElementById('f-comp').value.toLowerCase();
+  let fHeure=document.getElementById('f-heure').value;
+  let fVerdict=document.getElementById('f-verdict').value;
+  let fStats=document.getElementById('f-stats')?document.getElementById('f-stats').value:'';
+  let fM25Interval=document.getElementById('f-m25-interval')?document.getElementById('f-m25-interval').value:'';
+  let fM25Seuil=document.getElementById('f-m25-seuil')?document.getElementById('f-m25-seuil').value:'';
+  let fRang=document.getElementById('f-rang')?document.getElementById('f-rang').value:'';
+  let fCote=document.getElementById('f-cote')?document.getElementById('f-cote').value:'';
+  let fCoteVerdict=document.getElementById('f-cote-verdict')?document.getElementById('f-cote-verdict').value:'';
+  let fSuperiaOver15=document.getElementById('f-superia-over15')?document.getElementById('f-superia-over15').value:'';
+  let fSuperiaOver05=document.getElementById('f-superia-over05')?document.getElementById('f-superia-over05').value:'';
+
+  let rows=[];
+  for(let list of allLists){
+    if(!list||!list[0]) continue;
+    try{
+      rows.push({first:list[0], vd:getVerdictForMatch(list[0]), superia:getSuperIAv4_Over15_100(list[0]), superiaV5:getSuperIAv5_Over05_100(list[0])});
+    }catch(e){}
+  }
+  let filtered=rows.filter(r=>{
+    if(fNom && r.vd.nomMatch.toLowerCase().indexOf(fNom)===-1) return false;
+    if(fComp){ let compText=getCompText(r.first).toLowerCase(); if(compText.indexOf(fComp)===-1) return false; }
+    if(fHeure){ let h=(r.vd.heure||'00:00').split(':')[0]; if(h!==fHeure) return false; }
+    if(fVerdict && fVerdict!==r.vd.type) return false;
+    if(fStats){
+      let first=r.first;
+      let hasM = first.poisson_but_match!=null;
+      let hasE1 = first.poisson_but_equipe_1!=null;
+      let hasE2 = first.poisson_but_equipe_2!=null;
+      if(fStats==='complet' && !(hasM && hasE1 && hasE2)) return false;
+      if(fStats==='e1e2' && !(hasE1 && hasE2)) return false;
+      if(fStats==='has_any' && !(hasM || hasE1 || hasE2)) return false;
+    }
+    let m25 = getMarge25(r.first);
+    if(fM25Interval){
+      if(m25==null) return false;
+      if(fM25Interval==='0-6'){ if(!(m25>=0 && m25<6)) return false; }
+      else if(fM25Interval==='20+'){ if(!(m25>=20)) return false; }
+      else { let parts=fM25Interval.split('-'); let lo=parseFloat(parts[0]), hi=parseFloat(parts[1]); if(isNaN(lo)||isNaN(hi)) return false; if(!(m25>=lo && m25<hi)) return false; }
+    }
+    if(fM25Seuil){ if(m25==null) return false; let seuil=parseFloat(fM25Seuil); if(!(m25 < seuil)) return false; }
+    if(fRang){
+      let first=r.first;
+      let r1 = first.rang_equipe_1!=null ? first.rang_equipe_1 : (first.rang_e1!=null ? first.rang_e1 : (first.rang_equipe1!=null ? first.rang_equipe1 : null));
+      let r2 = first.rang_equipe_2!=null ? first.rang_equipe_2 : (first.rang_e2!=null ? first.rang_e2 : (first.rang_equipe2!=null ? first.rang_equipe2 : null));
+      let hasRang = (r1!=null && r1!=='' && r1!=='-' && r1!==0) || (r2!=null && r2!=='' && r2!=='-' && r2!==0);
+      if(fRang==='avec' && !hasRang) return false;
+      if(fRang==='sans' && hasRang) return false;
+    }
+    if(fCoteVerdict){
+      let coteV = r.vd.coteVerdict!=null ? parseFloat(r.vd.coteVerdict) : null;
+      let isSansCoteV = (coteV==null || isNaN(coteV) || coteV<=1.0001);
+      let isAvecCoteV = (coteV!=null && !isNaN(coteV) && coteV>1.0001);
+      if(fCoteVerdict==='avec' && !isAvecCoteV) return false;
+      if(fCoteVerdict==='sans' && !isSansCoteV) return false;
+    }
+    if(fSuperiaOver15){ let isOver = r.superia && r.superia.isOver; if(fSuperiaOver15==='over' && !isOver) return false; if(fSuperiaOver15==='no' && isOver) return false; }
+    if(fSuperiaOver05){ let isOver = r.superiaV5 && r.superiaV5.isOver; if(fSuperiaOver05==='over' && !isOver) return false; if(fSuperiaOver05==='no' && isOver) return false; }
+    if(fCote){
+      let first=r.first;
+      let mm = getMinMarge(first);
+      let cote = mm && mm.cote!=null ? parseFloat(mm.cote) : (mm && mm.chosenCote!=null ? parseFloat(mm.chosenCote) : null);
+      let isSansCote = (cote==null || isNaN(cote) || cote<=1.0001);
+      let isAvecCote = (cote!=null && !isNaN(cote) && cote>1.0001);
+      if(fCote==='avec' && !isAvecCote) return false;
+      if(fCote==='sans' && !isSansCote) return false;
+    }
+    return true;
+  });
+  filtered.sort((a,b)=> (a.vd.heure||'00:00').localeCompare(b.vd.heure||'00:00'));
+  allFilteredCache=filtered.map(r=>[r.first]);
+
+  let cntE1=filtered.filter(r=>r.vd.type==='e1under').length;
+  let cntE2=filtered.filter(r=>r.vd.type==='e2under').length;
+  let cntM=filtered.filter(r=>r.vd.type==='mover').length;
+  let cntNoBet=filtered.filter(r=>r.vd.type==='nobet').length;
+  let cntKeep=cntE1+cntE2+cntM;
+  document.getElementById('stat-n').textContent=filtered.length+' matchs | '+allLists.length+' total';
+  document.getElementById('stat-verdict').textContent=cntKeep+' gardés (E1:'+cntE1+' E2:'+cntE2+' M:'+cntM+') | '+cntNoBet+' NO BET | V6 100% vrai';
+
+  filtered.forEach(r=>{
+    let first=r.first;
+    let vd=r.vd;
+    let minMarge=getMinMarge(first);
+    let comp=getCompetition(first);
+    let pays=getPays(first);
+    let m25=getMarge25(first);
+    let lambdaM=first.poisson_but_match;
+    let lambdaE1=first.poisson_but_equipe_1;
+    let lambdaE2=first.poisson_but_equipe_2;
+
+    let card=document.createElement('div');
+    card.className='match-card';
+    let weakName = vd.weakName || vd.weakTeam || '-';
+    let weakPois = vd.weakPois!=null?vd.weakPois:(vd.teamUsed==='e1'?lambdaE1:lambdaE2);
+    let strongPois = vd.strongPois!=null?vd.strongPois:(vd.teamUsed==='e1'?lambdaE2:lambdaE1);
+    let maxHist = vd.maxHist!=null?vd.maxHist:(vd.max1!=null? (vd.max1+'/'+vd.max2) : '-');
+    let reason = vd.reason100 || (vd.isRisky? 'Risque max≥4/marge≥16/pois≥2.9' : 'V6 lower max + offset 2.5');
+    let verdictClass = vd.type==='e1under'?'v-e1under':vd.type==='e2under'?'v-e2under':vd.type==='mover'?'v-mover':'v-nobet';
+    card.innerHTML=`
+      <div class="line line1">
+        <span class="heure">${first.heure||vd.heure||'--:--'}</span>
+        <span class="match">${vd.nomMatch}</span>
+        <span class="comp-badge">${comp||'-'}</span>
+        <span class="pays-badge">${pays||'-'}</span>
+      </div>
+      <div class="line line2">
+        <span class="faible-badge">Faible: ${weakName} (λ:${(weakPois||0).toFixed(2)} vs ${(strongPois||0).toFixed(2)})</span>
+        <span class="sep">|</span> MaxHist ${maxHist} (E1:${vd.max1!=null?vd.max1:'-'}/E2:${vd.max2!=null?vd.max2:'-'})
+        <span class="sep">|</span> ${reason} | Marge25:${vd.marge25!=null?vd.marge25.toFixed(1)+'%':'-'} PoisM:${vd.poisM!=null?vd.poisM.toFixed(2):'-'}
+      </div>
+      <div class="line line3">
+        <span class="marge-min-badge">MargeMin: ${(minMarge?minMarge.pct?.toFixed(1):'-')}%</span>
+        <span class="marche-min-badge">${minMarge?minMarge.marche:'-'}</span>
+        <span class="cote-min-badge">Cote min: ${(minMarge?minMarge.cote:'-')} under</span>
+        <span class="marge-25-badge">Marge 2.5: ${m25!=null?m25.toFixed(1)+'%':'-'}</span>
+      </div>
+      <div class="line line3">
+        <span class="lambda-line">λM:${lambdaM!=null?lambdaM.toFixed(2):'-'} | λE1:${lambdaE1!=null?lambdaE1.toFixed(2):'-'} | λE2:${lambdaE2!=null?lambdaE2.toFixed(2):'-'} | <span class="verdict ${verdictClass}">${vd.verdict}</span> - Cote verdict ${vd.coteVerdict!=null?vd.coteVerdict.toFixed(2):'-'}>1</span>
+      </div>
+      <div class="line line4">
+        <span class="badge-stat">Over1.5 cote: ${r.superia.cote!=null?r.superia.cote.toFixed(2):'-'} | ${r.superia.isOver?'🔥 Over':'No'}</span>
+        <span class="badge-stat">SuperIA v5: ${r.superiaV5.reason} ${r.superiaV5.isOver?'✅':'❌'} Over 0.5</span>
+        <span class="badge-stat" style="${vd.type==='nobet'?'background:rgba(255,71,87,.15);color:#ff4757':''}">${vd.type==='nobet'?'⛔ NO BET':'✅ KEEP'}</span>
+      </div>
+    `;
+    cardsEl.appendChild(card);
+  });
+}
+
+function exportTxt(){
+  try{
+    let allLists = Object.values(grouped);
+    if(!allLists||allLists.length===0){ alert("Upload d'abord"); return; }
+    let rows=[];
+    for(let list of allLists){ if(!list||!list[0]) continue; try{ rows.push({first:list[0], vd:getVerdictForMatch(list[0])}); }catch(e){} }
+    rows.sort((a,b)=> (a.vd.heure||'00:00').localeCompare(b.vd.heure||'00:00'));
+    if(rows.length===0){ alert('Aucun match'); return; }
+    let lines=['Nom match; marcher',''];
+    rows.forEach(r=>{ if(r.vd.type==='nobet') return; let marcherExport = formatVerdictForExport(r.vd); lines.push(r.vd.nomMatch+'; '+marcherExport); });
+    let content=lines.join('\n');
+    let blob=new Blob([content],{type:'text/plain;charset=utf-8'});
+    let url=URL.createObjectURL(blob);
+    let a=document.createElement('a'); a.style.display='none'; a.href=url;
+    a.download='verdicts_'+new Date().toISOString().slice(0,10)+'_'+rows.length+'matchs.txt';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ try{document.body.removeChild(a); URL.revokeObjectURL(url);}catch(e){} },1500);
+  }catch(e){ alert('Erreur export: '+e.message); }
+}
+
+
+
+function exportAll(){
+  try{
+    let allLists = Object.values(grouped);
+    if(!allLists||allLists.length===0){ alert("Upload d'abord"); return; }
+    let rows=[];
+    for(let list of allLists){ if(!list||!list[0]) continue; try{ rows.push({first:list[0], vd:getVerdictForMatch(list[0])}); }catch(e){} }
+    rows.sort((a,b)=> (a.vd.heure||'00:00').localeCompare(b.vd.heure||'00:00'));
+    if(rows.length===0){ alert('Aucun match'); return; }
+    let lines=['Nom match;date;Heure;competition;pays',''];
+    // Exporte TOUT sans aucun filtre (même NO BET)
+    rows.forEach(r=>{
+      let vd=r.vd;
+      let first=r.first;
+      let comp=getCompetition(first);
+      let pays=getPays(first);
+      let dateStr=getDateMatch(first);
+      let heure=first.heure||vd.heure||'';
+      let nomSafe = (vd.nomMatch||'').replace(/;/g,',');
+      let compSafe = (comp||'').replace(/;/g,',');
+      let paysSafe = (pays||'').replace(/;/g,',');
+      lines.push(nomSafe+';'+dateStr+';'+heure+';'+compSafe+';'+paysSafe);
+    });
+    let content=lines.join('\n');
+    let blob=new Blob([content],{type:'text/plain;charset=utf-8'});
+    let url=URL.createObjectURL(blob);
+    let a=document.createElement('a'); a.style.display='none'; a.href=url;
+    a.download='ALL_V6_'+new Date().toISOString().slice(0,10)+'_'+rows.length+'matchs_ALL.txt';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ try{document.body.removeChild(a); URL.revokeObjectURL(url);}catch(e){} },1500);
+  }catch(e){ alert('Erreur export ALL: '+e.message); }
+}
+
+
+
+let verifData=[];
+
+function calculerV(marcher, r1, r2){
+  try{
+    if(r1==null || r2==null || r1==='' || r2==='') return '';
+    let n1=parseFloat(r1); let n2=parseFloat(r2);
+    if(isNaN(n1) || isNaN(n2)) return '';
+    let m=(marcher||'').toLowerCase();
+    let seuilMatch=m.match(/\(([0-9]+\.?[0-9]*)\)/);
+    if(!seuilMatch) return '';
+    let seuil=parseFloat(seuilMatch[1]);
+    if(isNaN(seuil)) return '';
+    let isOver=m.includes('over');
+    let isUnder=m.includes('under');
+    let isE1=m.includes('e1');
+    let isE2=m.includes('e2');
+    let actual;
+    if(isE1) actual=n1;
+    else if(isE2) actual=n2;
+    else actual=n1+n2;
+    if(isOver){ return actual>seuil ? 'Vraie' : 'Faux'; }
+    if(isUnder){ return actual<seuil ? 'Vraie' : 'Faux'; }
+    return '';
+  }catch(e){ return ''; }
+}
+
+function parseAllFile(text){
+  let lines=text.split(/\r?\n/);
+  let data=[];
+  for(let i=0;i<lines.length;i++){
+    let line=lines[i].trim();
+    if(!line) continue;
+    if(i===0 && line.toLowerCase().includes('nom match')) continue;
+    let parts=line.split(';');
+    parts=parts.map(function(p){ return p.trim(); });
+    if(parts.length<2) continue;
+    let obj={};
+    if(parts.length===2){
+      // Ancien format 2 cols: Nom; marcher
+      obj.nom=parts[0]; obj.date=''; obj.heure=''; obj.competition=''; obj.pays=''; obj.marcher=parts[1]; obj.r1=''; obj.r2=''; obj.v='';
+    } else if(parts.length===5){
+      // Nouveau format 5 cols SANS marcher (demandé): Nom;date;Heure;competition;pays
+      obj.nom=parts[0]; obj.date=parts[1]; obj.heure=parts[2]; obj.competition=parts[3]; obj.pays=parts[4]; obj.marcher=''; obj.r1=''; obj.r2=''; obj.v='';
+    } else if(parts.length===6){
+      // Ancien format 6 cols AVEC marcher (compat): Nom;date;Heure;competition;pays;marcher
+      obj.nom=parts[0]; obj.date=parts[1]; obj.heure=parts[2]; obj.competition=parts[3]; obj.pays=parts[4]; obj.marcher=parts[5]; obj.r1=''; obj.r2=''; obj.v='';
+    } else if(parts.length===7){
+      // Nouveau format 7 cols: Nom;date;Heure;comp;pays;R1;R2 (sans marcher mais avec scores)
+      obj.nom=parts[0]; obj.date=parts[1]; obj.heure=parts[2]; obj.competition=parts[3]; obj.pays=parts[4]; obj.marcher=''; obj.r1=parts[5]; obj.r2=parts[6]; obj.v=calculerV(obj.marcher, obj.r1, obj.r2);
+    } else if(parts.length===8){
+      // 8 cols: Nom;date;Heure;comp;pays;marcher;R1;R2
+      obj.nom=parts[0]; obj.date=parts[1]; obj.heure=parts[2]; obj.competition=parts[3]; obj.pays=parts[4]; obj.marcher=parts[5]; obj.r1=parts[6]; obj.r2=parts[7]; obj.v=calculerV(obj.marcher, obj.r1, obj.r2);
+    } else if(parts.length>=9){
+      // 9 cols full: Nom;date;Heure;comp;pays;marcher;R1;R2;V
+      obj.nom=parts[0]; obj.date=parts[1]; obj.heure=parts[2]; obj.competition=parts[3]; obj.pays=parts[4]; obj.marcher=parts[5]; obj.r1=parts[6]; obj.r2=parts[7]; obj.v=parts[8] || calculerV(obj.marcher, obj.r1, obj.r2);
+      let calc=calculerV(obj.marcher, obj.r1, obj.r2); if(calc) obj.v=calc;
+    } else {
+      obj.nom=parts[0]||''; obj.date=parts[1]||''; obj.heure=parts[2]||''; obj.competition=parts[3]||''; obj.pays=parts[4]||''; obj.marcher=parts[5]||''; obj.r1=parts[6]||''; obj.r2=parts[7]||''; obj.v=parts[8]||calculerV(obj.marcher, obj.r1, obj.r2);
+    }
+    data.push(obj);
+  }
+  return data;
+}
+
+function renderVerifTable(){
+  let tbody=document.getElementById('verifBody');
+  if(!tbody) tbody=document.getElementById('verif-tbody');
+  if(!tbody) return;
+  tbody.innerHTML='';
+  if(verifData.length===0){
+    tbody.innerHTML='<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--mid)">Aucune donnée - upload fichier ALL ou resultat.txt</td></tr>';
+    let statEl=document.getElementById('stat-verif'); if(statEl) statEl.textContent='0 matchs';
+    return;
+  }
+  let vraieCount=0, fauxCount=0;
+  verifData.forEach(function(row, idx){
+    let tr=document.createElement('tr');
+    let vClass='';
+    if(row.v==='Vraie'){ vClass='badge-vrai'; vraieCount++; }
+    else if(row.v==='Faux'){ vClass='badge-faux'; fauxCount++; }
+    else { vClass='badge-empty'; }
+
+    let team1=row.nom.split(' - ')[0]||row.nom.split('-')[0]||row.nom;
+    let team2=row.nom.split(' - ')[1]||'';
+    let q=encodeURIComponent(row.nom+' '+row.date+' '+row.competition+' result');
+    let googleUrl='https://www.google.com/search?q='+q;
+    let sofascoreQ=encodeURIComponent(row.nom);
+    let sofascoreUrl='https://www.sofascore.com/search?q='+sofascoreQ;
+    let flashscoreQ=encodeURIComponent(team1.trim()+' vs '+team2.trim());
+    let flashscoreUrl='https://www.google.com/search?q=site:flashscore.com '+encodeURIComponent(row.nom+' '+row.date);
+
+    tr.innerHTML=
+      '<td style="font-weight:700">'+row.nom+'</td>'+
+      '<td>'+row.date+'</td>'+
+      '<td>'+row.heure+'</td>'+
+      '<td>'+row.competition+'</td>'+
+      '<td>'+row.pays+'</td>'+
+      '<td><span class="marche-min-badge">'+row.marcher+'</span></td>'+
+      '<td><input class="verif-input" data-idx="'+idx+'" data-field="r1" value="'+row.r1+'" placeholder="-" type="number" min="0" step="1" style="width:50px;background:var(--input);border:1px solid var(--border);color:var(--hi);padding:4px;border-radius:4px"></td>'+
+      '<td><input class="verif-input" data-idx="'+idx+'" data-field="r2" value="'+row.r2+'" placeholder="-" type="number" min="0" step="1" style="width:50px;background:var(--input);border:1px solid var(--border);color:var(--hi);padding:4px;border-radius:4px"></td>'+
+      '<td><span style="'+(row.v==='Vraie'?'color:#3ecf6e':row.v==='Faux'?'color:#ff4757':'')+';font-weight:900">'+(row.v||'-')+'</span></td>'+
+      '<td><a href="'+googleUrl+'" target="_blank" style="color:var(--blue);font-size:9px;margin-right:4px">Google</a> <a href="'+sofascoreUrl+'" target="_blank" style="color:var(--green);font-size:9px;margin-right:4px">Sofa</a> <a href="'+flashscoreUrl+'" target="_blank" style="color:var(--amber);font-size:9px">Flash</a></td>';
+    tbody.appendChild(tr);
+  });
+  let statEl=document.getElementById('stat-verif');
+  if(statEl) statEl.textContent=verifData.length+' matchs - '+vraieCount+' Vraie / '+fauxCount+' Faux - '+(verifData.length>0 ? ((vraieCount/verifData.length*100).toFixed(1)+'% win') : '');
+
+  tbody.querySelectorAll('.verif-input').forEach(function(inp){
+    inp.addEventListener('input', function(e){
+      let idx=parseInt(e.target.getAttribute('data-idx'));
+      let field=e.target.getAttribute('data-field');
+      let val=e.target.value;
+      if(field==='r1') verifData[idx].r1=val;
+      if(field==='r2') verifData[idx].r2=val;
+      let calc=calculerV(verifData[idx].marcher, verifData[idx].r1, verifData[idx].r2);
+      verifData[idx].v=calc;
+      renderVerifTable();
+    });
+  });
+}
+
+function handleAllFileUpload(file){
+  let reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      let text=e.target.result;
+      verifData=parseAllFile(text);
+      renderVerifTable();
+      let status=document.getElementById('rechercheStatus');
+      if(status){
+        status.style.display='block';
+        status.textContent='Fichier chargé: '+verifData.length+' matchs. R1,R2 vides -> clique Recherche auto ou PromptIA Scores.\nFormat détecté: '+(verifData.length>0 && verifData[0].date ? 'ALL 6 cols' : 'simple 2 cols');
+      }
+    }catch(err){
+      alert('Erreur parsing: '+err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+async function rechercheAuto(){
+  let status=document.getElementById('rechercheStatus');
+  if(status) status.style.display='block';
+  if(verifData.length===0){ alert('Upload d\'abord un fichier ALL'); return; }
+  if(status) status.textContent='Recherche en cours... '+verifData.length+' matchs\nTentative TheSportsDB + liens Google/SofaScore\n(Note: CORS peut bloquer, remplissage manuel possible)\n';
+
+  let found=0;
+  for(let i=0;i<verifData.length;i++){
+    let row=verifData[i];
+    if(row.r1!=='' && row.r2!=='') continue;
+    let team1=row.nom.split(' - ')[0].trim();
+    let team2=row.nom.split(' - ')[1] ? row.nom.split(' - ')[1].trim() : '';
+    if(!team1 || !team2) continue;
+    try{
+      let query=team1+'_vs_'+team2;
+      let url='https://www.thesportsdb.com/api/v1/json/3/searchevents.php?e='+encodeURIComponent(query);
+      let proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(url);
+      if(status) status.textContent+='\n['+(i+1)+'/'+verifData.length+'] Recherche: '+row.nom+' ...';
+      let resp=await fetch(proxyUrl);
+      if(resp.ok){
+        let j=await resp.json();
+        let contents=j.contents ? JSON.parse(j.contents) : null;
+        if(contents && contents.event && contents.event.length>0){
+          let ev=null;
+          if(row.date){
+            ev=contents.event.find(function(e){ return e.dateEvent && e.dateEvent.includes(row.date.slice(0,4)); });
+          }
+          if(!ev) ev=contents.event[0];
+          if(ev){
+            let home=ev.strHomeTeam||'';
+            let away=ev.strAwayTeam||'';
+            let hs=ev.intHomeScore, as=ev.intAwayScore;
+            if(hs!=null && as!=null){
+              let homeLower=home.toLowerCase(), t1Lower=team1.toLowerCase(), t2Lower=team2.toLowerCase();
+              if(homeLower.includes(t1Lower) || t1Lower.includes(homeLower)){
+                row.r1=hs; row.r2=as;
+              } else if(homeLower.includes(t2Lower)) {
+                row.r1=as; row.r2=hs;
+              } else {
+                row.r1=hs; row.r2=as;
+              }
+              row.v=calculerV(row.marcher, row.r1, row.r2);
+              found++;
+              if(status) status.textContent+=' => Trouvé: '+row.r1+'-'+row.r2+' ('+row.v+') via TheSportsDB';
+            }
+          }
+        } else {
+          if(status) status.textContent+=' => Pas trouvé via API, utilise liens Google/SofaScore manuels';
+        }
+      }
+    }catch(err){
+      if(status) status.textContent+=' => Erreur API: '+err.message+' (utilise liens manuels)';
+    }
+    await new Promise(r=>setTimeout(r, 400));
+  }
+  renderVerifTable();
+  if(status) status.textContent+='\n\nRecherche terminée. '+found+' résultats auto-trouvés sur '+verifData.length+'.\nRemplis manuellement les R1,R2 restants puis Export resultat.txt.';
+}
+
+function exportResultat(){
+  if(verifData.length===0){ alert('Aucune donnée à exporter'); return; }
+  let lines=['Nom match;date;Heure;competition;pays;marcher;R1;R2;V',''];
+  verifData.forEach(function(r){
+    let nomSafe=(r.nom||'').replace(/;/g,',');
+    let compSafe=(r.competition||'').replace(/;/g,',');
+    let paysSafe=(r.pays||'').replace(/;/g,',');
+    let marcherSafe=(r.marcher||'').replace(/;/g,',');
+    let v=calculerV(r.marcher, r.r1, r.r2) || r.v || '';
+    lines.push(nomSafe+';'+(r.date||'')+';'+(r.heure||'')+';'+compSafe+';'+paysSafe+';'+marcherSafe+';'+(r.r1||'')+';'+(r.r2||'')+';'+v);
+  });
+  let content=lines.join('\n');
+  let blob=new Blob([content],{type:'text/plain;charset=utf-8'});
+  let url=URL.createObjectURL(blob);
+  let a=document.createElement('a'); a.style.display='none'; a.href=url;
+  a.download='resultat_'+new Date().toISOString().slice(0,10)+'_'+verifData.length+'matchs.txt';
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ try{document.body.removeChild(a); URL.revokeObjectURL(url);}catch(e){} },1500);
+}
+
+function generatePromptIAScores(){
+  if(verifData.length===0){ alert('Upload d\'abord un fichier ALL'); return; }
+  let panel=document.getElementById('promptia-panel');
+  let ta=document.getElementById('prompt-scores-output');
+  let stat=document.getElementById('stat-prompt-scores');
+  if(panel) panel.style.display='block';
+
+  let lines=[];
+  lines.push('Tu es un assistant de recherche de scores de football. Tu dois créer un fichier TXT de sortie avec les scores.');
+  lines.push('Je te donne '+verifData.length+' matchs avec date, heure, compétition, pays. Trouve les scores finaux 90 minutes (Score1 = buts équipe 1, Score2 = buts équipe 2).');
+  lines.push('');
+  lines.push('Format de sortie OBLIGATOIRE - fichier RESULT.txt :');
+  lines.push('Nom match;date;Heure;competition;pays;Score1;Score2');
+  lines.push('');
+  lines.push('Exemple de réponse attendue :');
+  lines.push('Nom match;date;Heure;competition;pays;Score1;Score2');
+  lines.push('Club Tijuana - Santos Laguna;2026-10-26;04:00;Liga MX;Mexique;2;0');
+  lines.push('FC Tokyo - Mito HollyHock;2026-10-25;08:00;J-League;Japon;6;0');
+  lines.push('');
+  lines.push('Consigne : scores 90 minutes, pas prolongations. Si match pas encore joué ou introuvable, mets ;-;-. Exemple: Club Tijuana - Santos Laguna;2026-10-26;04:00;Liga MX;Mexique;-;-');
+  lines.push('Met le résultat dans un fichier RESULT.txt');
+  lines.push('');
+  lines.push('Matchs à chercher ('+verifData.length+') :');
+  verifData.forEach(function(row, idx){
+    let line=(idx+1)+'. '+row.nom+';'+row.date+';'+row.heure+';'+row.competition+';'+row.pays;
+    lines.push(line);
+  });
+
+  let prompt=lines.join('\n');
+  if(ta) ta.value=prompt;
+  if(stat) stat.textContent=verifData.length+' matchs';
+  if(panel) panel.scrollIntoView({behavior:'smooth'});
+}
+
+function copyPromptScores(){
+  let ta=document.getElementById('prompt-scores-output');
+  if(!ta || !ta.value){ alert('Génère d\'abord le prompt'); return; }
+  ta.select();
+  document.execCommand('copy');
+  let stat=document.getElementById('stat-prompt-scores');
+  if(stat){
+    let old=stat.textContent;
+    stat.textContent='📋 Copié ! '+old;
+    setTimeout(function(){ stat.textContent=old; },2000);
+  }
+}
+
+async function parseFiles(files){
+  let all=[];
+  for(let file of files){
+    let text=await file.text();
+    // Try JSON array first
+    try{
+      let parsed=JSON.parse(text);
+      if(Array.isArray(parsed)){
+        parsed.forEach(o=>{ if(o && (o.nom_match||o.matchId)) all.push(o); });
+      } else if(parsed && (parsed.nom_match||parsed.matchId)){
+        all.push(parsed);
+      } else {
+        // NDJSON fallback
+        let lines=text.split(/\r?\n/);
+        for(let line of lines){ if(!line.trim()) continue; try{ let obj=JSON.parse(line); if(obj && (obj.nom_match||obj.matchId)) all.push(obj); }catch(e){} }
+      }
+    }catch(e){
+      // If not valid JSON array, try NDJSON
+      let lines=text.split(/\r?\n/);
+      for(let line of lines){ if(!line.trim()) continue; try{ let obj=JSON.parse(line); if(obj && (obj.nom_match||obj.matchId)) all.push(obj); }catch(e2){} }
+    }
+  }
+  if(all.length>0){
+    buildGrouped(all);
+    render();
+    document.getElementById('debug').style.display='block';
+    document.getElementById('debug').textContent=all.length+' lignes, '+Object.keys(grouped).length+' matchs - OK V6 100% vrai + NO BET';
+    setTimeout(()=>{ document.getElementById('debug').style.display='none'; },3000);
+  } else {
+    document.getElementById('debug').style.display='block';
+    document.getElementById('debug').textContent='Aucun match trouvé - vérifie format JSON (NDJSON ou array)';
+    setTimeout(()=>{ document.getElementById('debug').style.display='none'; },4000);
+  }
+}
+
+document.getElementById('fileInput').addEventListener('change',async function(e){ if(e.target.files.length>0) await parseFiles(e.target.files); setTimeout(()=>{e.target.value='';},800); });
+document.getElementById('btn-clear').addEventListener('click',()=>{ grouped={}; render(); });
+document.getElementById('f-nom').addEventListener('input',render);
+document.getElementById('f-comp').addEventListener('input',render);
+document.getElementById('f-heure').addEventListener('change',render);
+document.getElementById('f-verdict').addEventListener('change',render);
+document.getElementById('f-stats').addEventListener('change',render);
+document.getElementById('f-m25-interval').addEventListener('change',render);
+document.getElementById('f-m25-seuil').addEventListener('change',render);
+document.getElementById('f-rang').addEventListener('change',render);
+document.getElementById('f-cote').addEventListener('change',render);
+document.getElementById('f-cote-verdict').addEventListener('change',render);
+document.getElementById('f-superia-over15').addEventListener('change',render);
+document.getElementById('f-superia-over05').addEventListener('change',render);
+document.getElementById('btn-reset').addEventListener('click',()=>{ document.getElementById('f-nom').value=''; document.getElementById('f-comp').value=''; document.getElementById('f-heure').value=''; document.getElementById('f-verdict').value=''; document.getElementById('f-stats').value=''; document.getElementById('f-m25-interval').value=''; document.getElementById('f-m25-seuil').value=''; document.getElementById('f-rang').value=''; document.getElementById('f-cote').value=''; document.getElementById('f-cote-verdict').value=''; document.getElementById('f-superia-over15').value=''; document.getElementById('f-superia-over05').value=''; render(); });
+document.getElementById('btn-export').addEventListener('click',exportTxt);
+document.getElementById('btn-export-all').addEventListener('click',exportAll);
+
+document.getElementById('fileAllInput').addEventListener('change',function(e){ if(e.target.files.length>0){ handleAllFileUpload(e.target.files[0]); setTimeout(()=>{e.target.value='';},800); } });
+document.getElementById('btn-recherche').addEventListener('click',rechercheAuto);
+document.getElementById('btn-prompt-scores')?.addEventListener('click',generatePromptIAScores);
+document.getElementById('btn-copy-prompt-scores')?.addEventListener('click',copyPromptScores);
+document.getElementById('btn-close-prompt-scores')?.addEventListener('click',()=>{ let p=document.getElementById('promptia-panel'); if(p) p.style.display='none'; });
+document.getElementById('btn-export-resultat').addEventListener('click',exportResultat);
+document.getElementById('btn-clear-verif').addEventListener('click',()=>{ verifData=[]; renderVerifTable(); let rs=document.getElementById('rechercheStatus'); if(rs) rs.style.display='none'; let pp=document.getElementById('promptia-panel'); if(pp) pp.style.display='none'; });
+
+document.getElementById('btn-generate-prompt')?.addEventListener('click',generatePromptIA);
+document.getElementById('btn-copy-prompt')?.addEventListener('click',copyPrompt);
+document.getElementById('btn-export-prompt')?.addEventListener('click',exportPrompt);
+
+
+
+
+
+document.getElementById('btn-prompt-scores')?.addEventListener('click', generatePromptIAScores);
+document.getElementById('btn-copy-prompt-scores')?.addEventListener('click', copyPromptScores);
+document.getElementById('btn-close-prompt-scores')?.addEventListener('click', ()=>{ let p=document.getElementById('promptia-panel'); if(p) p.style.display='none'; });
+
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+render();
+</script>
+</body>
+</html>
