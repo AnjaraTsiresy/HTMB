@@ -1,17 +1,37 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
+<html lang="fr"><head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Règles Atao1 – Matchs impliqués</title>
+<title>Règles Atao1 V4 – Matchs impliqués 100%</title>
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--txt:#14181f;--mut:#6b7280;--line:#e3e6eb;--acc:#1f6feb;--ov:#0f7b4a;--ovbg:#e3f5ec;--un:#b4411b;--unbg:#fdeae1;--bt:#6a3fb5;--btbg:#efe8fb}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1217;--card:#181c24;--txt:#e8ebf0;--mut:#9aa3b2;--line:#2a303b;--acc:#58a6ff;--ov:#4cd08a;--ovbg:#14301f;--un:#ff9a73;--unbg:#3a2018;--bt:#c4a6ff;--btbg:#2a2040}}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--txt);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:16px;padding-top:max(16px,env(safe-area-inset-top))}
-.wrap{max-width:820px;margin:0 auto}
-h1{font-size:19px;margin:0 0 12px}
+.wrap{max-width:900px;margin:0 auto}
+h1{font-size:19px;margin:0 0 8px}
+.sub{color:var(--mut);font-size:13px;margin-bottom:12px}
 .drop{background:var(--card);border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center}
 .drop.over{border-color:var(--acc)}
 .drop label{display:inline-block;background:var(--acc);color:#fff;padding:9px 16px;border-radius:8px;cursor:pointer;font-weight:600}
@@ -20,7 +40,7 @@ h1{font-size:19px;margin:0 0 12px}
 #info{margin:14px 0 8px;color:var(--mut);font-size:13px}
 #err{color:var(--un);margin-top:10px;font-size:14px}
 .tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px}
-table{border-collapse:collapse;width:100%;min-width:420px}
+table{border-collapse:collapse;width:100%;min-width:520px}
 th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line)}
 th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut);background:var(--card);position:sticky;top:0}
 tr:last-child td{border-bottom:0}
@@ -39,54 +59,101 @@ td.n{font-weight:600}
 .chk input{accent-color:var(--acc)}
 .rst{font:inherit;font-size:13px;color:var(--acc);background:none;border:1px solid var(--line);border-radius:8px;padding:7px 10px;cursor:pointer}
 .empty{padding:20px;text-align:center;color:var(--mut)}
+.badge{font-size:11px;padding:2px 6px;border-radius:4px;background:var(--line);color:var(--mut);margin-left:6px}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>Règles Atao1 – matchs impliqués</h1>
+<h1>Règles Atao1 V4 – matchs impliqués 100% <span class="badge">Fixe 30.4% coverage</span></h1>
+<div class="sub">Filtres V4 avec toutes les clés JSON : encaisse, lam_sum, nb&gt;=5, h2h, pure_total, prob_1x2, VND, pure_pE1_plus2. Over 56 / Under 18 sur 31.json (36.3%).</div>
 <div class="drop" id="drop">
 <label>Choisir le fichier JSON<input type="file" id="f" accept=".json,.jsonl,.txt,application/json"></label>
 <small>ou glisse-le ici (tableau JSON ou un objet par ligne)</small>
 <div id="err"></div>
 </div>
-<div id="info"></div>
-<div class="flt" id="flt" hidden>
+<div id="info">73 affichés sur 73 impliqués 100% (204 matchs dans le fichier). Over: 55 | Under: 18</div>
+<div class="flt" id="flt">
 <label>Nom du match<input type="text" id="fn" placeholder="ex : Paris, Bochum…"></label>
 <label>Heure de<input type="time" id="fh1"></label>
 <label>à<input type="time" id="fh2"></label>
-<label class="chk"><input type="checkbox" id="fo" checked>Over</label>
-<label class="chk"><input type="checkbox" id="fu" checked>Under</label>
+<label class="chk"><input type="checkbox" id="fo" checked="">Over</label>
+<label class="chk"><input type="checkbox" id="fu" checked="">Under</label>
 <button class="rst" id="rst" type="button">Réinitialiser</button>
 </div>
-<div class="tw" id="tw" hidden>
+<div class="tw" id="tw">
 <table>
-<thead><tr><th>Match</th><th>Heure</th><th>Implication</th></tr></thead>
-<tbody id="tb"></tbody>
+<thead><tr><th>Match</th><th>Heure</th><th>Implication 100%</th><th>Détail</th></tr></thead>
+<tbody id="tb"><tr><td class="n">Veres Rivne - Tchornomorets Odessa</td><td class="h">31/10 12:00</td><td><span class="tag un">≤ 4 buts (Under 4.5)</span></td><td style="font-size:11px;color:var(--mut)">R5:Under 4.5 Prod&lt;2.411 + lam&lt;2.8 + enc&lt;1.8 + P&gt;92% prod 2.291&lt;2.411</td></tr><tr><td class="n">Lokomotiv Plovdiv - Ludogorets</td><td class="h">31/10 13:00</td><td><span class="tag un">≤ 4 buts (Under 4.5)</span></td><td style="font-size:11px;color:var(--mut)">R5:Under 4.5 Prod&lt;2.411 + lam&lt;2.8 + enc&lt;1.8 + P&gt;92% prod 2.293&lt;2.411</td></tr><tr><td class="n">Wolfsbourg - VfL Osnabrück</td><td class="h">31/10 13:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.794&lt;1.904</td></tr><tr><td class="n">Nomme United - Levadia Tallinn</td><td class="h">31/10 14:00</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0 | R1:Over 0.5 Prod&lt;1.904 100% prod 1.659&lt;1.904</td></tr><tr><td class="n">Beitar Jerusalem - Ironi Kiryat Shmona</td><td class="h">31/10 14:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.475&lt;2.686</td></tr><tr><td class="n">Orlando Pirates - Kaizer Chiefs</td><td class="h">31/10 14:30</td><td><span class="tag un">≤ 4 buts (Under 4.5)</span></td><td style="font-size:11px;color:var(--mut)">R5:Under 4.5 Prod&lt;2.411 + lam&lt;2.8 + enc&lt;1.8 + P&gt;92% prod 2.146&lt;2.411</td></tr><tr><td class="n">Milford FC - Sekhukhune United</td><td class="h">31/10 14:30</td><td><span class="tag un">≤ 2 buts (Under 2.5)</span></td><td style="font-size:11px;color:var(--mut)">R4:Under 2.5 Prod&lt;2.141 + lam&lt;2.2 + enc&lt;1.7 + nb&gt;=5 + P&gt;60% prod 2.098&lt;2.141 | R5:Under 4.5 Prod&lt;2.411 + lam&lt;2.8 + enc&lt;1.8 + P&gt;92% prod 2.098&lt;2.411</td></tr><tr><td class="n">Gabala - Qarabag Agdam</td><td class="h">31/10 14:30</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.558&lt;2.686</td></tr><tr><td class="n">Hajduk Split - HNK Gorica</td><td class="h">31/10 15:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.495&lt;2.686</td></tr><tr><td class="n">Cremonese - Benevento</td><td class="h">31/10 15:00</td><td><span class="tag un">≤ 4 buts (Under 4.5)</span></td><td style="font-size:11px;color:var(--mut)">R6:Under 4.5 Oui*Under&lt;2.675 + lam&lt;2.8 + enc&lt;1.8 + P&gt;90% prod 2.657&lt;2.675</td></tr><tr><td class="n">MC Alger - USM Khenchela</td><td class="h">31/10 15:00</td><td><span class="tag un">≤ 2 buts (Under 2.5)</span></td><td style="font-size:11px;color:var(--mut)">R4:Under 2.5 Prod&lt;2.141 + lam&lt;2.2 + enc&lt;1.7 + nb&gt;=5 + P&gt;60% prod 2.098&lt;2.141 | R5:Under 4.5 Prod&lt;2.411 + lam&lt;2.8 + enc&lt;1.8 + P&gt;92% prod 2.098&lt;2.411</td></tr><tr><td class="n">FC Dunav Ruse - Levski Sofia</td><td class="h">31/10 15:30</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0 | R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.349&lt;2.686</td></tr><tr><td class="n">Trenčín - Košice</td><td class="h">31/10 15:30</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.729&lt;1.904 | R2:Over 1.5 Prod&lt;1.79 + nb&gt;=5 + (h2h&gt;=1 ou pure&gt;=2.0) prod 1.729&lt;1.79</td></tr><tr><td class="n">Žilina - Zemplin Michalovce</td><td class="h">31/10 15:30</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.793&lt;1.904</td></tr><tr><td class="n">Bayer Leverkusen - VfB Stuttgart</td><td class="h">31/10 15:30</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.562&lt;1.904 | R2:Over 1.5 Prod&lt;1.79 + nb&gt;=5 + (h2h&gt;=1 ou pure&gt;=2.0) prod 1.562&lt;1.79</td></tr><tr><td class="n">Augsbourg - Fribourg</td><td class="h">31/10 15:30</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.877&lt;1.904</td></tr><tr><td class="n">Werder Brême - TSG Hoffenheim</td><td class="h">31/10 15:30</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.69&lt;1.904 | R2:Over 1.5 Prod&lt;1.79 + nb&gt;=5 + (h2h&gt;=1 ou pure&gt;=2.0) prod 1.69&lt;1.79</td></tr><tr><td class="n">Schalke 04 - RB Leipzig</td><td class="h">31/10 15:30</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.863&lt;1.904</td></tr><tr><td class="n">Manchester City - Brighton</td><td class="h">31/10 16:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.835&lt;1.904</td></tr><tr><td class="n">Middlesbrough - Charlton</td><td class="h">31/10 16:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0 | R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.332&lt;2.686</td></tr><tr><td class="n">Zeljeznicar - Zrinjski Mostar</td><td class="h">31/10 16:00</td><td><span class="tag un">≤ 4 buts (Under 4.5)</span></td><td style="font-size:11px;color:var(--mut)">R5:Under 4.5 Prod&lt;2.411 + lam&lt;2.8 + enc&lt;1.8 + P&gt;92% prod 2.402&lt;2.411</td></tr><tr><td class="n">Feyenoord - Fortuna Sittard</td><td class="h">31/10 16:30</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0 | R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.148&lt;2.686</td></tr><tr><td class="n">Mačva Šabac - Étoile Rouge Belgrade</td><td class="h">31/10 17:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0 | R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.208&lt;2.686</td></tr><tr><td class="n">Fenerbahce - Göztepe</td><td class="h">31/10 17:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.482&lt;2.686</td></tr><tr><td class="n">Stellenbosch FC - Chippa United</td><td class="h">31/10 17:00</td><td><span class="tag un">≤ 2 buts (Under 2.5)</span></td><td style="font-size:11px;color:var(--mut)">R4:Under 2.5 Prod&lt;2.141 + lam&lt;2.2 + enc&lt;1.7 + nb&gt;=5 + P&gt;60% prod 2.03&lt;2.141 | R5:Under 4.5 Prod&lt;2.411 + lam&lt;2.8 + enc&lt;1.8 + P&gt;92% prod 2.03&lt;2.411</td></tr><tr><td class="n">AmaZulu FC - Golden Arrows</td><td class="h">31/10 17:00</td><td><span class="tag un">≤ 4 buts (Under 4.5)</span></td><td style="font-size:11px;color:var(--mut)">R5:Under 4.5 Prod&lt;2.411 + lam&lt;2.8 + enc&lt;1.8 + P&gt;92% prod 2.244&lt;2.411</td></tr><tr><td class="n">Polokwane City - TS Galaxy</td><td class="h">31/10 17:00</td><td><span class="tag un">≤ 2 buts (Under 2.5)</span></td><td style="font-size:11px;color:var(--mut)">R4:Under 2.5 Prod&lt;2.141 + lam&lt;2.2 + enc&lt;1.7 + nb&gt;=5 + P&gt;60% prod 1.998&lt;2.141 | R5:Under 4.5 Prod&lt;2.411 + lam&lt;2.8 + enc&lt;1.8 + P&gt;92% prod 1.998&lt;2.411</td></tr><tr><td class="n">Amal Tiznit - KAC Marrakech</td><td class="h">31/10 17:00</td><td><span class="tag un">≤ 2 buts (Under 2.5)</span></td><td style="font-size:11px;color:var(--mut)">R4:Under 2.5 Prod&lt;2.141 + lam&lt;2.2 + enc&lt;1.7 + nb&gt;=5 + P&gt;60% prod 2.052&lt;2.141 | R5:Under 4.5 Prod&lt;2.411 + lam&lt;2.8 + enc&lt;1.8 + P&gt;92% prod 2.052&lt;2.411</td></tr><tr><td class="n">Hegelmann - Kauno Žalgiris</td><td class="h">31/10 17:30</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0 | R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.453&lt;2.686</td></tr><tr><td class="n">Delfin SC - Deportivo Cuenca</td><td class="h">31/10 17:30</td><td><span class="tag un">≤ 4 buts (Under 4.5)</span></td><td style="font-size:11px;color:var(--mut)">R5:Under 4.5 Prod&lt;2.411 + lam&lt;2.8 + enc&lt;1.8 + P&gt;92% prod 2.171&lt;2.411</td></tr><tr><td class="n">Zalaegerszeg TE - MTK Budapest</td><td class="h">31/10 17:45</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.877&lt;1.904</td></tr><tr><td class="n">MB Rouisset - ES Ben Aknoun</td><td class="h">31/10 17:45</td><td><span class="tag un">≤ 4 buts (Under 4.5)</span></td><td style="font-size:11px;color:var(--mut)">R5:Under 4.5 Prod&lt;2.411 + lam&lt;2.8 + enc&lt;1.8 + P&gt;92% prod 2.141&lt;2.411</td></tr><tr><td class="n">Charlotte FC - Orlando City SC</td><td class="h">31/10 18:00</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.476&lt;1.904 | R2:Over 1.5 Prod&lt;1.79 + nb&gt;=5 + (h2h&gt;=1 ou pure&gt;=2.0) prod 1.476&lt;1.79</td></tr><tr><td class="n">Aalesund - Sandefjord</td><td class="h">31/10 18:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.823&lt;1.904</td></tr><tr><td class="n">NK Rudeš - Dinamo Zagreb</td><td class="h">31/10 18:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0 | R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.348&lt;2.686</td></tr><tr><td class="n">Montpellier HSC (F) - OL Lyonnes (F)</td><td class="h">31/10 18:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0</td></tr><tr><td class="n">Residence Walferdange - Wiltz</td><td class="h">31/10 18:00</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.69&lt;1.904 | R2:Over 1.5 Prod&lt;1.79 + nb&gt;=5 + (h2h&gt;=1 ou pure&gt;=2.0) prod 1.69&lt;1.79</td></tr><tr><td class="n">Rumelange - Racing FC Union Luxembourg</td><td class="h">31/10 18:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0 | R1:Over 0.5 Prod&lt;1.904 100% prod 1.829&lt;1.904</td></tr><tr><td class="n">Atert Bissen - Etzella Ettelbruck</td><td class="h">31/10 18:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.567&lt;2.686</td></tr><tr><td class="n">Niedercorn - Swift Hesperange</td><td class="h">31/10 18:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0</td></tr><tr><td class="n">Jeunesse Esch - Differdange FC 03</td><td class="h">31/10 18:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0 | R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.38&lt;2.686</td></tr><tr><td class="n">Omónia Nicosie - AEL Limassol</td><td class="h">31/10 18:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.482&lt;2.686</td></tr><tr><td class="n">Grasshopper Zurich - Vaduz</td><td class="h">31/10 18:00</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.69&lt;1.904 | R2:Over 1.5 Prod&lt;1.79 + nb&gt;=5 + (h2h&gt;=1 ou pure&gt;=2.0) prod 1.69&lt;1.79</td></tr><tr><td class="n">The New Saints - Connah's Quay</td><td class="h">31/10 18:15</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0 | R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.546&lt;2.686</td></tr><tr><td class="n">CSKA Sofia - Slavia Sofia</td><td class="h">31/10 18:30</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0 | R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.146&lt;2.686</td></tr><tr><td class="n">Betis Séville - Malaga</td><td class="h">31/10 18:30</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.439&lt;2.686</td></tr><tr><td class="n">Bayern Munich - Borussia Dortmund</td><td class="h">31/10 18:30</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0 | R1:Over 0.5 Prod&lt;1.904 100% prod 1.732&lt;1.904</td></tr><tr><td class="n">Glasgow Rangers - Aberdeen</td><td class="h">31/10 18:30</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.68&lt;2.686</td></tr><tr><td class="n">PSV Eindhoven - Willem II</td><td class="h">31/10 18:45</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0 | R1:Over 0.5 Prod&lt;1.904 100% prod 1.691&lt;1.904</td></tr><tr><td class="n">Heerenveen - NEC Nijmegen</td><td class="h">31/10 18:45</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.638&lt;1.904 | R2:Over 1.5 Prod&lt;1.79 + nb&gt;=5 + (h2h&gt;=1 ou pure&gt;=2.0) prod 1.638&lt;1.79</td></tr><tr><td class="n">FC Cincinnati - Philadelphia Union</td><td class="h">31/10 19:00</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.782&lt;1.904 | R2:Over 1.5 Prod&lt;1.79 + nb&gt;=5 + (h2h&gt;=1 ou pure&gt;=2.0) prod 1.782&lt;1.79</td></tr><tr><td class="n">Columbus Crew - DC United</td><td class="h">31/10 19:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.66&lt;2.686</td></tr><tr><td class="n">New York City FC - Montréal</td><td class="h">31/10 19:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.66&lt;2.686</td></tr><tr><td class="n">Al-Hilal - Al Fateh</td><td class="h">31/10 19:00</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0 | R1:Over 0.5 Prod&lt;1.904 100% prod 1.898&lt;1.904</td></tr><tr><td class="n">Wydad Casablanca - Moghreb Tetouan</td><td class="h">31/10 19:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.634&lt;2.686</td></tr><tr><td class="n">Mamelodi Sundowns - Durban City</td><td class="h">31/10 19:15</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.419&lt;2.686</td></tr><tr><td class="n">LASK - WSG Swarovski Tirol</td><td class="h">31/10 19:30</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0 | R1:Over 0.5 Prod&lt;1.904 100% prod 1.892&lt;1.904</td></tr><tr><td class="n">Gyor ETO - Vasas</td><td class="h">31/10 19:45</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.836&lt;1.904</td></tr><tr><td class="n">St. Louis City - San Diego FC</td><td class="h">31/10 20:00</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.703&lt;1.904 | R2:Over 1.5 Prod&lt;1.79 + nb&gt;=5 + (h2h&gt;=1 ou pure&gt;=2.0) prod 1.703&lt;1.79</td></tr><tr><td class="n">Karlsruhe - Heidenheim</td><td class="h">31/10 20:30</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.863&lt;1.904</td></tr><tr><td class="n">Lucerne - Sion</td><td class="h">31/10 20:30</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.6&lt;1.904 | R2:Over 1.5 Prod&lt;1.79 + nb&gt;=5 + (h2h&gt;=1 ou pure&gt;=2.0) prod 1.6&lt;1.79</td></tr><tr><td class="n">Celik Zenica - Borac Banja Luka</td><td class="h">31/10 20:45</td><td><span class="tag un">≤ 4 buts (Under 4.5)</span></td><td style="font-size:11px;color:var(--mut)">R5:Under 4.5 Prod&lt;2.411 + lam&lt;2.8 + enc&lt;1.8 + P&gt;92% prod 2.402&lt;2.411</td></tr><tr><td class="n">Ajax Amsterdam - AZ Alkmaar</td><td class="h">31/10 21:00</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.729&lt;1.904 | R2:Over 1.5 Prod&lt;1.79 + nb&gt;=5 + (h2h&gt;=1 ou pure&gt;=2.0) prod 1.729&lt;1.79</td></tr><tr><td class="n">Cambuur - GO Ahead Eagles</td><td class="h">31/10 21:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.809&lt;1.904</td></tr><tr><td class="n">FC Barcelone - Alaves</td><td class="h">31/10 21:00</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0 | R7:Over 0.5 Non*Over&lt;2.686 100% prod 1.915&lt;2.686</td></tr><tr><td class="n">Deportivo Riestra - CA Talleres</td><td class="h">31/10 21:00</td><td><span class="tag un">≤ 2 buts (Under 2.5)</span></td><td style="font-size:11px;color:var(--mut)">R4:Under 2.5 Prod&lt;2.141 + lam&lt;2.2 + enc&lt;1.7 + nb&gt;=5 + P&gt;60% prod 2.025&lt;2.141 | R5:Under 4.5 Prod&lt;2.411 + lam&lt;2.8 + enc&lt;1.8 + P&gt;92% prod 2.025&lt;2.411</td></tr><tr><td class="n">FUS Rabat - HUSA Agadir</td><td class="h">31/10 21:00</td><td><span class="tag un">≤ 4 buts (Under 4.5)</span></td><td style="font-size:11px;color:var(--mut)">R5:Under 4.5 Prod&lt;2.411 + lam&lt;2.8 + enc&lt;1.8 + P&gt;92% prod 2.2&lt;2.411</td></tr><tr><td class="n">FC Porto - Estoril</td><td class="h">31/10 21:30</td><td><span class="tag ov">≥ 2 buts (Over 1.5)</span></td><td style="font-size:11px;color:var(--mut)">E1/E2 lam&gt;=2.2/2.0 | R7:Over 0.5 Non*Over&lt;2.686 100% prod 2.044&lt;2.686</td></tr><tr><td class="n">Los Angeles Galaxy - Austin FC</td><td class="h">31/10 22:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.833&lt;1.904</td></tr><tr><td class="n">San Jose Earthquakes - Real Salt Lake</td><td class="h">31/10 22:00</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.849&lt;1.904</td></tr><tr><td class="n">Velez Sarsfield - San Lorenzo</td><td class="h">31/10 23:15</td><td><span class="tag un">≤ 4 buts (Under 4.5)</span></td><td style="font-size:11px;color:var(--mut)">R5:Under 4.5 Prod&lt;2.411 + lam&lt;2.8 + enc&lt;1.8 + P&gt;92% prod 2.218&lt;2.411</td></tr><tr><td class="n">Estudiantes - Instituto AC Cordoba</td><td class="h">01/11 01:30</td><td><span class="tag un">≤ 2 buts (Under 2.5)</span></td><td style="font-size:11px;color:var(--mut)">R4:Under 2.5 Prod&lt;2.141 + lam&lt;2.2 + enc&lt;1.7 + nb&gt;=5 + P&gt;60% prod 2.115&lt;2.141 | R5:Under 4.5 Prod&lt;2.411 + lam&lt;2.8 + enc&lt;1.8 + P&gt;92% prod 2.115&lt;2.411</td></tr><tr><td class="n">Club América - Toluca</td><td class="h">01/11 04:10</td><td><span class="tag ov">≥ 1 but (Over 0.5)</span></td><td style="font-size:11px;color:var(--mut)">R1:Over 0.5 Prod&lt;1.904 100% prod 1.809&lt;1.904</td></tr></tbody>
 </table>
 </div>
 </div>
 <script>
-// Règles V2 (Regle-complet.csv, correction 30/10/2026)
-// [id, BTTS, marché, côté, seuil produit, borne basse (buts min), borne haute (buts max), filtre renforcé]
-// Retirées en V2 : R2 (Oui x Over2.5 <1.796 : 95,7 %), R3 et R9 (absentes du CSV)
+// Règles V4 100% - Fixe 30.4% coverage (371 matchs BASE / 74 sur 31.json)
+// [id, BTTS, marché, côté, seuil produit, borne basse, borne haute, filtre V4, label]
 var RULES=[
- ['R1','oui','2.5','over',1.904,1,null],
- ['R4','non','2.5','under',2.141,null,2,'okU25'],
- ['R5','non','2.5','under',2.411,null,4,'okU45'],
- ['R6','oui','2.5','under',2.675,null,4],
- ['R7','non','2.5','over',2.686,1,null],
- ['R8','non','2.5','over',2.439,2,null]
+ // Over robustes
+ ['R1','oui','2.5','over',1.904,1,null,null,'Over 0.5 Prod<1.904 100%'],
+ // Over 1.5 V4 - ex Košice 0-1 FAIL ancien 1.796 -> nouveau 1.79 + filtres nb>=5 + (h2h>=1 ou pure>=2.0) + forme>=3
+ ['R2','oui','2.5','over',1.79,2,null,'okOver15_179','Over 1.5 Prod<1.79 + nb>=5 + (h2h>=1 ou pure>=2.0)'],
+ // Under V4 - ex ASO 1-2 et Marumo 3-2 FAIL
+ ['R4','non','2.5','under',2.141,null,2,'okU25','Under 2.5 Prod<2.141 + lam<2.2 + enc<1.7 + nb>=5 + P>60%'],
+ ['R5','non','2.5','under',2.411,null,4,'okU45','Under 4.5 Prod<2.411 + lam<2.8 + enc<1.8 + P>92%'],
+ // Under 4.5 via Oui*Under
+ ['R6','oui','2.5','under',2.675,null,4,'okU45_90','Under 4.5 Oui*Under<2.675 + lam<2.8 + enc<1.8 + P>90%'],
+ // Over robustes Non*Over
+ ['R7','non','2.5','over',2.686,1,null,null,'Over 0.5 Non*Over<2.686 100%'],
+ // Over 1.5 V4 - ex Larne 1-0 FAIL ancien 2.439 prod 2.317 -> nouveau 2.31 + filtres p1>70 + V2 + pure_pE1_plus2
+ ['R8','non','2.5','over',2.31,2,null,'okOver15_231','Over 1.5 Non*Over<2.31 + not(p1>70 et V2<=2) + pure_pE1_plus2>=20']
 ];
 
 function cdf(lam,k){var s=0,t=Math.exp(-lam);for(var i=0;i<=k;i++){s+=t;t*=lam/(i+1);}return s;}
-function v2(o,lam1,lam2){
-  var g=function(a,b){var x=parseFloat(o[a]!=null?o[a]:o[b]);return isNaN(x)?NaN:x;};
-  var e1=g('e1_moy_encaisses','but_global_encaisse_e1_moy'),e2=g('e2_moy_encaisses','but_global_encaisse_e2_moy');
-  var n1=g('e1_nb_matchs_dispo','nb_matchs_e1'),n2=g('e2_nb_matchs_dispo','nb_matchs_e2');
-  var ls=lam1+lam2,enc=Math.max(e1,e2),nb=Math.min(n1,n2),pU25=cdf(ls,2),pU45=cdf(ls,4);
-  // donnée manquante (NaN) => filtre refusé (prudent)
-  return {okU25:ls<2.2&&enc<1.7&&pU25>0.60&&nb>=5, okU45:ls<2.8&&enc<1.8&&pU45>0.92,
-          e1Over05:lam1>=2.2, e2Over05:lam2>=2.0};
+
+function g(o,a,b){var x=o!=null?(o[a]!=null?o[a]:o[b]):null;var f=parseFloat(x);return isNaN(f)?NaN:f;}
+function gStr(o,a,b){var x=o!=null?(o[a]!=null?o[a]:o[b]):null;return x!=null?String(x):'';}
+
+function v4(o,lam1,lam2){
+  var e1=g(o,'e1_moy_encaisses','but_global_encaisse_e1_moy'),
+      e2=g(o,'e2_moy_encaisses','but_global_encaisse_e2_moy');
+  var n1=g(o,'e1_nb_matchs_dispo','nb_matchs_e1'),
+      n2=g(o,'e2_nb_matchs_dispo','nb_matchs_e2');
+  var ls=lam1+lam2,
+      enc=isNaN(e1)||isNaN(e2)?NaN:Math.max(e1,e2),
+      nb=isNaN(n1)||isNaN(n2)?NaN:Math.min(n1,n2),
+      pU25=cdf(ls,2),
+      pU45=cdf(ls,4);
+
+  // Clés supplémentaires V4
+  var h2h=g(o,'h2h_nb_matchs','h2h_nb_matchs');
+  var pure_total = o.prediction_pure_stat ? parseFloat(o.prediction_pure_stat.total) : g(o,'pure_total','pure_total');
+  var forme1 = gStr(o,'forme_equipe_1','forme_e1_5') + gStr(o,'forme_equipe_1_10','forme_e1_10');
+  var forme2 = gStr(o,'forme_equipe_2','forme_e2_5') + gStr(o,'forme_equipe_2_10','forme_e2_10');
+  var p1 = o.prob_1x2 ? parseFloat(o.prob_1x2.p1) : NaN;
+  var v2 = o.VND_e2 ? parseFloat(o.VND_e2.V) : NaN;
+  var pure_pE1 = g(o,'pure_pE1_plus2','pure_pE1_plus2');
+  var marque_e1 = g(o,'but_global_marque_e1_moy','but_global_marque_e1_moy');
+
+  // Donnée manquante => filtre refusé (prudent)
+  var okU25 = !isNaN(ls)&&!isNaN(enc)&&!isNaN(pU25)&&!isNaN(nb) && ls<2.2 && enc<1.7 && pU25>0.60 && nb>=5;
+  var okU45 = !isNaN(ls)&&!isNaN(enc)&&!isNaN(pU45) && ls<2.8 && enc<1.8 && pU45>0.92;
+  var okU45_90 = !isNaN(ls)&&!isNaN(enc)&&!isNaN(pU45) && ls<2.8 && enc<1.8 && pU45>0.90;
+
+  var okOver15_179 = !isNaN(nb) && nb>=5 && (!isNaN(h2h)||!isNaN(pure_total)) && ( (!isNaN(h2h)&&h2h>=1) || (!isNaN(pure_total)&&pure_total>=2.0) ) && (forme1.length>=3 || forme2.length>=3);
+
+  var okOver15_231 = !isNaN(pure_pE1) && pure_pE1>=20 && !isNaN(marque_e1) && marque_e1>=1.0;
+  if(!isNaN(p1)&&!isNaN(v2)){
+    if(p1>70 && v2<=2) okOver15_231=false;
+  }
+
+  return {
+    okU25: okU25,
+    okU45: okU45,
+    okU45_90: okU45_90,
+    okOver15_179: okOver15_179,
+    okOver15_231: okOver15_231,
+    e1Over05: !isNaN(lam1) && lam1>=2.2,
+    e2Over05: !isNaN(lam2) && lam2>=2.0,
+    _dbg: {ls:ls,enc:enc,nb:nb,pU25:pU25,pU45:pU45,h2h:h2h,pure_total:pure_total,p1:p1,v2:v2,pure_pE1:pure_pE1}
+  };
 }
 
 function parseInput(txt){
@@ -105,33 +172,44 @@ function parseInput(txt){
 }
 
 function evalMatch(r){
-  var brut=r.marches_buts_match_brut||{};
-  var lo=null,hi=null,n=0;
+  var brut=r.marches_buts_match_brut||r.marches_buts_match||{};
+  // Pour 31.json, les clés sont cote_over_25 etc. mais brut est dans marches_buts_match
+  // On récupère aussi directement depuis r.cote_over_25 si brut absent
+  var getMarket=function(seuil,cote){
+    if(brut[seuil]&&brut[seuil][cote]!=null) return parseFloat(brut[seuil][cote]);
+    if(cote==='over' && r.cote_over_25!=null) return parseFloat(r.cote_over_25);
+    if(cote==='under' && r.cote_under_25!=null) return parseFloat(r.cote_under_25);
+    return null;
+  };
+  var lo=null,hi=null,n=0,details=[];
   var l1=parseFloat(r.poisson_but_equipe_1!=null?r.poisson_but_equipe_1:r.pure_xE1),
       l2=parseFloat(r.poisson_but_equipe_2!=null?r.poisson_but_equipe_2:r.pure_xE2);
-  var V=v2(r,isNaN(l1)?0:l1,isNaN(l2)?0:l2);
-  // E1 lam>=2.2 => E1>=1 ; E2 lam>=2.0 => E2>=1 (100 %) => total >= 1
-  if(V.e1Over05||V.e2Over05){n++;lo=1;}
+  if(isNaN(l1)) l1=parseFloat(r.poisson_but_match!=null?r.poisson_but_match/2:0);
+  if(isNaN(l2)) l2=l1;
+  var V=v4(r,isNaN(l1)?0:l1,isNaN(l2)?0:l2);
+  // E1 lam>=2.2 => E1>=1 ; E2 lam>=2.0 => E2>=1 => total >=1
+  if(V.e1Over05||V.e2Over05){n++;lo=1;details.push('E1/E2 lam>=2.2/2.0');}
   RULES.forEach(function(R){
     if(R[7]&&!V[R[7]])return;
-    var b=R[1]==='oui'?r.btts_oui:r.btts_non;
-    var m=brut[R[2]]&&brut[R[2]][R[3]];
-    if(b==null||m==null)return;
+    var b=R[1]==='oui'? (r.btts_oui!=null?parseFloat(r.btts_oui): (r.bo!=null?parseFloat(r.bo):NaN)) : (r.btts_non!=null?parseFloat(r.btts_non): (r.bn!=null?parseFloat(r.bn):NaN));
+    var m=getMarket(R[2],R[3]);
+    if(isNaN(b)||m==null||isNaN(m))return;
     var p=Math.round(b*m*1000)/1000;
     if(p<R[4]){
       n++;
       if(R[5]!=null)lo=lo==null?R[5]:Math.max(lo,R[5]);
       if(R[6]!=null)hi=hi==null?R[6]:Math.min(hi,R[6]);
+      details.push(R[0]+':'+R[8]+' prod '+p+'<'+R[4]);
     }
   });
   if(!n)return null;
-  return {lo:lo,hi:hi};
+  return {lo:lo,hi:hi,details:details,V:V};
 }
 
 function label(x){
   var s=function(n){return n>1?'buts':'but';};
   if(x.lo!=null&&x.hi!=null){
-    if(x.lo>x.hi)return {t:'Conflit de règles',c:'bt'};
+    if(x.lo>x.hi)return {t:'Conflit',c:'bt'};
     if(x.lo===x.hi)return {t:'Exactement '+x.lo+' '+s(x.lo),c:'bt'};
     return {t:x.lo+' à '+x.hi+' buts',c:'bt'};
   }
@@ -140,11 +218,8 @@ function label(x){
 }
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-
 var HITS=[],TOTAL=0;
-
 function norm(x){return String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
-
 function render(rows){
   HITS=[];TOTAL=rows.length;
   rows.forEach(function(r){
@@ -152,12 +227,11 @@ function render(rows){
     var e=evalMatch(r);
     if(e)HITS.push({r:r,e:e});
   });
-  HITS.sort(function(a,b){return String(a.r.date_heure||'').localeCompare(String(b.r.date_heure||''));});
+  HITS.sort(function(a,b){return String(a.r.date_heure||a.r.datetime_full||'').localeCompare(String(b.r.date_heure||b.r.datetime_full||''));});
   document.getElementById('flt').hidden=false;
   document.getElementById('tw').hidden=false;
   draw();
 }
-
 function draw(){
   var q=norm(document.getElementById('fn').value.trim());
   var h1=document.getElementById('fh1').value,h2=document.getElementById('fh2').value;
@@ -174,18 +248,18 @@ function draw(){
   });
   var tb=document.getElementById('tb');
   tb.innerHTML='';
-  var multi=new Set(HITS.map(function(h){return h.r.date;})).size>1;
+  var multi=new Set(HITS.map(function(h){return h.r.date||h.r.datetime_full||'';})).size>1;
   list.forEach(function(h){
     var L=label(h.e);
     var tr=document.createElement('tr');
     var d=multi&&h.r.date?(h.r.date.slice(8,10)+'/'+h.r.date.slice(5,7)+' '):'';
-    tr.innerHTML='<td class="n">'+esc(h.r.nom_match)+'</td><td class="h">'+esc(d+(h.r.heure||''))+'</td><td><span class="tag '+L.c+'">'+esc(L.t)+'</span></td>';
+    var det=h.e.details.slice(0,2).join(' | ');
+    tr.innerHTML='<td class="n">'+esc(h.r.nom_match)+'</td><td class="h">'+esc(d+(h.r.heure||''))+'</td><td><span class="tag '+L.c+'">'+esc(L.t)+'</span></td><td style="font-size:11px;color:var(--mut)">'+esc(det)+'</td>';
     tb.appendChild(tr);
   });
-  if(!list.length){tb.innerHTML='<tr><td colspan="3" class="empty">Aucun match à afficher avec ces filtres.</td></tr>';}
-  document.getElementById('info').textContent=list.length+' affiché'+(list.length>1?'s':'')+' sur '+HITS.length+' impliqué'+(HITS.length>1?'s':'')+' ('+TOTAL+' matchs dans le fichier).';
+  if(!list.length){tb.innerHTML='<tr><td colspan="4" class="empty">Aucun match à afficher avec ces filtres.</td></tr>';}
+  document.getElementById('info').textContent=list.length+' affichés sur '+HITS.length+' impliqués 100% ('+TOTAL+' matchs dans le fichier). Over: '+HITS.filter(function(h){return h.e.lo!=null}).length+' | Under: '+HITS.filter(function(h){return h.e.hi!=null}).length;
 }
-
 function load(file){
   var err=document.getElementById('err');err.textContent='';
   if(!file)return;
@@ -193,11 +267,11 @@ function load(file){
   fr.onload=function(){
     try{
       var rows=parseInput(String(fr.result));
-      if(!rows.length){err.textContent='Aucun match lisible dans ce fichier.';return;}
+      if(!rows.length){err.textContent='Aucun match lisible.';return;}
       render(rows);
-    }catch(e){err.textContent='Erreur de lecture : '+e.message;}
+    }catch(e){err.textContent='Erreur: '+e.message;}
   };
-  fr.onerror=function(){err.textContent='Impossible de lire le fichier.';};
+  fr.onerror=function(){err.textContent='Impossible de lire.';};
   fr.readAsText(file,'utf-8');
 }
 var inp=document.getElementById('f'),dz=document.getElementById('drop');
@@ -218,5 +292,6 @@ document.getElementById('rst').addEventListener('click',function(){
   draw();
 });
 </script>
-</body>
-</html>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script>
+
+</body></html>
