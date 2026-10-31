@@ -79,6 +79,7 @@ td.n{font-weight:600}
 <label class="chk"><input type="checkbox" id="fo" checked="">Over</label>
 <label class="chk"><input type="checkbox" id="fu" checked="">Under</label>
 <button class="rst" id="rst" type="button">Réinitialiser</button>
+<button class="rst" id="exp" type="button">⬇ Exporter .txt</button>
 </div>
 <div class="tw" id="tw">
 <table>
@@ -218,7 +219,7 @@ function label(x){
 }
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-var HITS=[],TOTAL=0;
+var HITS=[],TOTAL=0,LIST=[];
 function norm(x){return String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
 function render(rows){
   HITS=[];TOTAL=rows.length;
@@ -246,6 +247,7 @@ function draw(){
     if(!((wo&&isO)||(wu&&isU)))return false;
     return true;
   });
+  LIST=list;
   var tb=document.getElementById('tb');
   tb.innerHTML='';
   var multi=new Set(HITS.map(function(h){return h.r.date||h.r.datetime_full||'';})).size>1;
@@ -282,6 +284,24 @@ dz.addEventListener('drop',function(e){load(e.dataTransfer.files[0]);});
 ['fn','fh1','fh2','fo','fu'].forEach(function(id){
   var el=document.getElementById(id);
   el.addEventListener('input',draw);el.addEventListener('change',draw);
+});
+document.getElementById('exp').addEventListener('click',function(){
+  var err=document.getElementById('err');err.textContent='';
+  if(!LIST.length){err.textContent='Aucun match à exporter.';return;}
+  var txt=LIST.map(function(h){return h.r.nom_match;}).join('\n')+'\n';
+  var name='matchs_filtres.txt';
+  try{
+    var blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+    var file=null;
+    try{file=new File([blob],name,{type:'text/plain'});}catch(e){}
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download=name;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
+  }catch(e){
+    if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){err.textContent='Téléchargement impossible : liste copiée dans le presse-papiers.';});}
+    else{err.textContent='Export impossible: '+e.message;}
+  }
 });
 document.getElementById('rst').addEventListener('click',function(){
   document.getElementById('fn').value='';
