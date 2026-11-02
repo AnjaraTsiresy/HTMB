@@ -60,22 +60,24 @@
 .flt input{background:var(--bg);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:11px;min-width:120px}
 .flt input:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 2px rgba(34,255,136,0.15)}
 .rst{font-weight:800;font-size:9px;color:var(--txt);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 10px;cursor:pointer}
-.tw{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.4)}
-.thead{display:flex;gap:8px;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--line);font-size:8px;text-transform:uppercase;letter-spacing:0.7px;color:var(--mut);font-weight:800}
-.thead div:first-child{flex:1.2} .thead div:nth-child(2){width:62px} .thead div:nth-child(3){flex:1.6} .thead div:nth-child(4){width:200px}
-.row{display:flex;gap:8px;padding:9px 10px;border-bottom:1px solid rgba(31,45,69,0.6);align-items:center;transition:all .15s;animation:rowIn .25s ease}
+.tw{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:12px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;box-shadow:0 10px 30px rgba(0,0,0,0.4)}
+.tw::-webkit-scrollbar{height:8px}
+.tw::-webkit-scrollbar-thumb{background:var(--line2);border-radius:4px}
+.thead{display:flex;gap:8px;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--line);font-size:8px;text-transform:uppercase;letter-spacing:0.7px;color:var(--mut);font-weight:800;min-width:720px;position:sticky;top:0;z-index:1}
+.thead div:nth-child(1){flex:0 0 160px} .thead div:nth-child(2){flex:0 0 64px} .thead div:nth-child(3){flex:0 0 200px} .thead div:nth-child(4){flex:0 0 240px}
+.row{display:flex;gap:8px;padding:10px 10px;border-bottom:1px solid rgba(31,45,69,0.6);align-items:flex-start;transition:all .15s;animation:rowIn .25s ease;min-width:720px}
 @keyframes rowIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-.row:hover{background:linear-gradient(90deg,rgba(34,255,136,0.04),transparent);transform:translateX(2px)}
-.row .n{flex:1.2;font-weight:800;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .h{width:62px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mut);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:4px 6px;text-align:center}
-.row .imp{flex:1.6;display:flex;flex-direction:column;gap:3px}
+.row:hover{background:linear-gradient(90deg,rgba(34,255,136,0.06),transparent)}
+.row .n{flex:0 0 160px;font-weight:800;font-size:11px;line-height:1.25;white-space:normal;word-break:break-word;overflow:visible;color:var(--txt)}
+.row .h{flex:0 0 64px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--txt);background:var(--bg);border:1px solid var(--line2);border-radius:6px;padding:5px 6px;text-align:center;font-weight:700}
+.row .imp{flex:0 0 200px;display:flex;flex-direction:column;gap:4px}
 .tag{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:7px;font-size:9px;font-weight:900;letter-spacing:0.3px;width:fit-content;border:1px solid}
 .tag.ok{background:linear-gradient(135deg,rgba(34,255,136,0.18),rgba(0,208,255,0.12));color:#22ff88;border-color:rgba(34,255,136,0.35);box-shadow:0 0 10px rgba(34,255,136,0.15)}
 .tag.ok i{width:6px;height:6px;border-radius:50%;background:#22ff88;box-shadow:0 0 6px #22ff88;display:inline-block}
 .tag.x1{background:linear-gradient(135deg,rgba(255,204,51,0.18),rgba(255,120,0,0.12));color:#ffcc33;border-color:rgba(255,204,51,0.35)}
 .tag.x2{background:linear-gradient(135deg,rgba(0,208,255,0.18),rgba(120,90,255,0.12));color:#00d0ff;border-color:rgba(0,208,255,0.35)}
 .detail{font-size:8.5px;color:var(--mut);font-family:'JetBrains Mono',monospace}
-.meta{width:200px;font-family:'JetBrains Mono',monospace;font-size:8.5px;color:var(--mut);background:rgba(0,0,0,0.25);border:1px solid var(--line);border-radius:6px;padding:5px 6px}
+.meta{flex:0 0 240px;font-family:'JetBrains Mono',monospace;font-size:8.5px;color:var(--mut);background:rgba(0,0,0,0.35);border:1px solid var(--line);border-radius:6px;padding:6px 7px;line-height:1.35;white-space:normal}
 #info{margin:8px 0;color:var(--mut);font-family:'JetBrains Mono',monospace;font-size:9px;display:flex;gap:8px;flex-wrap:wrap}
 #info b{color:var(--acc)}
 .empty{padding:24px;text-align:center;color:var(--mut)}
